@@ -209,8 +209,7 @@ private compilation_unit ::=
  | expression
 
 external check_expression_ending ::= parseExpressionEnding
-external character_literal ::= parsePawnCharacterLiteral character_string_proxy
-private character_string_proxy ::= character_string
+external character_literal ::= parsePawnCharacterLiteral (character_string)
 
 boolean_literal ::= true | false
 number ::=

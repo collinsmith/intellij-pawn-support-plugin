@@ -62,12 +62,6 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // character_string
-  static boolean character_string_proxy(PsiBuilder b, int l) {
-    return consumeToken(b, CHARACTER_STRING);
-  }
-
-  /* ********************************************************** */
   // hash preprocessor_directive
   //  | expression
   static boolean compilation_unit(PsiBuilder b, int l) {
@@ -117,7 +111,7 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, NUMBER, "<number>");
     r = boolean_literal(b, l + 1);
-    if (!r) r = parsePawnCharacterLiteral(b, l + 1, character_string_proxy_parser_);
+    if (!r) r = parsePawnCharacterLiteral(b, l + 1, number_1_0_parser_);
     if (!r) r = consumeToken(b, BINARY_LITERAL);
     if (!r) r = consumeToken(b, DECIMAL_LITERAL);
     if (!r) r = consumeToken(b, HEXADECIMAL_LITERAL);
@@ -243,9 +237,9 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  final static Parser character_string_proxy_parser_ = new Parser() {
+  final static Parser number_1_0_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
-      return character_string_proxy(b, l + 1);
+      return consumeToken(b, CHARACTER_STRING);
     }
   };
   final static Parser number_parser_ = new Parser() {
