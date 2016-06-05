@@ -146,7 +146,7 @@ public class SourcePawnParserUtils extends GeneratedParserUtilBase {
         case '0':
         case '1':
           value = (value << 1) + (ch - '0');
-          // fallthrough
+          // fall through
         case '_':
           continue;
         default:
@@ -175,6 +175,7 @@ public class SourcePawnParserUtils extends GeneratedParserUtilBase {
       switch (ch) {
         case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
           value = (value * 10) + (ch - '0');
+          // fall through
         case '_':
           continue;
         default:
@@ -304,14 +305,14 @@ public class SourcePawnParserUtils extends GeneratedParserUtilBase {
               HexDigits:
               for (int digits = 0; digits < 2; digits++) {
                 switch (ch = text.charAt(i++)) {
-                  case '0': case '1': case '2': case '3': case '4':
-                  case '5': case '6': case '7': case '8': case '9':
+                  case '0':case '1':case '2':case '3':case '4':
+                  case '5':case '6':case '7':case '8':case '9':
                     value = (value << 4) + (ch - '0');
                     break;
-                  case 'A': case 'B': case 'C': case 'D': case 'E':
+                  case 'A':case 'B':case 'C':case 'D':case 'E':
                     value = (value << 4) + (ch - 'A' + 10);
                     break;
-                  case 'a': case 'b': case 'c': case 'd': case 'e':
+                  case 'a':case 'b':case 'c':case 'd':case 'e':
                     value = (value << 4) + (ch - 'a' + 10);
                     break;
                   default:
