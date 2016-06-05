@@ -1,0 +1,12 @@
+{
+  parserUtilClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils"
+
+  tokens=[
+    character_string="regexp:'.+'"
+  ]
+}
+
+root ::= root_item *
+private root_item ::= !<<eof>> character_literal ';'
+external character_literal ::= parsePawnCharacterLiteral character_string
+

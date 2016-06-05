@@ -1,0 +1,42 @@
+<idea-plugin version="2">
+    <id>com.your.company.unique.plugin.id</id>
+    <name>AlliedModders Language Support</name>
+    <version>1.0</version>
+    <vendor email="collinsmith70@gmail.com"
+            url="https://alliedmods.net/">AlliedModders
+    </vendor>
+
+    <description><![CDATA[
+      Adds support for the AMXX Pawn and SourcePawn scripting languages.
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Add change notes here.
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <fileTypeFactory
+                implementation="net.alliedmods.intellij.sourcepawn.file.SourcePawnScriptFileTypeFactory"/>
+        <fileTypeFactory
+                implementation="net.alliedmods.intellij.sourcepawn.file.SourcePawnIncludeFileTypeFactory"/>
+        <lang.parserDefinition
+                language="SourcePawn"
+                implementationClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserDefinition"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
