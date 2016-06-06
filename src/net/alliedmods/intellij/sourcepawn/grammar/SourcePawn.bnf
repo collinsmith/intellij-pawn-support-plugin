@@ -174,12 +174,14 @@
     pragma="pragma"
     pragma_semicolon="semicolon"
     pragma_ctrlchar="ctrlchar"
+    pragma_deprecated="deprecated"
+    pragma_deprecated_string
 
     LINE_WS='regexp:[\ \t\f]+'
     EOL="regexp:(\r|\n|\r\n)"
 
     line_comment="regexp://.*"
-    block_comment="regexp:/\*(.|\n)*\*/"
+    block_comment="regexp:/\*[^]*\*/"
 
 //  boolean_literal='regexp:true|false'
 
@@ -193,7 +195,7 @@
 
     string_literal='regexp:"([^"\\]|\\.)*"'
 
-    //preprocessor_directive='regexp:#.*(\r|\n|\r\n)'
+    preprocessor_directive='regexp:#(([^\\\r\n])|(\\\h*(\r|\n|\r\n)))*(\r|\n|\r\n)'
 
     identifier='regexp:([a-zA-Z][_@a-zA-Z0-9]*)|([_@][_@a-zA-Z0-9]+)'
   ]
@@ -203,9 +205,9 @@
 
 root ::= <<resetState>> root_item *
 private root_item ::= !<<eof>> compilation_unit {pin=1 recoverWhile=root_recover}
-private root_recover ::= !( identifier | hash )
+private root_recover ::= !( compilation_unit )
 private compilation_unit ::=
-   hash preprocessor_directive
+   preprocessor_directive
  | expression
 
 external check_expression_ending ::= parseExpressionEnding
@@ -222,9 +224,10 @@ number ::=
 expression ::=
   identifier assign number check_expression_ending
 
-preprocessor_directive ::=
+/*preprocessor_directive ::=
   pragma pragma_directive
 
 pragma_directive ::=
     pragma_semicolon <<parsePragmaSemicolons number>>
   | pragma_ctrlchar <<parsePragmaCtrlchar number>>
+  | <<parsePragmaDeprecated (pragma_deprecated) (pragma_deprecated_string)>>*/

@@ -19,14 +19,6 @@ public class SourcePawnVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitPragmaDirective(@NotNull SourcePawnPragmaDirective o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPreprocessorDirective(@NotNull SourcePawnPreprocessorDirective o) {
-    visitPsiElement(o);
-  }
-
   public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }

@@ -62,6 +62,29 @@ public class SourcePawnParserUtils extends GeneratedParserUtilBase {
     return parsed;
   }
 
+  public static boolean parsePragmaDeprecated(PsiBuilder builder, int level, Parser parser,
+                                              Parser string) {
+    PsiBuilder.Marker marker = builder.mark();
+    String text = builder.getTokenText();
+    IElementType type = builder.getTokenType();
+    boolean parsed = parser.parse(builder, level);
+    if (!parsed) {
+      marker.error("Expected \"#pragma deprecated\"");
+      marker.rollbackTo();
+      return false;
+    }
+
+    String stringText = builder.getTokenText();
+    boolean parsedString = string.parse(builder, level);
+
+    text = text.replaceAll("deprecated|\r|\n|\r\n", "").trim();
+    System.out.println("parsePragmaDeprecated: " +
+        "parsed = " + parsed + "; text = " + text + "; type = " + type.toString() +
+        "; parsedNext = " + parsedString + "; next = " + stringText);
+    marker.drop();
+    return true;
+  }
+
   public static boolean parseConstantExpression(PsiBuilder builder, int level, Parser parser) {
     PsiBuilder.Marker marker = builder.mark();
     String text = builder.getTokenText();

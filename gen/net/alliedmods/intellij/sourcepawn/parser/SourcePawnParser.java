@@ -1,15 +1,43 @@
 // This is a generated file. Not intended for manual editing.
 package net.alliedmods.intellij.sourcepawn.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.*;
-import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.Parser;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.TRUE_CONDITION;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils._COLLAPSE_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils._NONE_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils._NOT_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.adapt_builder_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.consumeToken;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.consumeTokens;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.current_position_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.empty_element_parsed_guard_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.enter_section_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.eof;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.exit_section_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.nextTokenIs;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.parseExpressionEnding;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.parsePawnCharacterLiteral;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.recursion_guard_;
+import static net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils.resetState;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.ASSIGN;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.BINARY_LITERAL;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.BOOLEAN_LITERAL;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.CHARACTER_STRING;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.DECIMAL_LITERAL;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.EXPRESSION;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.FALSE;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.HEXADECIMAL_LITERAL;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.IDENTIFIER;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.NUMBER;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.PREPROCESSOR_DIRECTIVE;
+import static net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes.TRUE;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class SourcePawnParser implements PsiParser, LightPsiParser {
@@ -31,12 +59,6 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
     }
     else if (t == NUMBER) {
       r = number(b, 0);
-    }
-    else if (t == PRAGMA_DIRECTIVE) {
-      r = pragma_directive(b, 0);
-    }
-    else if (t == PREPROCESSOR_DIRECTIVE) {
-      r = preprocessor_directive(b, 0);
     }
     else {
       r = parse_root_(t, b, 0);
@@ -62,26 +84,15 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // hash preprocessor_directive
+  // preprocessor_directive
   //  | expression
   static boolean compilation_unit(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compilation_unit")) return false;
-    if (!nextTokenIs(b, "", HASH, IDENTIFIER)) return false;
+    if (!nextTokenIs(b, "", IDENTIFIER, PREPROCESSOR_DIRECTIVE)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = compilation_unit_0(b, l + 1);
+    r = consumeToken(b, PREPROCESSOR_DIRECTIVE);
     if (!r) r = expression(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // hash preprocessor_directive
-  private static boolean compilation_unit_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "compilation_unit_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, HASH);
-    r = r && preprocessor_directive(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -116,55 +127,6 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, DECIMAL_LITERAL);
     if (!r) r = consumeToken(b, HEXADECIMAL_LITERAL);
     exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // pragma_semicolon <<parsePragmaSemicolons number>>
-  //   | pragma_ctrlchar <<parsePragmaCtrlchar number>>
-  public static boolean pragma_directive(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "pragma_directive")) return false;
-    if (!nextTokenIs(b, "<pragma directive>", PRAGMA_CTRLCHAR, PRAGMA_SEMICOLON)) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, PRAGMA_DIRECTIVE, "<pragma directive>");
-    r = pragma_directive_0(b, l + 1);
-    if (!r) r = pragma_directive_1(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // pragma_semicolon <<parsePragmaSemicolons number>>
-  private static boolean pragma_directive_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "pragma_directive_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, PRAGMA_SEMICOLON);
-    r = r && parsePragmaSemicolons(b, l + 1, number_parser_);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // pragma_ctrlchar <<parsePragmaCtrlchar number>>
-  private static boolean pragma_directive_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "pragma_directive_1")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, PRAGMA_CTRLCHAR);
-    r = r && parsePragmaCtrlchar(b, l + 1, number_parser_);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // pragma pragma_directive
-  public static boolean preprocessor_directive(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "preprocessor_directive")) return false;
-    if (!nextTokenIs(b, PRAGMA)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, PRAGMA);
-    r = r && pragma_directive(b, l + 1);
-    exit_section_(b, m, PREPROCESSOR_DIRECTIVE, r);
     return r;
   }
 
@@ -216,7 +178,7 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !( identifier | hash )
+  // !( compilation_unit )
   static boolean root_recover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root_recover")) return false;
     boolean r;
@@ -226,13 +188,12 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // identifier | hash
+  // ( compilation_unit )
   private static boolean root_recover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root_recover_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, IDENTIFIER);
-    if (!r) r = consumeToken(b, HASH);
+    r = compilation_unit(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -240,11 +201,6 @@ public class SourcePawnParser implements PsiParser, LightPsiParser {
   final static Parser number_1_0_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return consumeToken(b, CHARACTER_STRING);
-    }
-  };
-  final static Parser number_parser_ = new Parser() {
-    public boolean parse(PsiBuilder b, int l) {
-      return number(b, l + 1);
     }
   };
   final static Parser root_recover_parser_ = new Parser() {

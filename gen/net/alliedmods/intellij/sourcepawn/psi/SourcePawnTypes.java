@@ -11,8 +11,6 @@ public interface SourcePawnTypes {
   IElementType BOOLEAN_LITERAL = new SourcePawnElementType("BOOLEAN_LITERAL");
   IElementType EXPRESSION = new SourcePawnElementType("EXPRESSION");
   IElementType NUMBER = new SourcePawnElementType("NUMBER");
-  IElementType PRAGMA_DIRECTIVE = new SourcePawnElementType("PRAGMA_DIRECTIVE");
-  IElementType PREPROCESSOR_DIRECTIVE = new SourcePawnElementType("PREPROCESSOR_DIRECTIVE");
 
   IElementType ACQUIRE = new SourcePawnTokenType("acquire");
   IElementType ADDEQ = new SourcePawnTokenType("+=");
@@ -115,7 +113,9 @@ public interface SourcePawnTypes {
   IElementType PLUS = new SourcePawnTokenType("+");
   IElementType PRAGMA = new SourcePawnTokenType("pragma");
   IElementType PRAGMA_CTRLCHAR = new SourcePawnTokenType("ctrlchar");
+  IElementType PRAGMA_DEPRECATED = new SourcePawnTokenType("deprecated");
   IElementType PRAGMA_SEMICOLON = new SourcePawnTokenType("semicolon");
+  IElementType PREPROCESSOR_DIRECTIVE = new SourcePawnTokenType("preprocessor_directive");
   IElementType PRIVATE = new SourcePawnTokenType("private");
   IElementType PROTECTED = new SourcePawnTokenType("protected");
   IElementType PUBLIC = new SourcePawnTokenType("public");
@@ -184,12 +184,6 @@ public interface SourcePawnTypes {
       }
       else if (type == NUMBER) {
         return new SourcePawnNumberImpl(node);
-      }
-      else if (type == PRAGMA_DIRECTIVE) {
-        return new SourcePawnPragmaDirectiveImpl(node);
-      }
-      else if (type == PREPROCESSOR_DIRECTIVE) {
-        return new SourcePawnPreprocessorDirectiveImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }
