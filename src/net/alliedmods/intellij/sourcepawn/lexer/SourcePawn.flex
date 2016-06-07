@@ -11,7 +11,7 @@ import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 
 %class SourcePawnLexer
 %implements FlexLexer
-%debug
+//%debug
 
 %unicode
 
@@ -137,7 +137,10 @@ control_character   = [abefnrtvx]
 <IN_CHARACTER_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \'                    { String text = string.toString();
-                          System.out.printf("yytext = \"%s\"%n", text);
+                          if (DEBUG) {
+                            System.out.printf("yytext = \"%s\"%n", text);
+                          }
+
                           yybegin(YYINITIAL);
                           return CHARACTER_LITERAL; }
   .                     { char ch = yycharat(0);
@@ -257,7 +260,10 @@ control_character   = [abefnrtvx]
 <IN_STRING_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \"                    { String text = string.toString();
-                          System.out.printf("yytext = \"%s\"%n", text);
+                          if (DEBUG) {
+                            System.out.printf("yytext = \"%s\"%n", text);
+                          }
+
                           yybegin(YYINITIAL);
                           return STRING_LITERAL; }
   \\{w}*{nl}{w}*        {  }
@@ -272,17 +278,14 @@ control_character   = [abefnrtvx]
                               case '\'':
                               case '0':case '1':case '2':case '3':case '4':
                               case '5':case '6':case '7':case '8':case '9':
-                                System.out.printf("appending \"%s\"%n", yytext());
                                 string.append(yytext());
                                 break;
                               default:
                                 if (isEscapeCharacter(ctrl)) {
-                                  System.out.printf("appending \"%s\"%n", yytext());
                                   string.append(yytext());
                                   break;
                                 }
 
-                                System.out.printf("invalid escape sequence \"%s\"%n", yytext());
                                 yybegin(YYINITIAL);
                                 return BAD_CHARACTER;
                             }

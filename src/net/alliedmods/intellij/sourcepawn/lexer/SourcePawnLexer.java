@@ -22,7 +22,6 @@ class SourcePawnLexer implements FlexLexer {
 
   /** initial size of the lookahead buffer */
   private static final int ZZ_BUFFERSIZE = 16384;
-  private static final String ZZ_NL = System.getProperty("line.separator");
 
   /** lexical states */
   public static final int YYINITIAL = 0;
@@ -331,23 +330,6 @@ class SourcePawnLexer implements FlexLexer {
     return map;
   }
 
-  private static String zzToPrintable(String str) {
-    StringBuilder builder = new StringBuilder();
-    for (int n = 0 ; n < str.length() ; ) {
-      int ch = str.codePointAt(n);
-      int charCount = Character.charCount(ch);
-      n += charCount;
-      if (ch > 31 && ch < 127) {
-        builder.append((char)ch);
-      } else if (charCount == 1) {
-        builder.append(String.format("\\u%04X", ch));
-      } else {
-        builder.append(String.format("\\U%06X", ch));
-      }
-    }
-    return builder.toString();
-  }
-
   public final int getTokenStart() {
     return zzStartRead;
   }
@@ -571,14 +553,10 @@ class SourcePawnLexer implements FlexLexer {
         zzDoEOF();
         switch (zzLexicalState) {
             case IN_CHARACTER_LITERAL: {
-              System.out.println("match: <<EOF>>");
-              System.out.println("action [138] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
               yybegin(YYINITIAL); return BAD_CHARACTER;
             }
             case 36: break;
             case IN_STRING_LITERAL: {
-              System.out.println("match: <<EOF>>");
-              System.out.println("action [258] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
               yybegin(YYINITIAL); return BAD_CHARACTER;
             }
             case 37: break;
@@ -589,8 +567,6 @@ class SourcePawnLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [195] { int character = 0;"+ZZ_NL+"                          for (int i = 0; i < yylength(); i++) {"+ZZ_NL+"                            char ch = yycharat(i);"+ZZ_NL+"                            switch (ch) {"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                character = (character * 10) + (ch - \'0\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \';\':"+ZZ_NL+"                                if (i != (yylength()-1)) {"+ZZ_NL+"                                  throw new AssertionError("+ZZ_NL+"                                      \"semicolon should be the final character in the sequence\");"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(\"Unsupported control character: \" + ch);"+ZZ_NL+"                            }"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          this.character = (char)character;"+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
             { int character = 0;
                           for (int i = 0; i < yylength(); i++) {
                             char ch = yycharat(i);
@@ -616,8 +592,6 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 22: break;
           case 2: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [222] { int character = 0;"+ZZ_NL+"                          for (int i = 0; i < yylength(); i++) {"+ZZ_NL+"                            char ch = yycharat(i);"+ZZ_NL+"                            switch (ch) {"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'0\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \'a\':case \'b\':case \'c\':case \'d\':case \'e\':case \'f\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'a\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \'A\':case \'B\':case \'C\':case \'D\':case \'E\':case \'F\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'A\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \';\':"+ZZ_NL+"                                if (i != (yylength()-1)) {"+ZZ_NL+"                                  throw new AssertionError("+ZZ_NL+"                                      \"semicolon should be the final character in the sequence\");"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(\"Unsupported control character: \" + ch);"+ZZ_NL+"                            }"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          this.character = (char)character;"+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
             { int character = 0;
                           for (int i = 0; i < yylength(); i++) {
                             char ch = yycharat(i);
@@ -649,56 +623,38 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 23: break;
           case 3: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [135] { return BAD_CHARACTER; }");
             { return BAD_CHARACTER;
             }
           case 24: break;
           case 4: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [130] { return WHITESPACE; }");
             { return WHITESPACE;
             }
           case 25: break;
           case 5: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [129] { return NEW_LINE; }");
             { return NEW_LINE;
             }
           case 26: break;
           case 6: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [127] { return AT_SIGN; }");
             { return AT_SIGN;
             }
           case 27: break;
           case 7: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [125] { return IDENTIFIER; }");
             { return IDENTIFIER;
             }
           case 28: break;
           case 8: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [128] { return UNDERSCORE; }");
             { return UNDERSCORE;
             }
           case 29: break;
           case 9: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [132] { yybegin(IN_CHARACTER_LITERAL); string.setLength(0); }");
             { yybegin(IN_CHARACTER_LITERAL); string.setLength(0);
             }
           case 30: break;
           case 10: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [133] { yybegin(IN_STRING_LITERAL); string.setLength(0); }");
             { yybegin(IN_STRING_LITERAL); string.setLength(0);
             }
           case 31: break;
           case 11: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [143] { char ch = yycharat(0);"+ZZ_NL+"                          if (isEscapeCharacter(ch)) {"+ZZ_NL+"                            yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.append(ch);"+ZZ_NL+"                          } }");
             { char ch = yycharat(0);
                           if (isEscapeCharacter(ch)) {
                             yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);
@@ -708,44 +664,38 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 32: break;
           case 12: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [150] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
             { yybegin(YYINITIAL); return BAD_CHARACTER;
             }
           case 33: break;
           case 13: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [139] { String text = string.toString();"+ZZ_NL+"                          System.out.printf(\"yytext = \\\"%s\\\"%n\", text);"+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return CHARACTER_LITERAL; }");
             { String text = string.toString();
-                          System.out.printf("yytext = \"%s\"%n", text);
+                          if (DEBUG) {
+                            System.out.printf("yytext = \"%s\"%n", text);
+                          }
+
                           yybegin(YYINITIAL);
                           return CHARACTER_LITERAL;
             }
           case 34: break;
           case 14: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [294] { string.append(yytext()); }");
             { string.append(yytext());
             }
           case 35: break;
           case 15: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [259] { String text = string.toString();"+ZZ_NL+"                          System.out.printf(\"yytext = \\\"%s\\\"%n\", text);"+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return STRING_LITERAL; }");
             { String text = string.toString();
-                          System.out.printf("yytext = \"%s\"%n", text);
+                          if (DEBUG) {
+                            System.out.printf("yytext = \"%s\"%n", text);
+                          }
+
                           yybegin(YYINITIAL);
                           return STRING_LITERAL;
             }
           case 36: break;
           case 16: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [190] { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE); }");
             { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE);
             }
           case 37: break;
           case 17: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [154] { switch(yycharat(0)) {"+ZZ_NL+"                            case \'a\':"+ZZ_NL+"                              character = \'\\u0007\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'b\':"+ZZ_NL+"                              character = \'\\b\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'e\':"+ZZ_NL+"                              character = \'\\u001B\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'f\':"+ZZ_NL+"                              character = \'\\f\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'n\':"+ZZ_NL+"                              character = \'\\n\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'r\':"+ZZ_NL+"                              character = \'\\r\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'t\':"+ZZ_NL+"                              character = \'\\t\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'v\':"+ZZ_NL+"                              character = \'\\u000B\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'x\':"+ZZ_NL+"                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);"+ZZ_NL+"                              break;"+ZZ_NL+"                            default:"+ZZ_NL+"                              throw new AssertionError("+ZZ_NL+"                                  \"Unsupported control character: \" + yycharat(0));"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
             { switch(yycharat(0)) {
                             case 'a':
                               character = '\u0007';
@@ -783,20 +733,14 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 38: break;
           case 18: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [189] { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL); }");
             { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL);
             }
           case 39: break;
           case 19: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [218] { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL); }");
             { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL);
             }
           case 40: break;
           case 20: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [264] { if (isEscapeCharacter(yycharat(0))) {"+ZZ_NL+"                            char ctrl = yycharat(1);"+ZZ_NL+"                            switch (ctrl) {"+ZZ_NL+"                              case \'a\':case \'b\':case \'e\':case \'f\':"+ZZ_NL+"                              case \'n\':case \'r\':case \'t\':case \'v\':"+ZZ_NL+"                              case \'x\':"+ZZ_NL+"                              case \'%\':"+ZZ_NL+"                              case \'\"\':"+ZZ_NL+"                              case \'\\\'\':"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                string.append(yytext());"+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                if (isEscapeCharacter(ctrl)) {"+ZZ_NL+"                                  System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                  string.append(yytext());"+ZZ_NL+"                                  break;"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                System.out.printf(\"invalid escape sequence \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                yybegin(YYINITIAL);"+ZZ_NL+"                                return BAD_CHARACTER;"+ZZ_NL+"                            }"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.append(yycharat(0));"+ZZ_NL+"                            yypushback(1);"+ZZ_NL+"                          } }");
             { if (isEscapeCharacter(yycharat(0))) {
                             char ctrl = yycharat(1);
                             switch (ctrl) {
@@ -808,17 +752,14 @@ class SourcePawnLexer implements FlexLexer {
                               case '\'':
                               case '0':case '1':case '2':case '3':case '4':
                               case '5':case '6':case '7':case '8':case '9':
-                                System.out.printf("appending \"%s\"%n", yytext());
                                 string.append(yytext());
                                 break;
                               default:
                                 if (isEscapeCharacter(ctrl)) {
-                                  System.out.printf("appending \"%s\"%n", yytext());
                                   string.append(yytext());
                                   break;
                                 }
 
-                                System.out.printf("invalid escape sequence \"%s\"%n", yytext());
                                 yybegin(YYINITIAL);
                                 return BAD_CHARACTER;
                             }
@@ -829,67 +770,12 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 41: break;
           case 21: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [263] {  }");
             { 
             }
           case 42: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
-      }
-    }
-  }
-
-  /**
-   * Runs the scanner on input files.
-   *
-   * This main method is the debugging routine for the scanner.
-   * It prints debugging information about each returned token to
-   * System.out until the end of file is reached, or an error occured.
-   *
-   * @param argv   the command line, contains the filenames to run
-   *               the scanner on.
-   */
-  public static void main(String argv[]) {
-    if (argv.length == 0) {
-      System.out.println("Usage : java SourcePawnLexer [ --encoding <name> ] <inputfile(s)>");
-    }
-    else {
-      int firstFilePos = 0;
-      String encodingName = "UTF-8";
-      if (argv[0].equals("--encoding")) {
-        firstFilePos = 2;
-        encodingName = argv[1];
-        try {
-          java.nio.charset.Charset.forName(encodingName); // Side-effect: is encodingName valid? 
-        } catch (Exception e) {
-          System.out.println("Invalid encoding '" + encodingName + "'");
-          return;
-        }
-      }
-      for (int i = firstFilePos; i < argv.length; i++) {
-        SourcePawnLexer scanner = null;
-        try {
-          java.io.FileInputStream stream = new java.io.FileInputStream(argv[i]);
-          java.io.Reader reader = new java.io.InputStreamReader(stream, encodingName);
-          scanner = new SourcePawnLexer(reader);
-          do {
-            System.out.println(scanner.advance());
-          } while (!scanner.zzAtEOF);
-
-        }
-        catch (java.io.FileNotFoundException e) {
-          System.out.println("File not found : \""+argv[i]+"\"");
-        }
-        catch (java.io.IOException e) {
-          System.out.println("IO error scanning file \""+argv[i]+"\"");
-          System.out.println(e);
-        }
-        catch (Exception e) {
-          System.out.println("Unexpected exception:");
-          e.printStackTrace();
-        }
       }
     }
   }

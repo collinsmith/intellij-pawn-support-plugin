@@ -32,7 +32,8 @@ public class LexerTester extends FlexAdapter {
          type != null;
          tester.advance(), type = tester.getTokenType()) {
       if (type != TokenType.WHITE_SPACE && type != TokenType.BAD_CHARACTER) {
-        System.out.printf("%s.text = \"%s\"%n", type, tester.getTokenText());
+        //Disabled until support is added for token texts
+        //System.out.printf("%s.text = \"%s\"%n", type, tester.getTokenText());
       }
     }
   }
