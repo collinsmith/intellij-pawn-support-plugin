@@ -2,16 +2,12 @@
 
 package net.alliedmods.intellij.sourcepawn.lexer;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.AT_SIGN;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.BAD_CHARACTER;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.IDENTIFIER;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.NEW_LINE;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.STRING_LITERAL;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.UNDERSCORE;
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.WHITESPACE;
+import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 
 
 /**
@@ -30,7 +26,11 @@ class SourcePawnLexer implements FlexLexer {
 
   /** lexical states */
   public static final int YYINITIAL = 0;
-  public static final int IN_STRING = 2;
+  public static final int IN_CHARACTER_LITERAL = 2;
+  public static final int IN_STRING_LITERAL = 4;
+  public static final int IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE = 6;
+  public static final int IN_CHARACTER_LITERAL_DECIMAL_ESCAPE = 8;
+  public static final int IN_CHARACTER_LITERAL_UNICODE_ESCAPE = 10;
 
   /**
    * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
@@ -39,7 +39,7 @@ class SourcePawnLexer implements FlexLexer {
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = { 
-     0,  0,  1, 1
+     0,  0,  1,  1,  2,  2,  3,  3,  4,  4,  5, 5
   };
 
   /** 
@@ -61,8 +61,9 @@ class SourcePawnLexer implements FlexLexer {
 
   /* The ZZ_CMAP_A table has 320 entries */
   static final char ZZ_CMAP_A[] = zzUnpackCMap(
-    "\11\0\1\1\1\2\2\12\1\3\22\0\1\1\1\0\1\10\15\0\12\5\6\0\1\4\32\6\1\0\1\11\2"+
-    "\0\1\7\1\0\32\6\12\0\1\12\242\0\2\12\26\0");
+    "\11\0\1\1\1\2\2\16\1\3\22\0\1\1\1\0\1\15\2\0\1\17\1\0\1\14\10\0\12\5\1\0\1"+
+    "\12\4\0\1\4\6\7\24\6\1\0\1\20\2\0\1\13\1\0\2\10\2\7\2\10\7\6\1\11\3\6\1\11"+
+    "\1\6\1\11\1\6\1\11\1\6\1\11\2\6\12\0\1\16\242\0\2\16\26\0");
 
   /** 
    * Translates DFA states to action switch labels.
@@ -70,11 +71,13 @@ class SourcePawnLexer implements FlexLexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\2\0\1\1\1\2\2\3\1\4\1\5\1\6\1\7"+
-    "\1\10\1\11\1\10\2\12\2\13\1\0";
+    "\4\0\1\1\1\2\1\3\1\4\2\5\1\6\1\7"+
+    "\1\10\1\11\1\12\1\13\1\14\1\15\1\16\1\17"+
+    "\1\16\1\20\1\21\1\22\1\23\2\1\2\2\2\24"+
+    "\2\25\1\2\1\0";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[18];
+    int [] result = new int[35];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -99,12 +102,14 @@ class SourcePawnLexer implements FlexLexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\13\0\26\0\41\0\26\0\54\0\67\0\67"+
-    "\0\67\0\26\0\102\0\102\0\115\0\26\0\130\0\143"+
-    "\0\156\0\130";
+    "\0\0\0\21\0\42\0\63\0\104\0\125\0\146\0\167"+
+    "\0\146\0\210\0\231\0\231\0\231\0\146\0\146\0\146"+
+    "\0\146\0\146\0\252\0\252\0\273\0\146\0\146\0\146"+
+    "\0\146\0\314\0\146\0\335\0\146\0\146\0\356\0\377"+
+    "\0\u0110\0\u0121\0\356";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[18];
+    int [] result = new int[35];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -127,14 +132,20 @@ class SourcePawnLexer implements FlexLexer {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\3\1\4\1\5\1\6\1\7\1\3\1\10\1\11"+
-    "\1\12\2\3\2\13\2\0\4\13\1\14\1\15\15\0"+
-    "\1\4\13\0\1\5\14\0\4\10\3\0\2\16\2\0"+
-    "\6\16\1\0\1\16\1\17\1\20\1\21\6\16\2\0"+
-    "\1\22\1\20\1\21\10\0\1\20\12\0\2\20\10\0";
+    "\1\7\1\10\1\11\1\12\1\13\1\7\4\14\1\7"+
+    "\1\15\1\16\1\17\3\7\2\20\2\21\10\20\1\22"+
+    "\1\20\1\21\2\20\2\23\2\21\11\23\1\24\1\21"+
+    "\1\23\1\25\5\21\1\26\2\21\2\27\2\21\2\30"+
+    "\1\21\1\30\1\21\5\31\1\32\4\31\1\33\13\31"+
+    "\1\34\1\31\2\34\1\31\1\35\6\31\22\0\1\10"+
+    "\21\0\1\11\22\0\6\14\1\0\1\14\5\0\2\36"+
+    "\2\0\12\36\1\0\3\36\1\37\1\40\1\41\12\36"+
+    "\1\0\2\36\5\0\1\32\4\0\1\33\13\0\1\42"+
+    "\1\0\2\42\1\0\1\35\7\0\1\43\1\40\1\41"+
+    "\16\0\1\40\20\0\2\40\30\0\1\35\6\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[121];
+    int [] result = new int[306];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -172,11 +183,11 @@ class SourcePawnLexer implements FlexLexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\1\11\1\1\1\11\4\1\1\11\3\1\1\11"+
-    "\3\1\1\0";
+    "\4\0\2\1\1\11\1\1\1\11\4\1\5\11\3\1"+
+    "\4\11\1\1\1\11\1\1\2\11\4\1\1\0";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[18];
+    int [] result = new int[35];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -244,6 +255,7 @@ class SourcePawnLexer implements FlexLexer {
   private boolean requireSemicolons;
 
   private StringBuilder string = new StringBuilder(32);
+  private char character;
 
   public void resetState() {
     setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
@@ -558,12 +570,18 @@ class SourcePawnLexer implements FlexLexer {
         zzAtEOF = true;
         zzDoEOF();
         switch (zzLexicalState) {
-            case IN_STRING: {
+            case IN_CHARACTER_LITERAL: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [128] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
+              System.out.println("action [138] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
               yybegin(YYINITIAL); return BAD_CHARACTER;
             }
-            case 19: break;
+            case 36: break;
+            case IN_STRING_LITERAL: {
+              System.out.println("match: <<EOF>>");
+              System.out.println("action [258] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
+              yybegin(YYINITIAL); return BAD_CHARACTER;
+            }
+            case 37: break;
             default:
         return null;
         }
@@ -572,64 +590,213 @@ class SourcePawnLexer implements FlexLexer {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [125] { return BAD_CHARACTER; }");
-            { return BAD_CHARACTER;
+            System.out.println("action [195] { int character = 0;"+ZZ_NL+"                          for (int i = 0; i < yylength(); i++) {"+ZZ_NL+"                            char ch = yycharat(i);"+ZZ_NL+"                            switch (ch) {"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                character = (character * 10) + (ch - \'0\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \';\':"+ZZ_NL+"                                if (i != (yylength()-1)) {"+ZZ_NL+"                                  throw new AssertionError("+ZZ_NL+"                                      \"semicolon should be the final character in the sequence\");"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(\"Unsupported control character: \" + ch);"+ZZ_NL+"                            }"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          this.character = (char)character;"+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
+            { int character = 0;
+                          for (int i = 0; i < yylength(); i++) {
+                            char ch = yycharat(i);
+                            switch (ch) {
+                              case '0':case '1':case '2':case '3':case '4':
+                              case '5':case '6':case '7':case '8':case '9':
+                                character = (character * 10) + (ch - '0');
+                                break;
+                              case ';':
+                                if (i != (yylength()-1)) {
+                                  throw new AssertionError(
+                                      "semicolon should be the final character in the sequence");
+                                }
+
+                                break;
+                              default:
+                                throw new AssertionError("Unsupported control character: " + ch);
+                            }
+                          }
+
+                          this.character = (char)character;
+                          yybegin(IN_CHARACTER_LITERAL);
             }
-          case 12: break;
+          case 22: break;
           case 2: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [121] { return WHITESPACE; }");
-            { return WHITESPACE;
+            System.out.println("action [222] { int character = 0;"+ZZ_NL+"                          for (int i = 0; i < yylength(); i++) {"+ZZ_NL+"                            char ch = yycharat(i);"+ZZ_NL+"                            switch (ch) {"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'0\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \'a\':case \'b\':case \'c\':case \'d\':case \'e\':case \'f\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'a\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \'A\':case \'B\':case \'C\':case \'D\':case \'E\':case \'F\':"+ZZ_NL+"                                character = (character << 4) + (ch - \'A\');"+ZZ_NL+"                                break;"+ZZ_NL+"                              case \';\':"+ZZ_NL+"                                if (i != (yylength()-1)) {"+ZZ_NL+"                                  throw new AssertionError("+ZZ_NL+"                                      \"semicolon should be the final character in the sequence\");"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(\"Unsupported control character: \" + ch);"+ZZ_NL+"                            }"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          this.character = (char)character;"+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
+            { int character = 0;
+                          for (int i = 0; i < yylength(); i++) {
+                            char ch = yycharat(i);
+                            switch (ch) {
+                              case '0':case '1':case '2':case '3':case '4':
+                              case '5':case '6':case '7':case '8':case '9':
+                                character = (character << 4) + (ch - '0');
+                                break;
+                              case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':
+                                character = (character << 4) + (ch - 'a');
+                                break;
+                              case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':
+                                character = (character << 4) + (ch - 'A');
+                                break;
+                              case ';':
+                                if (i != (yylength()-1)) {
+                                  throw new AssertionError(
+                                      "semicolon should be the final character in the sequence");
+                                }
+
+                                break;
+                              default:
+                                throw new AssertionError("Unsupported control character: " + ch);
+                            }
+                          }
+
+                          this.character = (char)character;
+                          yybegin(IN_CHARACTER_LITERAL);
             }
-          case 13: break;
+          case 23: break;
           case 3: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [120] { return NEW_LINE; }");
-            { return NEW_LINE;
+            System.out.println("action [135] { return BAD_CHARACTER; }");
+            { return BAD_CHARACTER;
             }
-          case 14: break;
+          case 24: break;
           case 4: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [118] { return AT_SIGN; }");
-            { return AT_SIGN;
+            System.out.println("action [130] { return WHITESPACE; }");
+            { return WHITESPACE;
             }
-          case 15: break;
+          case 25: break;
           case 5: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [116] { return IDENTIFIER; }");
-            { return IDENTIFIER;
+            System.out.println("action [129] { return NEW_LINE; }");
+            { return NEW_LINE;
             }
-          case 16: break;
+          case 26: break;
           case 6: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [119] { return UNDERSCORE; }");
-            { return UNDERSCORE;
+            System.out.println("action [127] { return AT_SIGN; }");
+            { return AT_SIGN;
             }
-          case 17: break;
+          case 27: break;
           case 7: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [123] { yybegin(IN_STRING); string.setLength(0); }");
-            { yybegin(IN_STRING); string.setLength(0);
+            System.out.println("action [125] { return IDENTIFIER; }");
+            { return IDENTIFIER;
             }
-          case 18: break;
+          case 28: break;
           case 8: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [164] { string.append(yytext()); }");
-            { string.append(yytext());
+            System.out.println("action [128] { return UNDERSCORE; }");
+            { return UNDERSCORE;
             }
-          case 19: break;
+          case 29: break;
           case 9: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [129] { String text = string.toString();"+ZZ_NL+"                          System.out.printf(\"yytext = \\\"%s\\\"%n\", text);"+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return STRING_LITERAL; }");
+            System.out.println("action [132] { yybegin(IN_CHARACTER_LITERAL); string.setLength(0); }");
+            { yybegin(IN_CHARACTER_LITERAL); string.setLength(0);
+            }
+          case 30: break;
+          case 10: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [133] { yybegin(IN_STRING_LITERAL); string.setLength(0); }");
+            { yybegin(IN_STRING_LITERAL); string.setLength(0);
+            }
+          case 31: break;
+          case 11: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [143] { char ch = yycharat(0);"+ZZ_NL+"                          if (isEscapeCharacter(ch)) {"+ZZ_NL+"                            yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.append(ch);"+ZZ_NL+"                          } }");
+            { char ch = yycharat(0);
+                          if (isEscapeCharacter(ch)) {
+                            yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);
+                          } else {
+                            string.append(ch);
+                          }
+            }
+          case 32: break;
+          case 12: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [150] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
+            { yybegin(YYINITIAL); return BAD_CHARACTER;
+            }
+          case 33: break;
+          case 13: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [139] { String text = string.toString();"+ZZ_NL+"                          System.out.printf(\"yytext = \\\"%s\\\"%n\", text);"+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return CHARACTER_LITERAL; }");
+            { String text = string.toString();
+                          System.out.printf("yytext = \"%s\"%n", text);
+                          yybegin(YYINITIAL);
+                          return CHARACTER_LITERAL;
+            }
+          case 34: break;
+          case 14: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [294] { string.append(yytext()); }");
+            { string.append(yytext());
+            }
+          case 35: break;
+          case 15: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [259] { String text = string.toString();"+ZZ_NL+"                          System.out.printf(\"yytext = \\\"%s\\\"%n\", text);"+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return STRING_LITERAL; }");
             { String text = string.toString();
                           System.out.printf("yytext = \"%s\"%n", text);
                           yybegin(YYINITIAL);
                           return STRING_LITERAL;
             }
-          case 20: break;
-          case 10: 
+          case 36: break;
+          case 16: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [134] { if (isEscapeCharacter(yycharat(0))) {"+ZZ_NL+"                            char ctrl = yycharat(1);"+ZZ_NL+"                            switch (ctrl) {"+ZZ_NL+"                              case \'a\':case \'b\':case \'e\':case \'f\':"+ZZ_NL+"                              case \'n\':case \'r\':case \'t\':case \'v\':"+ZZ_NL+"                              case \'x\':"+ZZ_NL+"                              case \'%\':"+ZZ_NL+"                              case \'\"\':"+ZZ_NL+"                              case \'\\\'\':"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                string.append(yytext());"+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                if (isEscapeCharacter(yycharat(0))) {"+ZZ_NL+"                                  System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                  string.append(yytext());"+ZZ_NL+"                                  break;"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                System.out.printf(\"invalid escape sequence \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                yybegin(YYINITIAL);"+ZZ_NL+"                                return BAD_CHARACTER;"+ZZ_NL+"                            }"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.append(yycharat(0));"+ZZ_NL+"                            yypushback(1);"+ZZ_NL+"                          } }");
+            System.out.println("action [190] { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE); }");
+            { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE);
+            }
+          case 37: break;
+          case 17: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [154] { switch(yycharat(0)) {"+ZZ_NL+"                            case \'a\':"+ZZ_NL+"                              character = \'\\u0007\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'b\':"+ZZ_NL+"                              character = \'\\b\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'e\':"+ZZ_NL+"                              character = \'\\u001B\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'f\':"+ZZ_NL+"                              character = \'\\f\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'n\':"+ZZ_NL+"                              character = \'\\n\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'r\':"+ZZ_NL+"                              character = \'\\r\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'t\':"+ZZ_NL+"                              character = \'\\t\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'v\':"+ZZ_NL+"                              character = \'\\u000B\';"+ZZ_NL+"                              break;"+ZZ_NL+"                            case \'x\':"+ZZ_NL+"                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);"+ZZ_NL+"                              break;"+ZZ_NL+"                            default:"+ZZ_NL+"                              throw new AssertionError("+ZZ_NL+"                                  \"Unsupported control character: \" + yycharat(0));"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(IN_CHARACTER_LITERAL); }");
+            { switch(yycharat(0)) {
+                            case 'a':
+                              character = '\u0007';
+                              break;
+                            case 'b':
+                              character = '\b';
+                              break;
+                            case 'e':
+                              character = '\u001B';
+                              break;
+                            case 'f':
+                              character = '\f';
+                              break;
+                            case 'n':
+                              character = '\n';
+                              break;
+                            case 'r':
+                              character = '\r';
+                              break;
+                            case 't':
+                              character = '\t';
+                              break;
+                            case 'v':
+                              character = '\u000B';
+                              break;
+                            case 'x':
+                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
+                              break;
+                            default:
+                              throw new AssertionError(
+                                  "Unsupported control character: " + yycharat(0));
+                          }
+
+                          yybegin(IN_CHARACTER_LITERAL);
+            }
+          case 38: break;
+          case 18: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [189] { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL); }");
+            { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL);
+            }
+          case 39: break;
+          case 19: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [218] { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL); }");
+            { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL);
+            }
+          case 40: break;
+          case 20: 
+            System.out.println("match: --"+zzToPrintable(yytext())+"--");
+            System.out.println("action [264] { if (isEscapeCharacter(yycharat(0))) {"+ZZ_NL+"                            char ctrl = yycharat(1);"+ZZ_NL+"                            switch (ctrl) {"+ZZ_NL+"                              case \'a\':case \'b\':case \'e\':case \'f\':"+ZZ_NL+"                              case \'n\':case \'r\':case \'t\':case \'v\':"+ZZ_NL+"                              case \'x\':"+ZZ_NL+"                              case \'%\':"+ZZ_NL+"                              case \'\"\':"+ZZ_NL+"                              case \'\\\'\':"+ZZ_NL+"                              case \'0\':case \'1\':case \'2\':case \'3\':case \'4\':"+ZZ_NL+"                              case \'5\':case \'6\':case \'7\':case \'8\':case \'9\':"+ZZ_NL+"                                System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                string.append(yytext());"+ZZ_NL+"                                break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                if (isEscapeCharacter(ctrl)) {"+ZZ_NL+"                                  System.out.printf(\"appending \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                  string.append(yytext());"+ZZ_NL+"                                  break;"+ZZ_NL+"                                }"+ZZ_NL+""+ZZ_NL+"                                System.out.printf(\"invalid escape sequence \\\"%s\\\"%n\", yytext());"+ZZ_NL+"                                yybegin(YYINITIAL);"+ZZ_NL+"                                return BAD_CHARACTER;"+ZZ_NL+"                            }"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.append(yycharat(0));"+ZZ_NL+"                            yypushback(1);"+ZZ_NL+"                          } }");
             { if (isEscapeCharacter(yycharat(0))) {
                             char ctrl = yycharat(1);
                             switch (ctrl) {
@@ -645,7 +812,7 @@ class SourcePawnLexer implements FlexLexer {
                                 string.append(yytext());
                                 break;
                               default:
-                                if (isEscapeCharacter(yycharat(0))) {
+                                if (isEscapeCharacter(ctrl)) {
                                   System.out.printf("appending \"%s\"%n", yytext());
                                   string.append(yytext());
                                   break;
@@ -660,13 +827,13 @@ class SourcePawnLexer implements FlexLexer {
                             yypushback(1);
                           }
             }
-          case 21: break;
-          case 11: 
+          case 41: break;
+          case 21: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [133] {  }");
+            System.out.println("action [263] {  }");
             { 
             }
-          case 22: break;
+          case 42: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

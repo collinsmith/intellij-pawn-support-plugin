@@ -38,6 +38,7 @@ import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
   private boolean requireSemicolons;
 
   private StringBuilder string = new StringBuilder(32);
+  private char character;
 
   public void resetState() {
     setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
@@ -98,6 +99,9 @@ octal_prefix        = 0o
 decimal_prefix      = {decimal_digit}
 hexadecimal_prefix  = 0x
 
+unicode_escape      = {hexadecimal_digit}{0,2};?
+decimal_escape      = {decimal_digit}*;?
+
 binary_literal      = {binary_prefix}       ( _ | {binary_digit} )*
 octal_literal       = {octal_prefix}        ( _ | {octal_digit} )*
 decimal_literal     = {decimal_prefix}      ( _ | {decimal_digit} )*
@@ -112,7 +116,9 @@ control_character   = [abefnrtvx]
 %x IN_CHARACTER_LITERAL
 %x IN_STRING_LITERAL
 
-%x CHECKING_ESCAPE_SEQUENCE
+%x IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE
+%x IN_CHARACTER_LITERAL_DECIMAL_ESCAPE
+%x IN_CHARACTER_LITERAL_UNICODE_ESCAPE
 
 %%
 
@@ -134,39 +140,120 @@ control_character   = [abefnrtvx]
                           System.out.printf("yytext = \"%s\"%n", text);
                           yybegin(YYINITIAL);
                           return CHARACTER_LITERAL; }
-  ..                    { if (isEscapeCharacter(yycharat(0))) {
-                            char ctrl = yycharat(1);
-                            switch (ctrl) {
-                              case 'a':case 'b':case 'e':case 'f':
-                              case 'n':case 'r':case 't':case 'v':
-                              case 'x':
-                              case '%':
-                              case '"':
-                              case '\'':
-                              case '0':case '1':case '2':case '3':case '4':
-                              case '5':case '6':case '7':case '8':case '9':
-                                System.out.printf("appending \"%s\"%n", yytext());
-                                string.append(yytext());
-                                break;
-                              default:
-                                if (isEscapeCharacter(ctrl)) {
-                                  System.out.printf("appending \"%s\"%n", yytext());
-                                  string.append(yytext());
-                                  break;
-                                }
-
-                                System.out.printf("invalid escape sequence \"%s\"%n", yytext());
-                                yybegin(YYINITIAL);
-                                return BAD_CHARACTER;
-                            }
+  .                     { char ch = yycharat(0);
+                          if (isEscapeCharacter(ch)) {
+                            yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);
                           } else {
-                            string.append(yycharat(0));
-                            yypushback(1);
+                            string.append(ch);
                           }
                         }
-  .\'                   { string.append(yytext()); }
+  [^]                   { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
+<IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE> {
+  {control_character}   { switch(yycharat(0)) {
+                            case 'a':
+                              character = '\u0007';
+                              break;
+                            case 'b':
+                              character = '\b';
+                              break;
+                            case 'e':
+                              character = '\u001B';
+                              break;
+                            case 'f':
+                              character = '\f';
+                              break;
+                            case 'n':
+                              character = '\n';
+                              break;
+                            case 'r':
+                              character = '\r';
+                              break;
+                            case 't':
+                              character = '\t';
+                              break;
+                            case 'v':
+                              character = '\u000B';
+                              break;
+                            case 'x':
+                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
+                              break;
+                            default:
+                              throw new AssertionError(
+                                  "Unsupported control character: " + yycharat(0));
+                          }
+
+                          yybegin(IN_CHARACTER_LITERAL);
+                        }
+  [\"'%]                { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL); }
+  {decimal_digit}       { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE); }
+  [^]                   { yybegin(YYINITIAL); return BAD_CHARACTER; }
+}
+
+<IN_CHARACTER_LITERAL_DECIMAL_ESCAPE> {
+  {decimal_escape}      { int character = 0;
+                          for (int i = 0; i < yylength(); i++) {
+                            char ch = yycharat(i);
+                            switch (ch) {
+                              case '0':case '1':case '2':case '3':case '4':
+                              case '5':case '6':case '7':case '8':case '9':
+                                character = (character * 10) + (ch - '0');
+                                break;
+                              case ';':
+                                if (i != (yylength()-1)) {
+                                  throw new AssertionError(
+                                      "semicolon should be the final character in the sequence");
+                                }
+
+                                break;
+                              default:
+                                throw new AssertionError("Unsupported control character: " + ch);
+                            }
+                          }
+
+                          this.character = (char)character;
+                          yybegin(IN_CHARACTER_LITERAL);
+                        }
+  [^]                   { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL); }
+}
+
+<IN_CHARACTER_LITERAL_UNICODE_ESCAPE> {
+  {unicode_escape}      { int character = 0;
+                          for (int i = 0; i < yylength(); i++) {
+                            char ch = yycharat(i);
+                            switch (ch) {
+                              case '0':case '1':case '2':case '3':case '4':
+                              case '5':case '6':case '7':case '8':case '9':
+                                character = (character << 4) + (ch - '0');
+                                break;
+                              case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':
+                                character = (character << 4) + (ch - 'a');
+                                break;
+                              case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':
+                                character = (character << 4) + (ch - 'A');
+                                break;
+                              case ';':
+                                if (i != (yylength()-1)) {
+                                  throw new AssertionError(
+                                      "semicolon should be the final character in the sequence");
+                                }
+
+                                break;
+                              default:
+                                throw new AssertionError("Unsupported control character: " + ch);
+                            }
+                          }
+
+                          this.character = (char)character;
+                          yybegin(IN_CHARACTER_LITERAL);
+                        }
+  [^]                   { character = 0; yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL); }
+}
+
+// IN_STRING_LITERAL is a lot more lax than IN_CHARACTER_LITERAL, because so long as the string
+// is delimited correctly, we don't care about the contents, whereas each character literal should
+// only represent a single character
 <IN_STRING_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \"                    { String text = string.toString();
@@ -205,4 +292,5 @@ control_character   = [abefnrtvx]
                           }
                         }
   .                     { string.append(yytext()); }
+  [^]                   { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
