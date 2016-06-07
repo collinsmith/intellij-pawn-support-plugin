@@ -1,0 +1,237 @@
+{
+  generate = [
+    tokens = "no"
+  ]
+
+  parserClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParser"
+  parserUtilClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserUtils"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="SourcePawn"
+  psiImplClassSuffix="Impl"
+  psiPackage="net.alliedmods.intellij.sourcepawn.psi"
+  psiImplPackage="net.alliedmods.intellij.sourcepawn.psi.impl"
+
+  elementTypeHolderClass="net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes"
+  elementTypeClass="net.alliedmods.intellij.sourcepawn.psi.SourcePawnElementType"
+  tokenTypeClass="net.alliedmods.intellij.sourcepawn.psi.SourcePawnTokenType"
+
+  tokens = [
+    // OPERATORS
+    plus='+'
+    minus='-'
+    asterisk='*'
+    slash='/'
+    percent='%'
+    exclamation='!'
+    tilde='~'
+    assign='='
+    ampersand='&'
+    caret='^'
+    vertical_bar='|'
+    period='.'
+    comma=','
+    semicolon=';'
+
+    lbracket='['
+    rbracket=']'
+    lbrace='{'
+    rbrace='}'
+    lparen='('
+    rparen=')'
+    lt='<'
+    gt='>'
+
+    muleq='*='
+    diveq='/='
+    modeq='%='
+    addeq='+='
+    subeq='-='
+    sleq='<<='
+    srleq='>>>='
+    sraeq='>>='
+    andeq='&='
+    xoreq='^='
+    oreq='|='
+    or='||'
+    and='&&'
+    equalto='=='
+    nequalto='!='
+    lteq='<='
+    gteq='>='
+    sl='<<'
+    srl='>>>'
+    sra='>>'
+    increment='++'
+    decrement='--'
+    ellipsis='...'
+    range='..'
+    scope_resolution='::'
+
+    // KEYWORDS
+    acquire="acquire"
+    as="as"
+    assert="assert"
+//  begin="begin"
+    break="break"
+    builtin="builtin"
+    catch="catch"
+    case="case"
+    cast_to="cast_to"
+    cellsof="cellsof"
+    char="char"
+    const="const"
+    continue="continue"
+    decl="decl"
+    default="default"
+    defined="defined"
+    delete="delete"
+    do="do"
+    double="double"
+    else="else"
+//  end="end"
+    enum="enum"
+    exit="exit"
+    explicit="explicit"
+    finally="finally"
+    for="for"
+    foreach="foreach"
+    forward="forward"
+    funcenum="funcenum"
+    functag="functag"
+    function="function"
+    goto="goto"
+    if="if"
+    implicit="implicit"
+    import="import"
+    in="in"
+    int="int"
+    int8="int8"
+    int16="int16"
+    int32="int32"
+    int64="int64"
+    interface="interface"
+    intn="intn"
+    let="let"
+    methodmap="methodmap"
+    namespace="namespace"
+    native="native"
+    new="new"
+    null="null"
+    nullable="__nullable__"
+    object="object"
+    operator="operator"
+    package="package"
+    private="private"
+    protected="protected"
+    public="public"
+    readonly="readonly"
+    return="return"
+    sealed="sealed"
+    sizeof="sizeof"
+    sleep="sleep"
+    static="static"
+    stock="stock"
+    struct="struct"
+    switch="switch"
+    tagof="tagof"
+//  then="then"
+    this="this"
+    throw="throw"
+    try="try"
+    typedef="typedef"
+    typeof="typeof"
+    typeset="typeset"
+    uint8="uint8"
+    uint16="uint16"
+    uint32="uint32"
+    uint64="uint64"
+    uintn="uintn"
+    union="union"
+    using="using"
+    var="var"
+    variant="variant"
+    view_as="view_as"
+    virtual="virtual"
+    void="void"
+    volatile="volatile"
+    while="while"
+    with="with"
+
+    // PREDEFINED CONSTANTS
+    true="true"
+    false="false"
+    eos="EOS"
+    invalid_function="INVALID_FUNCTION"
+    cellbits="cellbits"
+    cellmin="cellmin"
+    cellmax="cellmax"
+    charbits="charbits"
+    charmin="charmin"
+    charmax="charmax"
+    ucharmax="ucharmax"
+    sp_version="__Pawn"
+    debug="debug"
+
+    hash='#'
+    pragma="pragma"
+    pragma_semicolon="semicolon"
+    pragma_ctrlchar="ctrlchar"
+    pragma_deprecated="deprecated"
+    pragma_deprecated_string
+
+    LINE_WS='regexp:[\ \t\f]+'
+    EOL="regexp:(\r|\n|\r\n)"
+
+    line_comment="regexp://.*"
+    block_comment="regexp:/\*[^]*\*/"
+
+//  boolean_literal='regexp:true|false'
+
+    binary_literal='regexp:0b(0|1|_)*'
+    decimal_literal='regexp:[0-9][_0-9]*'
+    hexadecimal_literal='regexp:0x[_0-9a-fA-F]*'
+
+    rational_literal="regexp:[0-9][_0-9]*\.[0-9][_0-9]*(e-?[0-9]+)?"
+
+    character_string="regexp:'.+?'"
+
+    string_literal='regexp:"([^"\\]|\\.)*"'
+
+    preprocessor_directive='regexp:#(([^\\\r\n])|(\\\h*(\r|\n|\r\n)))*(\r|\n|\r\n)'
+
+    identifier='regexp:([a-zA-Z][_@a-zA-Z0-9]*)|([_@][_@a-zA-Z0-9]+)'
+  ]
+
+  extends(".*_expression")=expression
+}
+
+root ::= <<resetState>> root_item *
+private root_item ::= !<<eof>> compilation_unit {pin=1 recoverWhile=root_recover}
+private root_recover ::= !( compilation_unit )
+private compilation_unit ::=
+   preprocessor_directive
+ | expression
+
+external check_expression_ending ::= parseExpressionEnding
+external character_literal ::= parsePawnCharacterLiteral (character_string)
+
+boolean_literal ::= true | false
+number ::=
+    boolean_literal
+  | character_literal
+  | binary_literal
+  | decimal_literal
+  | hexadecimal_literal
+
+expression ::=
+  identifier assign number check_expression_ending
+
+/*preprocessor_directive ::=
+  pragma pragma_directive
+
+pragma_directive ::=
+    pragma_semicolon <<parsePragmaSemicolons number>>
+  | pragma_ctrlchar <<parsePragmaCtrlchar number>>
+  | <<parsePragmaDeprecated (pragma_deprecated) (pragma_deprecated_string)>>*/
