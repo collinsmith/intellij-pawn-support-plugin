@@ -99,7 +99,7 @@ octal_prefix        = 0o
 decimal_prefix      = {decimal_digit}
 hexadecimal_prefix  = 0x
 
-unicode_escape      = {hexadecimal_digit}{0,2};?
+unicode_escape      = ({hexadecimal_digit}){0,2};?
 decimal_escape      = {decimal_digit}*;?
 
 binary_literal      = {binary_prefix}       ( _ | {binary_digit} )*
@@ -129,65 +129,65 @@ control_character   = [abefnrtvx]
 {nl}  { return NEW_LINE; }
 {w}   { return WHITESPACE; }
 
-"\'"  { yybegin(IN_CHARACTER_LITERAL); string.setLength(0); }
-"\""  { yybegin(IN_STRING_LITERAL); string.setLength(0); }
+"\'"  { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
+"\""  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
 
 [^]   { return BAD_CHARACTER; }
 
 <IN_CHARACTER_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
-  \'                    { String text = string.toString();
+  \'                    { String text = Character.toString(character);
                           if (DEBUG) {
                             System.out.printf("yytext = \"%s\"%n", text);
                           }
 
                           yybegin(YYINITIAL);
                           return CHARACTER_LITERAL; }
-  .                     { char ch = yycharat(0);
-                          if (isEscapeCharacter(ch)) {
+  .                     { character = yycharat(0);
+                          if (isEscapeCharacter(character)) {
                             yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);
-                          } else {
-                            string.append(ch);
                           }
                         }
   [^]                   { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
 <IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE> {
-  {control_character}   { switch(yycharat(0)) {
-                            case 'a':
-                              character = '\u0007';
-                              break;
-                            case 'b':
-                              character = '\b';
-                              break;
-                            case 'e':
-                              character = '\u001B';
-                              break;
-                            case 'f':
-                              character = '\f';
-                              break;
-                            case 'n':
-                              character = '\n';
-                              break;
-                            case 'r':
-                              character = '\r';
-                              break;
-                            case 't':
-                              character = '\t';
-                              break;
-                            case 'v':
-                              character = '\u000B';
-                              break;
-                            case 'x':
-                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
-                              break;
-                            default:
-                              throw new AssertionError(
-                                  "Unsupported control character: " + yycharat(0));
-                          }
+  {control_character}   { character = yycharat(0);
+                          if (character == 'x') {
+                            yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
+                          } else {
+                            switch(yycharat(0)) {
+                              case 'a':
+                                character = '\u0007';
+                                break;
+                              case 'b':
+                                character = '\b';
+                                break;
+                              case 'e':
+                                character = '\u001B';
+                                break;
+                              case 'f':
+                                character = '\f';
+                                break;
+                              case 'n':
+                                character = '\n';
+                                break;
+                              case 'r':
+                                character = '\r';
+                                break;
+                              case 't':
+                                character = '\t';
+                                break;
+                              case 'v':
+                                character = '\u000B';
+                                break;
+                              default:
+                                throw new AssertionError(
+                                    "Unsupported control character: " + yycharat(0));
+                            }
 
-                          yybegin(IN_CHARACTER_LITERAL);
+                            yybegin(IN_CHARACTER_LITERAL);
+                          }
                         }
   [\"'%]                { character = yycharat(0); yybegin(IN_CHARACTER_LITERAL); }
   {decimal_digit}       { yypushback(yylength()); yybegin(IN_CHARACTER_LITERAL_DECIMAL_ESCAPE); }
@@ -266,7 +266,7 @@ control_character   = [abefnrtvx]
 
                           yybegin(YYINITIAL);
                           return STRING_LITERAL; }
-  \\{w}*{nl}{w}*        {  }
+  \\{w}*{nl}{w}*        { /* continue */ }
   ..                    { if (isEscapeCharacter(yycharat(0))) {
                             char ctrl = yycharat(1);
                             switch (ctrl) {

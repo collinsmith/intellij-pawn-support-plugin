@@ -647,19 +647,17 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 29: break;
           case 9: 
-            { yybegin(IN_CHARACTER_LITERAL); string.setLength(0);
+            { string.setLength(0); yybegin(IN_CHARACTER_LITERAL);
             }
           case 30: break;
           case 10: 
-            { yybegin(IN_STRING_LITERAL); string.setLength(0);
+            { string.setLength(0); yybegin(IN_STRING_LITERAL);
             }
           case 31: break;
           case 11: 
-            { char ch = yycharat(0);
-                          if (isEscapeCharacter(ch)) {
+            { character = yycharat(0);
+                          if (isEscapeCharacter(character)) {
                             yybegin(IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE);
-                          } else {
-                            string.append(ch);
                           }
             }
           case 32: break;
@@ -668,7 +666,7 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 33: break;
           case 13: 
-            { String text = string.toString();
+            { String text = Character.toString(character);
                           if (DEBUG) {
                             System.out.printf("yytext = \"%s\"%n", text);
                           }
@@ -696,40 +694,42 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 37: break;
           case 17: 
-            { switch(yycharat(0)) {
-                            case 'a':
-                              character = '\u0007';
-                              break;
-                            case 'b':
-                              character = '\b';
-                              break;
-                            case 'e':
-                              character = '\u001B';
-                              break;
-                            case 'f':
-                              character = '\f';
-                              break;
-                            case 'n':
-                              character = '\n';
-                              break;
-                            case 'r':
-                              character = '\r';
-                              break;
-                            case 't':
-                              character = '\t';
-                              break;
-                            case 'v':
-                              character = '\u000B';
-                              break;
-                            case 'x':
-                              yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
-                              break;
-                            default:
-                              throw new AssertionError(
-                                  "Unsupported control character: " + yycharat(0));
-                          }
+            { character = yycharat(0);
+                          if (character == 'x') {
+                            yybegin(IN_CHARACTER_LITERAL_UNICODE_ESCAPE);
+                          } else {
+                            switch(yycharat(0)) {
+                              case 'a':
+                                character = '\u0007';
+                                break;
+                              case 'b':
+                                character = '\b';
+                                break;
+                              case 'e':
+                                character = '\u001B';
+                                break;
+                              case 'f':
+                                character = '\f';
+                                break;
+                              case 'n':
+                                character = '\n';
+                                break;
+                              case 'r':
+                                character = '\r';
+                                break;
+                              case 't':
+                                character = '\t';
+                                break;
+                              case 'v':
+                                character = '\u000B';
+                                break;
+                              default:
+                                throw new AssertionError(
+                                    "Unsupported control character: " + yycharat(0));
+                            }
 
-                          yybegin(IN_CHARACTER_LITERAL);
+                            yybegin(IN_CHARACTER_LITERAL);
+                          }
             }
           case 38: break;
           case 18: 
@@ -770,7 +770,7 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 41: break;
           case 21: 
-            { 
+            { /* continue */
             }
           case 42: break;
           default:
