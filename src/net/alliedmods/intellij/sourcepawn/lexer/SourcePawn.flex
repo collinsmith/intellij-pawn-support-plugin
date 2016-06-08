@@ -485,7 +485,7 @@ control_character   = [abefnrtvx]
   . {w} / {brknl}       { string.append(yytext()); }
   {brknl} {w}?          { /* ignore whitespace */ }
   {w}? {nl}             |
-  <<EOF>>               { String text = string.toString();
+  <<EOF>>               { String text = string.toString().trim();
                           value = text;
                           if (DEBUG) {
                             System.out.printf("deprecated message = \"%s\"%n", text);

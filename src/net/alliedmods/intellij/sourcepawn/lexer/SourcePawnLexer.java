@@ -1214,7 +1214,7 @@ class SourcePawnLexer implements FlexLexer {
         zzDoEOF();
         switch (zzLexicalState) {
             case IN_PRAGMA_DEPRECATED_STRING: {
-              String text = string.toString();
+              String text = string.toString().trim();
                           value = text;
                           if (DEBUG) {
                             System.out.printf("deprecated message = \"%s\"%n", text);
@@ -1485,7 +1485,7 @@ class SourcePawnLexer implements FlexLexer {
             }
           case 236: break;
           case 39: 
-            { String text = string.toString();
+            { String text = string.toString().trim();
                           value = text;
                           if (DEBUG) {
                             System.out.printf("deprecated message = \"%s\"%n", text);
