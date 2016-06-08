@@ -65,7 +65,11 @@ public class SourcePawnLookAheadLexer extends LookAheadLexer {
           sourcePawnLexer.resetEscapeCharacter();
         }
       } else if (type == PRAGMA_NEWDECLS) {
-        
+        if (token == PRAGMA_NEWDECLS_REQUIRED) {
+          sourcePawnLexer.setNewDeclsRequired(true);
+        } else if (token == PRAGMA_NEWDECLS_OPTIONAL) {
+          sourcePawnLexer.setNewDeclsRequired(false);
+        }
       } else if (type == PRAGMA_SEMICOLON) {
         if (token == CHARACTER_LITERAL) {
           char value = sourcePawnLexer.value();
