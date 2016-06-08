@@ -45,12 +45,14 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
   private static final char DEFAULT_ESCAPE_CHARACTER = '\\';
   private static final boolean DEFAULT_REQUIRE_SEMICOLONS = false;
+  private static final boolean DEFAULT_REQUIRE_NEWDECLS = false;
 
   //ExtendedSyntaxStrCommentHandler longCommentOrStringHandler
   //    = new ExtendedSyntaxStrCommentHandler();
 
   private char escapeCharacter;
   private boolean requireSemicolons;
+  private boolean requireNewDecls;
 
   private StringBuilder string = new StringBuilder(32);
   private char character;
@@ -67,6 +69,7 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
   public void resetState() {
     resetEscapeCharacter();
     resetSemicolonsRequired();
+    resetNewDeclsRequired();
   }
 
   public char getEscapeCharacter() {
@@ -109,6 +112,27 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
   public void resetSemicolonsRequired() {
     setSemicolonsRequired(DEFAULT_REQUIRE_SEMICOLONS);
+  }
+
+  public boolean areNewDeclsRequired() {
+    return requireNewDecls;
+  }
+
+  public void setNewDeclsRequired(boolean requireNewDecls) {
+    if (areNewDeclsRequired() != requireNewDecls) {
+      this.requireNewDecls = requireNewDecls;
+      if (DEBUG) {
+        if (requireNewDecls) {
+          System.out.println("NewDecls are required");
+        } else {
+          System.out.println("NewDecls are no longer required");
+        }
+      }
+    }
+  }
+
+  public void resetNewDeclsRequired() {
+    setNewDeclsRequired(DEFAULT_REQUIRE_NEWDECLS);
   }
 
 %}
