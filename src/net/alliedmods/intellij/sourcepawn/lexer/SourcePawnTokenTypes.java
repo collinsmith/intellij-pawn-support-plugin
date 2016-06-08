@@ -13,7 +13,8 @@ public class SourcePawnTokenTypes {
   // GENERIC
   static IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
   static IElementType WHITESPACE = TokenType.WHITE_SPACE;
-  static IElementType NEW_LINE = TokenType.WHITE_SPACE;
+  static IElementType NEW_LINE = new SourcePawnTokenType("EOL");
+  static IElementType LINE_CONTINUATION = TokenType.WHITE_SPACE;
 
   // PREPROCESSOR DIRECTIVES
   static IElementType PREPROCESSOR_ASSERT = new SourcePawnTokenType("PREPROCESSOR_ASSERT");

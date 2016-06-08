@@ -41,10 +41,10 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 %{
   private static final boolean DEBUG = true;
 
-  private static final int PAWN_CELL_SIZE = 32;
+  public static final int PAWN_CELL_SIZE = 32;
 
   private static final char DEFAULT_ESCAPE_CHARACTER = '\\';
-  private static final boolean REQUIRE_SEMICOLONS = false;
+  private static final boolean DEFAULT_REQUIRE_SEMICOLONS = false;
 
   //ExtendedSyntaxStrCommentHandler longCommentOrStringHandler
   //    = new ExtendedSyntaxStrCommentHandler();
@@ -60,9 +60,13 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
     this((Reader)null);
   }
 
+  public <E> E value() {
+    return (E)value;
+  }
+
   public void resetState() {
-    setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
-    setSemicolonsRequired(REQUIRE_SEMICOLONS);
+    resetEscapeCharacter();
+    resetSemicolonsRequired();
   }
 
   public char getEscapeCharacter() {
@@ -76,6 +80,10 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
         System.out.printf("Escape sequence character changed to '%c'%n", escapeCharacter);
       }
     }
+  }
+
+  public void resetEscapeCharacter() {
+    setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
   }
 
   public boolean isEscapeCharacter(char ch) {
@@ -99,6 +107,10 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
     }
   }
 
+  public void resetSemicolonsRequired() {
+    setSemicolonsRequired(DEFAULT_REQUIRE_SEMICOLONS);
+  }
+
 %}
 
 w                   = [ \t]+
@@ -107,6 +119,7 @@ wnl                 = [ \r\n\t]+
 nl                  = \r|\n|\r\n
 nonl                = [^\r\n]
 nobrknl             = [^\[\r\n]
+brknl              =  \\{w}?{nl}
 
 identifier          = ([_@][_@a-zA-Z0-9]+) | ([a-zA-Z][_@a-zA-Z0-9]*)
 
@@ -294,7 +307,7 @@ control_character   = [abefnrtvx]
 \"                  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
 
 {nl}                { return NEW_LINE; }
-{w}                 { return WHITESPACE; }
+({w}|{brknl})+      { return WHITESPACE; }
 
 {identifier}        { return IDENTIFIER; }
 
@@ -335,38 +348,39 @@ control_character   = [abefnrtvx]
 [^]                 { return BAD_CHARACTER; }
 
 <IN_PREPROCESSOR> {
-  "assert"      { return PREPROCESSOR_ASSERT; }
-  "define"      { return PREPROCESSOR_DEFINE; }
-  "else"        { return PREPROCESSOR_ELSE; }
-  "elseif"      { return PREPROCESSOR_ELSEIF; }
-  "endif"       { return PREPROCESSOR_ENDIF; }
-  "endinput"    { return PREPROCESSOR_ENDINPUT; }
-  "endscript"   { return PREPROCESSOR_ENDSCRIPT; }
-  "error"       { return PREPROCESSOR_ERROR; }
-  "file"        { return PREPROCESSOR_FILE; }
-  "if"          { return PREPROCESSOR_IF; }
-  "include"     { return PREPROCESSOR_INCLUDE; }
-  "line"        { return PREPROCESSOR_LINE; }
-  "pragma"      { return PREPROCESSOR_PRAGMA; }
-  "tryinclude"  { return PREPROCESSOR_TRYINCLUDE; }
-  "undef"       { return PREPROCESSOR_UNDEF; }
-  [^]           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+  ({w}|{brknl})+    { return WHITESPACE; }
+  "assert"          { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
+  "define"          { yybegin(YYINITIAL); return PREPROCESSOR_DEFINE; }
+  "else"            { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
+  "elseif"          { yybegin(YYINITIAL); return PREPROCESSOR_ELSEIF; }
+  "endif"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
+  "endinput"        { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
+  "endscript"       { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
+  "error"           { yybegin(YYINITIAL); return PREPROCESSOR_ERROR; }
+  "file"            { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
+  "if"              { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
+  "include"         { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
+  "line"            { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
+  "pragma"          { yybegin(IN_PREPROCESSOR_PRAGMA); return PREPROCESSOR_PRAGMA; }
+  "tryinclude"      { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
+  "undef"           { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
+  [^]               { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
 <IN_PREPROCESSOR_PRAGMA> {
-  {w}           { return WHITESPACE; }
-  "codepage"    { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
-  "ctrlchar"    { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
-  "deprecated"  { string.setLength(0);
-                  yybegin(IN_PRAGMA_DEPRECATED_STRING);
-                  return PRAGMA_DEPRECATED; }
-  "dynamic"     { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
-  "rational"    { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
-  "semicolon"   { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
-  "newdecls"    { yybegin(YYINITIAL); return PRAGMA_NEWDECLS; }
-  "tabsize"     { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
-  "unused"      { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
-  [^]           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+  ({w}|{brknl})+    { return WHITESPACE; }
+  "codepage"        { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
+  "ctrlchar"        { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
+  "deprecated"      { string.setLength(0);
+                      yybegin(IN_PRAGMA_DEPRECATED_STRING);
+                      return PRAGMA_DEPRECATED; }
+  "dynamic"         { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
+  "rational"        { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
+  "semicolon"       { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
+  "newdecls"        { yybegin(YYINITIAL); return PRAGMA_NEWDECLS; }
+  "tabsize"         { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
+  "unused"          { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
+  [^]               { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
 <IN_PRAGMA_DEPRECATED_STRING> {
