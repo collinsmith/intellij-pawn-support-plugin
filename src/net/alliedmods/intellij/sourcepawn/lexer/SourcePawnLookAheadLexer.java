@@ -41,7 +41,10 @@ public class SourcePawnLookAheadLexer extends LookAheadLexer {
     if (type == PRAGMA_CTRLCHAR) {
       addToken(type);
       baseLexer.advance();
-      while (baseLexer.getTokenType() == WHITESPACE) {
+      while (baseLexer.getTokenType() == WHITESPACE
+          || baseLexer.getTokenType() == LINE_COMMENT
+          || baseLexer.getTokenType() == BLOCK_COMMENT
+          || baseLexer.getTokenType() == DOC_COMMENT) {
         addToken(WHITESPACE);
         baseLexer.advance();
       }

@@ -118,8 +118,9 @@ now                 = [^ \t]+
 wnl                 = [ \r\n\t]+
 nl                  = \r|\n|\r\n
 nonl                = [^\r\n]
-nobrknl             = [^\[\r\n]
-brknl              =  \\{w}?{nl}
+nobrkn              = [^\[\r\n]
+brknl               = \\{w}?{nl}
+whitespace          = ({w}|{brknl})+
 
 identifier          = ([_@][_@a-zA-Z0-9]+) | ([a-zA-Z][_@a-zA-Z0-9]*)
 
@@ -158,6 +159,10 @@ control_character   = [abefnrtvx]
 %x IN_CHARACTER_LITERAL_ESCAPE_SEQUENCE
 %x IN_CHARACTER_LITERAL_DECIMAL_ESCAPE
 %x IN_CHARACTER_LITERAL_UNICODE_ESCAPE
+
+%x IN_LINE_COMMENT
+%x IN_BLOCK_COMMENT
+%x IN_DOC_COMMENT
 
 %%
 
@@ -306,8 +311,12 @@ control_character   = [abefnrtvx]
 \'                  { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
 \"                  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
 
+"//" {w}?           { string.setLength(0); yybegin(IN_LINE_COMMENT); }
+"/**" {w}?          { string.setLength(0); yybegin(IN_DOC_COMMENT); }
+"/*" {w}?           { string.setLength(0); yybegin(IN_BLOCK_COMMENT); }
+
+{whitespace}        { return WHITESPACE; }
 {nl}                { return NEW_LINE; }
-({w}|{brknl})+      { return WHITESPACE; }
 
 {identifier}        { return IDENTIFIER; }
 
@@ -347,8 +356,56 @@ control_character   = [abefnrtvx]
 
 [^]                 { return BAD_CHARACTER; }
 
+<IN_LINE_COMMENT> {
+  . {w}? [^\r\n]      { string.append(yytext()); }
+  {w}? {nl}           |
+  <<EOF>>             { String text = string.toString();
+                        value = text;
+                        if (DEBUG) {
+                          System.out.printf("line comment = '%s'%n", text);
+                        }
+
+                        yybegin(YYINITIAL);
+                        yypushback(yylength());
+                        return LINE_COMMENT;
+                      }
+  [^]                 { string.append(yytext()); }
+}
+
+<IN_BLOCK_COMMENT> {
+  <<EOF>>                   { return BAD_CHARACTER; }
+  . {w} [^\r\n"*/"]         { string.append(yytext()); }
+  {w}? {nl}+ {w}?           { string.append(' '); }
+  {w}? "*/"                 { String text = string.toString();
+                              value = text;
+                              if (DEBUG) {
+                                System.out.printf("block comment = '%s'%n", text);
+                              }
+
+                              yybegin(YYINITIAL);
+                              yypushback(yylength());
+                              return BLOCK_COMMENT;
+                            }
+  [^]                       { string.append(yytext()); }
+}
+
+<IN_DOC_COMMENT> {
+  <<EOF>>                   { return BAD_CHARACTER; }
+  "*/"                      { String text = string.toString();
+                              value = text;
+                              if (DEBUG) {
+                                System.out.printf("doc comment = '%s'%n", text);
+                              }
+
+                              yybegin(YYINITIAL);
+                              yypushback(yylength());
+                              return DOC_COMMENT;
+                            }
+  [^]                       { string.append(yytext()); }
+}
+
 <IN_PREPROCESSOR> {
-  ({w}|{brknl})+    { return WHITESPACE; }
+  {whitespace}      { return WHITESPACE; }
   "assert"          { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
   "define"          { yybegin(YYINITIAL); return PREPROCESSOR_DEFINE; }
   "else"            { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
@@ -368,7 +425,7 @@ control_character   = [abefnrtvx]
 }
 
 <IN_PREPROCESSOR_PRAGMA> {
-  ({w}|{brknl})+    { return WHITESPACE; }
+  {whitespace}      { return WHITESPACE; }
   "codepage"        { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
   "ctrlchar"        { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
   "deprecated"      { string.setLength(0);
@@ -384,10 +441,10 @@ control_character   = [abefnrtvx]
 }
 
 <IN_PRAGMA_DEPRECATED_STRING> {
-  {w}                   { /* ignore leading whitespace */ }
-  \\{w}?{nl}{w}?        { /* line continuation */ }
+  {whitespace}          { /* ignore whitespace */ }
   .{w}?                 { string.append(yytext()); }
-  [^]                   { String text = string.toString();
+  [^]                   |
+  <<EOF>>               { String text = string.toString();
                           value = text;
                           if (DEBUG) {
                             System.out.printf("deprecated message = \"%s\"%n", text);

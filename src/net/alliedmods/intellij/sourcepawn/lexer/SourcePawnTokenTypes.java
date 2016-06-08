@@ -14,7 +14,6 @@ public class SourcePawnTokenTypes {
   static IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
   static IElementType WHITESPACE = TokenType.WHITE_SPACE;
   static IElementType NEW_LINE = new SourcePawnTokenType("EOL");
-  static IElementType LINE_CONTINUATION = TokenType.WHITE_SPACE;
 
   // PREPROCESSOR DIRECTIVES
   static IElementType PREPROCESSOR_ASSERT = new SourcePawnTokenType("PREPROCESSOR_ASSERT");
@@ -196,5 +195,10 @@ public class SourcePawnTokenTypes {
 
   // IDENTIFIER
   static IElementType IDENTIFIER = new SourcePawnTokenType("IDENTIFIER");
+
+  // COMMENTS
+  static IElementType LINE_COMMENT = new SourcePawnTokenType("LINE_COMMENT");
+  static IElementType BLOCK_COMMENT = new SourcePawnTokenType("BLOCK_COMMENT");
+  static IElementType DOC_COMMENT = new SourcePawnTokenType("DOC_COMMENT");
 
 }
