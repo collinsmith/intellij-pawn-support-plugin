@@ -2,6 +2,8 @@ package net.alliedmods.intellij.sourcepawn.lexer;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Reader;
+
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
@@ -20,15 +22,26 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 %type IElementType
 
 %eof{
- return;
+  return;
 %eof}
 
 %init{
- resetState();
+  switch (PAWN_CELL_SIZE) {
+    case 16:
+    case 32:
+    case 64:
+      break;
+    default:
+      throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+  }
+
+  resetState();
 %init}
 
 %{
   private static final boolean DEBUG = true;
+
+  private static final int PAWN_CELL_SIZE = 32;
 
   private static final char DEFAULT_ESCAPE_CHARACTER = '\\';
   private static final boolean REQUIRE_SEMICOLONS = false;
@@ -42,6 +55,10 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
   private StringBuilder string = new StringBuilder(32);
   private char character;
   private Object value;
+
+  public SourcePawnLexer() {
+    this((Reader)null);
+  }
 
   public void resetState() {
     setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
@@ -282,7 +299,13 @@ control_character   = [abefnrtvx]
 {identifier}        { return IDENTIFIER; }
 
 {number}            { try {
-                        value = SourcePawnUtils.parseNumber(yytext());
+                        switch (PAWN_CELL_SIZE) {
+                          case 16: value = (short)SourcePawnUtils.parseNumber(yytext()); break;
+                          case 32: value = (int)SourcePawnUtils.parseNumber(yytext()); break;
+                          case 64: value = (long)SourcePawnUtils.parseNumber(yytext()); break;
+                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                        }
+
                         if (DEBUG) {
                           System.out.printf("number %s = %d%n", yytext(), value);
                         }
@@ -294,7 +317,12 @@ control_character   = [abefnrtvx]
                       return NUMBER_LITERAL;
                     }
 {rational_literal}  { try {
-                        value = SourcePawnUtils.parseRational(yytext());
+                        switch (PAWN_CELL_SIZE) {
+                          case 32: value = (float)SourcePawnUtils.parseRational(yytext()); break;
+                          case 64: value = (double)SourcePawnUtils.parseRational(yytext()); break;
+                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                        }
+
                         if (DEBUG) {
                           System.out.printf("rational %s = %f%n", yytext(), value);
                         }
@@ -362,7 +390,7 @@ control_character   = [abefnrtvx]
 <IN_CHARACTER_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \'                    { String text = Character.toString(character);
-                          value = text;
+                          value = character;
                           if (DEBUG) {
                             System.out.printf("character = \'%s\'%n", text);
                           }

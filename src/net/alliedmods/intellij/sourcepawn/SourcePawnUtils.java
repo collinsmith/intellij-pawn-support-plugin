@@ -9,7 +9,7 @@ public class SourcePawnUtils {
   private SourcePawnUtils() {
   }
 
-  public static int parseNumber(String text) {
+  public static long parseNumber(String text) {
     try {
       return parsePawnBooleanLiteral(text);
     } catch (NumberFormatException e1) {
@@ -29,7 +29,7 @@ public class SourcePawnUtils {
     }
   }
 
-  public static int parsePawnBooleanLiteral(IElementType type) {
+  public static long parsePawnBooleanLiteral(IElementType type) {
     if (type == SourcePawnTypes.TRUE) {
       return 1;
     } else if (type == SourcePawnTypes.FALSE) {
@@ -42,7 +42,7 @@ public class SourcePawnUtils {
         type));
   }
 
-  public static int parsePawnBooleanLiteral(String text) {
+  public static long parsePawnBooleanLiteral(String text) {
     if (text.equals("true")) {
       return 1;
     } else if (text.equals("false")) {
@@ -55,7 +55,7 @@ public class SourcePawnUtils {
         text));
   }
 
-  public static int parsePawnBinaryLiteral(String text) {
+  public static long parsePawnBinaryLiteral(String text) {
     if (!text.startsWith("0b")) {
       throw new NumberFormatException(String.format(
           "Invalid SourcePawn binary literal: %s; " +
@@ -63,7 +63,7 @@ public class SourcePawnUtils {
           text));
     }
 
-    int value = 0;
+    long value = 0;
 
     char ch;
     for (int i = 2; i < text.length(); i++) {
@@ -85,7 +85,7 @@ public class SourcePawnUtils {
     return value;
   }
 
-  public static int parsePawnOctalLiteral(String text) {
+  public static long parsePawnOctalLiteral(String text) {
     if (!text.startsWith("0o")) {
       throw new NumberFormatException(String.format(
           "Invalid SourcePawn octal literal: %s; " +
@@ -93,7 +93,7 @@ public class SourcePawnUtils {
           text));
     }
 
-    int value = 0;
+    long value = 0;
 
     char ch;
     for (int i = 2; i < text.length(); i++) {
@@ -114,7 +114,7 @@ public class SourcePawnUtils {
     return value;
   }
 
-  public static int parsePawnDecimalLiteral(String text) {
+  public static long parsePawnDecimalLiteral(String text) {
     char ch = text.charAt(0);
     if (ch < '0' || '9' < ch) {
       throw new NumberFormatException(String.format(
@@ -123,7 +123,7 @@ public class SourcePawnUtils {
           text));
     }
 
-    int value = ch - '0';
+    long value = ch - '0';
 
     for (int i = 1; i < text.length(); i++) {
       ch = text.charAt(i);
@@ -143,7 +143,7 @@ public class SourcePawnUtils {
     return value;
   }
 
-  public static int parsePawnHexadecimalLiteral(String text) {
+  public static long parsePawnHexadecimalLiteral(String text) {
     if (!text.startsWith("0x")) {
       throw new NumberFormatException(String.format(
           "Invalid SourcePawn binary literal: %s; " +
@@ -151,7 +151,7 @@ public class SourcePawnUtils {
           text));
     }
 
-    int value = 0;
+    long value = 0;
 
     char ch;
     for (int i = 2; i < text.length(); i++) {

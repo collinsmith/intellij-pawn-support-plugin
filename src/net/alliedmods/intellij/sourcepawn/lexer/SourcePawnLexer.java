@@ -2,13 +2,14 @@
 
 package net.alliedmods.intellij.sourcepawn.lexer;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
+
+import java.io.Reader;
+
+import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 
 
 /**
@@ -782,6 +783,8 @@ class SourcePawnLexer implements FlexLexer {
   /* user code: */
   private static final boolean DEBUG = true;
 
+  private static final int PAWN_CELL_SIZE = 32;
+
   private static final char DEFAULT_ESCAPE_CHARACTER = '\\';
   private static final boolean REQUIRE_SEMICOLONS = false;
 
@@ -794,6 +797,10 @@ class SourcePawnLexer implements FlexLexer {
   private StringBuilder string = new StringBuilder(32);
   private char character;
   private Object value;
+
+  public SourcePawnLexer() {
+    this((Reader)null);
+  }
 
   public void resetState() {
     setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
@@ -842,7 +849,16 @@ class SourcePawnLexer implements FlexLexer {
    * @param   in  the java.io.Reader to read input from.
    */
   SourcePawnLexer(java.io.Reader in) {
-   resetState();
+    switch (PAWN_CELL_SIZE) {
+    case 16:
+    case 32:
+    case 64:
+      break;
+    default:
+      throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+  }
+
+  resetState();
     this.zzReader = in;
   }
 
@@ -998,7 +1014,7 @@ class SourcePawnLexer implements FlexLexer {
   private void zzDoEOF() {
     if (!zzEOFDone) {
       zzEOFDone = true;
-     return;
+      return;
 
     }
   }
@@ -1184,7 +1200,13 @@ class SourcePawnLexer implements FlexLexer {
           case 189: break;
           case 8: 
             { try {
-                        value = SourcePawnUtils.parseNumber(yytext());
+                        switch (PAWN_CELL_SIZE) {
+                          case 16: value = (short)SourcePawnUtils.parseNumber(yytext()); break;
+                          case 32: value = (int)SourcePawnUtils.parseNumber(yytext()); break;
+                          case 64: value = (long)SourcePawnUtils.parseNumber(yytext()); break;
+                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                        }
+
                         if (DEBUG) {
                           System.out.printf("number %s = %d%n", yytext(), value);
                         }
@@ -1335,7 +1357,7 @@ class SourcePawnLexer implements FlexLexer {
           case 221: break;
           case 40: 
             { String text = Character.toString(character);
-                          value = text;
+                          value = character;
                           if (DEBUG) {
                             System.out.printf("character = \'%s\'%n", text);
                           }
@@ -1541,7 +1563,12 @@ class SourcePawnLexer implements FlexLexer {
           case 254: break;
           case 73: 
             { try {
-                        value = SourcePawnUtils.parseRational(yytext());
+                        switch (PAWN_CELL_SIZE) {
+                          case 32: value = (float)SourcePawnUtils.parseRational(yytext()); break;
+                          case 64: value = (double)SourcePawnUtils.parseRational(yytext()); break;
+                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                        }
+
                         if (DEBUG) {
                           System.out.printf("rational %s = %f%n", yytext(), value);
                         }
