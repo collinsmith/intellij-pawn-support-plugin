@@ -38,7 +38,7 @@ public class SourcePawnLookAheadLexer extends LookAheadLexer {
   @Override
   protected void lookAhead(Lexer baseLexer) {
     final IElementType type = baseLexer.getTokenType();
-    if (type == PRAGMA_CTRLCHAR) {
+    if (type == PRAGMA_CTRLCHAR || type == PRAGMA_NEWDECLS || type == PRAGMA_SEMICOLON) {
       addToken(type);
       baseLexer.advance();
       while (baseLexer.getTokenType() == WHITESPACE
@@ -52,16 +52,28 @@ public class SourcePawnLookAheadLexer extends LookAheadLexer {
       final IElementType token = baseLexer.getTokenType();
       addToken(token);
       baseLexer.advance();
-      if (token == CHARACTER_LITERAL) {
-        sourcePawnLexer.setEscapeCharacter(sourcePawnLexer.value());
-      } else if (token == NUMBER_LITERAL) {
-        Number number = sourcePawnLexer.value();
-        int codePoint = number.intValue();
-        sourcePawnLexer.setEscapeCharacter((char)codePoint);
-      } else if (token == NEW_LINE) {
-        sourcePawnLexer.resetEscapeCharacter();
-      } else if (token == null) {
-        sourcePawnLexer.resetEscapeCharacter();
+      if (type == PRAGMA_CTRLCHAR) {
+        if (token == CHARACTER_LITERAL) {
+          sourcePawnLexer.setEscapeCharacter(sourcePawnLexer.value());
+        } else if (token == NUMBER_LITERAL) {
+          Number number = sourcePawnLexer.value();
+          int codePoint = number.intValue();
+          sourcePawnLexer.setEscapeCharacter((char) codePoint);
+        } else if (token == NEW_LINE) {
+          sourcePawnLexer.resetEscapeCharacter();
+        } else if (token == null) {
+          sourcePawnLexer.resetEscapeCharacter();
+        }
+      } else if (type == PRAGMA_NEWDECLS) {
+        
+      } else if (type == PRAGMA_SEMICOLON) {
+        if (token == CHARACTER_LITERAL) {
+          char value = sourcePawnLexer.value();
+          sourcePawnLexer.setSemicolonsRequired(value > 0);
+        } else if (token == NUMBER_LITERAL) {
+          Number number = sourcePawnLexer.value();
+          sourcePawnLexer.setSemicolonsRequired(number.intValue() > 0);
+        }
       }
     } else {
       super.lookAhead(baseLexer);

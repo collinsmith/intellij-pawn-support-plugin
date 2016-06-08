@@ -151,6 +151,7 @@ control_character   = [abefnrtvx]
 
 %x IN_PREPROCESSOR
 %x IN_PREPROCESSOR_PRAGMA
+%x IN_PREPROCESSOR_PRAGMA_NEWDECLS
 %x IN_PRAGMA_DEPRECATED_STRING
 
 %x IN_CHARACTER_LITERAL
@@ -436,7 +437,7 @@ control_character   = [abefnrtvx]
   "dynamic"         { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
   "rational"        { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
   "semicolon"       { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
-  "newdecls"        { yybegin(YYINITIAL); return PRAGMA_NEWDECLS; }
+  "newdecls"        { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return PRAGMA_NEWDECLS; }
   "tabsize"         { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
   "unused"          { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
   [^]               { yybegin(YYINITIAL); return BAD_CHARACTER; }
@@ -458,6 +459,14 @@ control_character   = [abefnrtvx]
                             return PRAGMA_DEPRECATED_STRING;
                           }
                         }
+}
+
+<IN_PREPROCESSOR_PRAGMA_NEWDECLS> {
+  {whitespace}          { /* ignore whitespace */ }
+  "required"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }
+  "optional"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }
+  [^]                   |
+  <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
 <IN_CHARACTER_LITERAL> {

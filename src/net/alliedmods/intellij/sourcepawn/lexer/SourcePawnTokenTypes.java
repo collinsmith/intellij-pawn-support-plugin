@@ -43,6 +43,10 @@ public class SourcePawnTokenTypes {
   static IElementType PRAGMA_NEWDECLS = new SourcePawnTokenType("PRAGMA_NEWDECLS");
   static IElementType PRAGMA_TABSIZE = new SourcePawnTokenType("PRAGMA_TABSIZE");
   static IElementType PRAGMA_UNUSED = new SourcePawnTokenType("PRAGMA_UNUSED");
+  
+  // PRAGMA NEWDECLS DIRECTIVES
+  static IElementType PRAGMA_NEWDECLS_REQUIRED = new SourcePawnTokenType("PRAGMA_NEWDECLS_REQUIRED");
+  static IElementType PRAGMA_NEWDECLS_OPTIONAL = new SourcePawnTokenType("PRAGMA_NEWDECLS_OPTIONAL");
 
   // OPERATORS
   static IElementType AMPERSAND = new SourcePawnTokenType("&");
