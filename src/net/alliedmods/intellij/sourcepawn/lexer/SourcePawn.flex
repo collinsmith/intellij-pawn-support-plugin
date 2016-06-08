@@ -174,9 +174,12 @@ exponent            = e -? {decimal_digit}+
 control_character   = [abefnrtvx]
 
 %x IN_PREPROCESSOR
+%x IN_PREPROCESSOR_PRAGMA_PRE
 %x IN_PREPROCESSOR_PRAGMA
-%x IN_PREPROCESSOR_PRAGMA_NEWDECLS
+%x IN_PRAGMA_DEPRECATED_STRING_PRE
 %x IN_PRAGMA_DEPRECATED_STRING
+%x IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE
+%x IN_PREPROCESSOR_PRAGMA_NEWDECLS
 
 %x IN_CHARACTER_LITERAL
 %x IN_STRING_LITERAL
@@ -350,7 +353,8 @@ control_character   = [abefnrtvx]
                           case 16: value = (short)SourcePawnUtils.parseNumber(yytext()); break;
                           case 32: value = (int)SourcePawnUtils.parseNumber(yytext()); break;
                           case 64: value = (long)SourcePawnUtils.parseNumber(yytext()); break;
-                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                          default: throw new AssertionError(
+                                "Unsupported cell size (" + PAWN_CELL_SIZE + ")");
                         }
 
                         if (DEBUG) {
@@ -367,7 +371,8 @@ control_character   = [abefnrtvx]
                         switch (PAWN_CELL_SIZE) {
                           case 32: value = (float)SourcePawnUtils.parseRational(yytext()); break;
                           case 64: value = (double)SourcePawnUtils.parseRational(yytext()); break;
-                          default: throw new AssertionError("Unsupported cell size (" + PAWN_CELL_SIZE + ")");
+                          default: throw new AssertionError(
+                                "Unsupported cell size (" + PAWN_CELL_SIZE + ")");
                         }
 
                         if (DEBUG) {
@@ -432,7 +437,6 @@ control_character   = [abefnrtvx]
 }
 
 <IN_PREPROCESSOR> {
-  {whitespace}      { return WHITESPACE; }
   "assert"          { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
   "define"          { yybegin(YYINITIAL); return PREPROCESSOR_DEFINE; }
   "else"            { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
@@ -445,26 +449,35 @@ control_character   = [abefnrtvx]
   "if"              { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
   "include"         { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
   "line"            { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
-  "pragma"          { yybegin(IN_PREPROCESSOR_PRAGMA); return PREPROCESSOR_PRAGMA; }
+  "pragma"          { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
   "tryinclude"      { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
   "undef"           { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
-  [^]               { yybegin(YYINITIAL); return BAD_CHARACTER; }
+  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_PRAGMA_PRE> {
+  {whitespace}      { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITESPACE; }
+  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PREPROCESSOR_PRAGMA> {
-  {whitespace}      { return WHITESPACE; }
   "codepage"        { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
   "ctrlchar"        { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
-  "deprecated"      { string.setLength(0);
-                      yybegin(IN_PRAGMA_DEPRECATED_STRING);
-                      return PRAGMA_DEPRECATED; }
+  "deprecated"      { yybegin(IN_PRAGMA_DEPRECATED_STRING_PRE); return PRAGMA_DEPRECATED; }
   "dynamic"         { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
   "rational"        { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
   "semicolon"       { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
-  "newdecls"        { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return PRAGMA_NEWDECLS; }
+  "newdecls"        { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }
   "tabsize"         { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
   "unused"          { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
-  [^]               { yybegin(YYINITIAL); return BAD_CHARACTER; }
+  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PRAGMA_DEPRECATED_STRING_PRE> {
+  {whitespace}      { string.setLength(0);
+                      yybegin(IN_PRAGMA_DEPRECATED_STRING);
+                       /* no return, ignore preceeding whitespace */ }
+  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PRAGMA_DEPRECATED_STRING> {
@@ -485,12 +498,17 @@ control_character   = [abefnrtvx]
                         }
 }
 
+<IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE> {
+  {whitespace}      { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITESPACE; }
+  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
 <IN_PREPROCESSOR_PRAGMA_NEWDECLS> {
   {whitespace}          { /* ignore whitespace */ }
   "required"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }
   "optional"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }
   [^]                   |
-  <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
+  <<EOF>>               { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_CHARACTER_LITERAL> {
