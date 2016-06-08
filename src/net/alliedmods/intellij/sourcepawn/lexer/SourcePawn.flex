@@ -383,7 +383,6 @@ control_character   = [abefnrtvx]
                               }
 
                               yybegin(YYINITIAL);
-                              yypushback(yylength());
                               return BLOCK_COMMENT;
                             }
   [^]                       { string.append(yytext()); }
@@ -398,9 +397,12 @@ control_character   = [abefnrtvx]
                               }
 
                               yybegin(YYINITIAL);
-                              yypushback(yylength());
                               return DOC_COMMENT;
                             }
+  "*"+                      {  }
+  {w}                       {  }
+  {nl}+                     { string.append(' '); }
+  [^*] {w} / [^"*/"]        { string.append(yytext()); }
   [^]                       { string.append(yytext()); }
 }
 
