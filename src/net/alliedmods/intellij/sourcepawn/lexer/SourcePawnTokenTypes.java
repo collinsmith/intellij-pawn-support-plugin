@@ -54,6 +54,7 @@ public class SourcePawnTokenTypes {
   static IElementType ASTERISK = new SourcePawnTokenType("*");
   static IElementType AT_SIGN = new SourcePawnTokenType("@");
   static IElementType CARET = new SourcePawnTokenType("^");
+  static IElementType COLON = new SourcePawnTokenType(":");
   static IElementType COMMA = new SourcePawnTokenType(",");
   static IElementType EXCLAMATION = new SourcePawnTokenType("!");
   static IElementType HASH = new SourcePawnTokenType("#");
@@ -199,6 +200,10 @@ public class SourcePawnTokenTypes {
 
   // IDENTIFIER
   static IElementType IDENTIFIER = new SourcePawnTokenType("IDENTIFIER");
+  static IElementType TAG = new SourcePawnTokenType("TAG");
+
+  // CASE LABEL
+  static IElementType LABEL = new SourcePawnTokenType("LABEL");
 
   // COMMENTS
   static IElementType LINE_COMMENT = new SourcePawnTokenType("LINE_COMMENT");

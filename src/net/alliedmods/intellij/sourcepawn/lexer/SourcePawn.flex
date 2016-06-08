@@ -14,7 +14,7 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
 %class SourcePawnLexer
 %implements FlexLexer
-//%debug
+%debug
 
 %unicode
 
@@ -181,6 +181,8 @@ control_character   = [abefnrtvx]
 %x IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE
 %x IN_PREPROCESSOR_PRAGMA_NEWDECLS
 
+%x IN_CASE
+
 %x IN_CHARACTER_LITERAL
 %x IN_STRING_LITERAL
 
@@ -201,6 +203,7 @@ control_character   = [abefnrtvx]
 "*"    { return ASTERISK; }
 "@"    { return AT_SIGN; }
 "^"    { return CARET; }
+":"    { return COLON; }
 ","    { return COMMA; }
 "!"    { return EXCLAMATION; }
 "#"    { yybegin(IN_PREPROCESSOR); return HASH; }
@@ -255,7 +258,7 @@ control_character   = [abefnrtvx]
 //"*begin"          { return BEGIN; }
 "break"             { return BREAK; }
 "builtin"           { return BUILTIN; }
-"case"              { return CASE; }
+"case"              { yybegin(IN_CASE); return CASE; }
 "cast_to"           { return CAST_TO; }
 "catch"             { return CATCH; }
 "cellsof"           { return CELLSOF; }
@@ -350,6 +353,9 @@ control_character   = [abefnrtvx]
 
 {identifier}        { return IDENTIFIER; }
 
+{identifier} / ":" [^:] { return TAG; }
+"_" / ":" [^:]          { return TAG; }
+
 {number}            { try {
                         switch (PAWN_CELL_SIZE) {
                           case 16: value = (short)SourcePawnUtils.parseNumber(yytext()); break;
@@ -387,6 +393,13 @@ control_character   = [abefnrtvx]
                     }
 
 [^]                 { return BAD_CHARACTER; }
+
+<IN_CASE> {
+  {whitespace}                          { return WHITESPACE; }
+  {identifier} / {whitespace}? ":"      { yybegin(YYINITIAL); return LABEL; }
+  {identifier} / {whitespace}? "::"     { yypushback(yylength()); yybegin(YYINITIAL); }
+  [^]                                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
 
 <IN_LINE_COMMENT> {
   {w} .       { string.append(yytext()); }
