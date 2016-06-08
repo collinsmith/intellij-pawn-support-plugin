@@ -142,8 +142,8 @@ now                 = [^ \t]+
 wnl                 = [ \r\n\t]+
 nl                  = \r|\n|\r\n
 nonl                = [^\r\n]
-nobrkn              = [^\[\r\n]
-brknl               = \\{w}?{nl}
+nobrknl             = [^\[\r\n]
+brknl               = \\{w}?{nl}{w}?
 whitespace          = ({w}|{brknl})+
 
 identifier          = ([_@][_@a-zA-Z0-9]+) | ([a-zA-Z][_@a-zA-Z0-9]*)
@@ -437,53 +437,54 @@ control_character   = [abefnrtvx]
 }
 
 <IN_PREPROCESSOR> {
-  "assert"          { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
-  "define"          { yybegin(YYINITIAL); return PREPROCESSOR_DEFINE; }
-  "else"            { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
-  "elseif"          { yybegin(YYINITIAL); return PREPROCESSOR_ELSEIF; }
-  "endif"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
-  "endinput"        { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
-  "endscript"       { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
-  "error"           { yybegin(YYINITIAL); return PREPROCESSOR_ERROR; }
-  "file"            { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
-  "if"              { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
-  "include"         { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
-  "line"            { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
-  "pragma"          { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
-  "tryinclude"      { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
-  "undef"           { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
-  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+  "assert"              { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
+  "define"              { yybegin(YYINITIAL); return PREPROCESSOR_DEFINE; }
+  "else"                { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
+  "elseif"              { yybegin(YYINITIAL); return PREPROCESSOR_ELSEIF; }
+  "endif"               { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
+  "endinput"            { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
+  "endscript"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
+  "error"               { yybegin(YYINITIAL); return PREPROCESSOR_ERROR; }
+  "file"                { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
+  "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
+  "include"             { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
+  "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
+  "pragma"              { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
+  "tryinclude"          { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
+  "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PREPROCESSOR_PRAGMA_PRE> {
-  {whitespace}      { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITESPACE; }
-  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITESPACE; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PREPROCESSOR_PRAGMA> {
-  "codepage"        { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
-  "ctrlchar"        { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
-  "deprecated"      { yybegin(IN_PRAGMA_DEPRECATED_STRING_PRE); return PRAGMA_DEPRECATED; }
-  "dynamic"         { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
-  "rational"        { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
-  "semicolon"       { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
-  "newdecls"        { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }
-  "tabsize"         { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
-  "unused"          { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
-  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+  "codepage"            { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
+  "ctrlchar"            { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
+  "deprecated"          { yybegin(IN_PRAGMA_DEPRECATED_STRING_PRE); return PRAGMA_DEPRECATED; }
+  "dynamic"             { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
+  "rational"            { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
+  "semicolon"           { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
+  "newdecls"            { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }
+  "tabsize"             { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
+  "unused"              { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PRAGMA_DEPRECATED_STRING_PRE> {
-  {whitespace}      { string.setLength(0);
-                      yybegin(IN_PRAGMA_DEPRECATED_STRING);
-                       /* no return, ignore preceeding whitespace */ }
-  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+  {whitespace}          { string.setLength(0);
+                          yybegin(IN_PRAGMA_DEPRECATED_STRING);
+                           /* no return, ignore preceeding whitespace */ }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PRAGMA_DEPRECATED_STRING> {
-  {whitespace}          { /* ignore whitespace */ }
-  .{w}?                 { string.append(yytext()); }
-  [^]                   |
+  {w} .                 { string.append(yytext()); }
+  . {w} / {brknl}       { string.append(yytext()); }
+  {brknl} {w}?          { /* ignore whitespace */ }
+  {w}? {nl}             |
   <<EOF>>               { String text = string.toString();
                           value = text;
                           if (DEBUG) {
@@ -496,11 +497,12 @@ control_character   = [abefnrtvx]
                             return PRAGMA_DEPRECATED_STRING;
                           }
                         }
+  [^]                   { string.append(yytext()); }
 }
 
 <IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE> {
-  {whitespace}      { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITESPACE; }
-  [^]               { yypushback(yylength()); yybegin(YYINITIAL); }
+  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITESPACE; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_PREPROCESSOR_PRAGMA_NEWDECLS> {

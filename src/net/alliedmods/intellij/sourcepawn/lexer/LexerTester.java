@@ -6,6 +6,7 @@ import com.intellij.psi.tree.IElementType;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LexerTester {
@@ -15,16 +16,31 @@ public class LexerTester {
       System.out.println("Expected file path as first argument!");
       System.exit(0);
     }
-
-    for (String path : args) {
-      System.out.println("Lexing " + path + "...");
-      lexFile(path);
-      System.out.println("<EOF>");
+    
+    for (String arg : args) {
+      Path path = Paths.get(arg);
+      if (Files.isDirectory(path)) {
+        readDirectory(path);
+      } else {
+        lexFile(path);
+      }
+    }
+  }
+  
+  public static void readDirectory(Path path) throws IOException {
+    for (Path subPath : Files.newDirectoryStream(path)) {
+      if (Files.isDirectory(subPath)) {
+        readDirectory(subPath);
+      } else {
+        lexFile(subPath);
+      }
     }
   }
 
-  public static void lexFile(String path) throws IOException {
-    byte[] encoded = Files.readAllBytes(Paths.get(path));
+  public static void lexFile(Path path) throws IOException {
+    System.out.println("Lexing " + path + "...");
+    System.out.println("----------------------------------------------------------------");
+    byte[] encoded = Files.readAllBytes(path);
     Lexer tester = SourcePawnLookAheadLexer.createSourcePawnLexer();
     tester.start(new String(encoded));
     for (IElementType type = tester.getTokenType();
@@ -35,6 +51,9 @@ public class LexerTester {
         //System.out.printf("%s.text = \"%s\"%n", type, tester.getTokenText());
       }
     }
+    
+    System.out.println("<EOF>");
+    System.out.println("----------------------------------------------------------------");
   }
 
 }
