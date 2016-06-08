@@ -6,6 +6,7 @@ import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
+import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
 %%
 
@@ -18,11 +19,12 @@ import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 %function advance
 %type IElementType
 
-%eof{ return;
+%eof{
+ return;
 %eof}
 
 %init{
-  resetState();
+ resetState();
 %init}
 
 %{
@@ -39,6 +41,7 @@ import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 
   private StringBuilder string = new StringBuilder(32);
   private char character;
+  private Object value;
 
   public void resetState() {
     setEscapeCharacter(DEFAULT_ESCAPE_CHARACTER);
@@ -82,6 +85,7 @@ import static net.alliedmods.intellij.sourcepawn.lexer.SourcePawnTokenTypes.*;
 %}
 
 w                   = [ \t]+
+now                 = [^ \t]+
 wnl                 = [ \r\n\t]+
 nl                  = \r|\n|\r\n
 nonl                = [^\r\n]
@@ -102,16 +106,21 @@ hexadecimal_prefix  = 0x
 unicode_escape      = ({hexadecimal_digit}){0,2};?
 decimal_escape      = {decimal_digit}*;?
 
+boolean_literal     = true | false
 binary_literal      = {binary_prefix}       ( _ | {binary_digit} )*
 octal_literal       = {octal_prefix}        ( _ | {octal_digit} )*
 decimal_literal     = {decimal_prefix}      ( _ | {decimal_digit} )*
 hexadecimal_literal = {hexadecimal_prefix}  ( _ | {hexadecimal_digit} )*
-number              = {binary_literal} | {octal_literal} | {decimal_literal} | {hexadecimal_literal}
+number              = {boolean_literal} | {binary_literal} | {octal_literal} | {decimal_literal} | {hexadecimal_literal}
 
 rational_literal    = {decimal_digit} \. {decimal_digit} {exponent}?
 exponent            = e -? {decimal_digit}+
 
 control_character   = [abefnrtvx]
+
+%x IN_PREPROCESSOR
+%x IN_PREPROCESSOR_PRAGMA
+%x IN_PRAGMA_DEPRECATED_STRING
 
 %x IN_CHARACTER_LITERAL
 %x IN_STRING_LITERAL
@@ -122,23 +131,240 @@ control_character   = [abefnrtvx]
 
 %%
 
-{identifier}    { return IDENTIFIER; }
+"&"    { return AMPERSAND; }
+"="    { return ASSIGN; }
+"*"    { return ASTERISK; }
+"@"    { return AT_SIGN; }
+"^"    { return CARET; }
+","    { return COMMA; }
+"!"    { return EXCLAMATION; }
+"#"    { yybegin(IN_PREPROCESSOR); return HASH; }
+"-"    { return MINUS; }
+"%"    { return PERCENT; }
+"."    { return PERIOD; }
+"+"    { return PLUS; }
+";"    { return SEMICOLON; }
+"/"    { return SLASH; }
+"~"    { return TILDE; }
+"_"    { return UNDERSCORE; }
+"|"    { return VERTICAL_BAR; }
 
-"@"   { return AT_SIGN; }
-"_"   { return UNDERSCORE; }
-{nl}  { return NEW_LINE; }
-{w}   { return WHITESPACE; }
+"+="   { return ADDEQ; }
+"&&"   { return AND; }
+"&="   { return ANDEQ; }
+"--"   { return DECREMENT; }
+"/="   { return DIVEQ; }
+"..."  { return ELLIPSIS; }
+"=="   { return EQUALTO; }
+">="   { return GTEQ; }
+"++"   { return INCREMENT; }
+"<="   { return LTEQ; }
+"%="   { return MODEQ; }
+"*="   { return MULEQ; }
+"!="   { return NEQUALTO; }
+"||"   { return OR; }
+"|="   { return OREQ; }
+".."   { return RANGE; }
+"::"   { return SCOPE_RESOLUTION; }
+"<<"   { return SL; }
+"<<="  { return SLEQ; }
+">>"   { return SRA; }
+">>="  { return SRAEQ; }
+">>>"  { return SRL; }
+">>>=" { return SRLEQ; }
+"-="   { return SUBEQ; }
+"^="   { return XOREQ; }
 
-"\'"  { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
-"\""  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
+"{"   { return LBRACE; }
+"}"   { return RBRACE; }
+"["   { return LBRACKET; }
+"]"   { return RBRACKET; }
+"("   { return LPAREN; }
+")"   { return RPAREN; }
+"<"   { return LT; }
+">"   { return GT; }
 
-[^]   { return BAD_CHARACTER; }
+"acquire"           { return ACQUIRE; }
+"as"                { return AS; }
+"assert"            { return ASSERT; }
+//"*begin"          { return BEGIN; }
+"break"             { return BREAK; }
+"builtin"           { return BUILTIN; }
+"case"              { return CASE; }
+"cast_to"           { return CAST_TO; }
+"catch"             { return CATCH; }
+"cellsof"           { return CELLSOF; }
+"char"              { return CHAR; }
+"const"             { return CONST; }
+"continue"          { return CONTINUE; }
+"decl"              { return DECL; }
+"default"           { return DEFAULT; }
+"defined"           { return DEFINED; }
+"delete"            { return DELETE; }
+"do"                { return DO; }
+"double"            { return DOUBLE; }
+"else"              { return ELSE; }
+//"*end"            { return END; }
+"enum"              { return ENUM; }
+"exit"              { return EXIT; }
+"explicit"          { return EXPLICIT; }
+"finally"           { return FINALLY; }
+"for"               { return FOR; }
+"foreach"           { return FOREACH; }
+"forward"           { return FORWARD; }
+"funcenum"          { return FUNCENUM; }
+"functag"           { return FUNCTAG; }
+"function"          { return FUNCTION; }
+"goto"              { return GOTO; }
+"if"                { return IF; }
+"implicit"          { return IMPLICIT; }
+"import"            { return IMPORT; }
+"in"                { return IN; }
+"int"               { return INT; }
+"int8"              { return INT8; }
+"int16"             { return INT16; }
+"int32"             { return INT32; }
+"int64"             { return INT64; }
+"interface"         { return INTERFACE; }
+"intn"              { return INTN; }
+"let"               { return LET; }
+"methodmap"         { return METHODMAP; }
+"namespace"         { return NAMESPACE; }
+"native"            { return NATIVE; }
+"new"               { return NEW; }
+"null"              { return NULL; }
+"__nullable__"      { return NULLABLE; }
+"object"            { return OBJECT; }
+"operator"          { return OPERATOR; }
+"package"           { return PACKAGE; }
+"private"           { return PRIVATE; }
+"protected"         { return PROTECTED; }
+"public"            { return PUBLIC; }
+"readonly"          { return READONLY; }
+"return"            { return RETURN; }
+"sealed"            { return SEALED; }
+"sizeof"            { return SIZEOF; }
+"sleep"             { return SLEEP; }
+"static"            { return STATIC; }
+"stock"             { return STOCK; }
+"struct"            { return STRUCT; }
+"switch"            { return SWITCH; }
+"tagof"             { return TAGOF; }
+//"*then"           { return THEN; }
+"this"              { return THIS; }
+"throw"             { return THROW; }
+"try"               { return TRY; }
+"typedef"           { return TYPEDEF; }
+"typeof"            { return TYPEOF; }
+"typeset"           { return TYPESET; }
+"uint8"             { return UINT8; }
+"uint16"            { return UINT16; }
+"uint32"            { return UINT32; }
+"uint64"            { return UINT64; }
+"uintn"             { return UINTN; }
+"union"             { return UNION; }
+"using"             { return USING; }
+"var"               { return VAR; }
+"variant"           { return VARIANT; }
+"view_as"           { return VIEW_AS; }
+"virtual"           { return VIRTUAL; }
+"void"              { return VOID; }
+"volatile"          { return VOLATILE; }
+"while"             { return WHILE; }
+"with"              { return WITH; }
+
+\'                  { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
+\"                  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
+
+{nl}                { return NEW_LINE; }
+{w}                 { return WHITESPACE; }
+
+{identifier}        { return IDENTIFIER; }
+
+{number}            { try {
+                        value = SourcePawnUtils.parseNumber(yytext());
+                        if (DEBUG) {
+                          System.out.printf("number %s = %d%n", yytext(), value);
+                        }
+                      } catch (NumberFormatException e) {
+                        // This should not happen if number was tokenized correctly
+                        throw new AssertionError(e.getMessage());
+                      }
+
+                      return NUMBER_LITERAL;
+                    }
+{rational_literal}  { try {
+                        value = SourcePawnUtils.parseRational(yytext());
+                        if (DEBUG) {
+                          System.out.printf("rational %s = %f%n", yytext(), value);
+                        }
+                      } catch (NumberFormatException e) {
+                        // This should not happen if number was tokenized correctly
+                        throw new AssertionError(e.getMessage());
+                      }
+                    }
+
+[^]                 { return BAD_CHARACTER; }
+
+<IN_PREPROCESSOR> {
+  "assert"      { return PREPROCESSOR_ASSERT; }
+  "define"      { return PREPROCESSOR_DEFINE; }
+  "else"        { return PREPROCESSOR_ELSE; }
+  "elseif"      { return PREPROCESSOR_ELSEIF; }
+  "endif"       { return PREPROCESSOR_ENDIF; }
+  "endinput"    { return PREPROCESSOR_ENDINPUT; }
+  "endscript"   { return PREPROCESSOR_ENDSCRIPT; }
+  "error"       { return PREPROCESSOR_ERROR; }
+  "file"        { return PREPROCESSOR_FILE; }
+  "if"          { return PREPROCESSOR_IF; }
+  "include"     { return PREPROCESSOR_INCLUDE; }
+  "line"        { return PREPROCESSOR_LINE; }
+  "pragma"      { return PREPROCESSOR_PRAGMA; }
+  "tryinclude"  { return PREPROCESSOR_TRYINCLUDE; }
+  "undef"       { return PREPROCESSOR_UNDEF; }
+  [^]           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+}
+
+<IN_PREPROCESSOR_PRAGMA> {
+  {w}           { return WHITESPACE; }
+  "codepage"    { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
+  "ctrlchar"    { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
+  "deprecated"  { string.setLength(0);
+                  yybegin(IN_PRAGMA_DEPRECATED_STRING);
+                  return PRAGMA_DEPRECATED; }
+  "dynamic"     { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
+  "rational"    { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
+  "semicolon"   { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
+  "newdecls"    { yybegin(YYINITIAL); return PRAGMA_NEWDECLS; }
+  "tabsize"     { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
+  "unused"      { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
+  [^]           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+}
+
+<IN_PRAGMA_DEPRECATED_STRING> {
+  {w}                   { /* ignore leading whitespace */ }
+  \\{w}?{nl}{w}?        { /* line continuation */ }
+  .{w}?                 { string.append(yytext()); }
+  [^]                   { String text = string.toString();
+                          value = text;
+                          if (DEBUG) {
+                            System.out.printf("deprecated message = \"%s\"%n", text);
+                          }
+
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          if (!text.isEmpty()) {
+                            return PRAGMA_DEPRECATED_STRING;
+                          }
+                        }
+}
 
 <IN_CHARACTER_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \'                    { String text = Character.toString(character);
+                          value = text;
                           if (DEBUG) {
-                            System.out.printf("yytext = \"%s\"%n", text);
+                            System.out.printf("character = \'%s\'%n", text);
                           }
 
                           yybegin(YYINITIAL);
@@ -260,13 +486,14 @@ control_character   = [abefnrtvx]
 <IN_STRING_LITERAL> {
   <<EOF>>               { yybegin(YYINITIAL); return BAD_CHARACTER; }
   \"                    { String text = string.toString();
+                          value = text;
                           if (DEBUG) {
-                            System.out.printf("yytext = \"%s\"%n", text);
+                            System.out.printf("string = \"%s\"%n", text);
                           }
 
                           yybegin(YYINITIAL);
                           return STRING_LITERAL; }
-  \\{w}*{nl}{w}*        { /* continue */ }
+  \\{w}?{nl}{w}?        { /* line continuation */ }
   ..                    { if (isEscapeCharacter(yycharat(0))) {
                             char ctrl = yycharat(1);
                             switch (ctrl) {
