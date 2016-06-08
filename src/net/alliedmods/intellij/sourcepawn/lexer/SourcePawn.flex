@@ -352,9 +352,10 @@ control_character   = [abefnrtvx]
 {nl}                { return NEW_LINE; }
 
 {identifier}        { return IDENTIFIER; }
+{identifier} / "::" { return IDENTIFIER; }
 
-{identifier} / ":" [^:] { return TAG; }
-"_" / ":" [^:]          { return TAG; }
+{identifier} / ":"  { return TAG; }
+"_" / ":" [^:]      { return TAG; }
 
 {number}            { try {
                         switch (PAWN_CELL_SIZE) {
