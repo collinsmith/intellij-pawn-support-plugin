@@ -190,7 +190,9 @@ control_character   = [abefnrtvx]
 
 %x IN_LINE_COMMENT
 %x IN_BLOCK_COMMENT
+%x IN_DOC_COMMENT_PRE
 %x IN_DOC_COMMENT
+%x IN_DOC_COMMENT_POST
 
 %%
 
@@ -340,7 +342,7 @@ control_character   = [abefnrtvx]
 \"                  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
 
 "//" {w}?           { string.setLength(0); yybegin(IN_LINE_COMMENT); }
-"/**" {w}?          { string.setLength(0); yybegin(IN_DOC_COMMENT); }
+"/**" {w}?          { string.setLength(0); yybegin(IN_DOC_COMMENT_PRE); }
 "/*" {w}?           { string.setLength(0); yybegin(IN_BLOCK_COMMENT); }
 
 {whitespace}        { return WHITESPACE; }
@@ -387,26 +389,34 @@ control_character   = [abefnrtvx]
 [^]                 { return BAD_CHARACTER; }
 
 <IN_LINE_COMMENT> {
-  . {w}? [^\r\n]      { string.append(yytext()); }
-  {w}? {nl}           |
-  <<EOF>>             { String text = string.toString();
-                        value = text;
-                        if (DEBUG) {
-                          System.out.printf("line comment = '%s'%n", text);
-                        }
+  {w} .       { string.append(yytext()); }
+  {w}? {nl}   { String text = string.toString().trim();
+                value = text;
+                if (DEBUG) {
+                  System.out.printf("line comment = '%s'%n", text);
+                }
 
-                        yybegin(YYINITIAL);
-                        yypushback(yylength());
-                        return LINE_COMMENT;
-                      }
-  [^]                 { string.append(yytext()); }
+                yybegin(YYINITIAL);
+                yypushback(yylength());
+                return LINE_COMMENT;
+              }
+  <<EOF>>     { String text = string.toString().trim();
+                value = text;
+                if (DEBUG) {
+                  System.out.printf("line comment = '%s'%n", text);
+                }
+
+                yybegin(YYINITIAL);
+                return LINE_COMMENT;
+              }
+  [^]         { string.append(yytext()); }
 }
 
 <IN_BLOCK_COMMENT> {
   <<EOF>>                   { return BAD_CHARACTER; }
-  . {w} [^\r\n"*/"]         { string.append(yytext()); }
+  {w} .                     { string.append(yytext()); }
   {w}? {nl}+ {w}?           { string.append(' '); }
-  {w}? "*/"                 { String text = string.toString();
+  {w}? "*/"                 { String text = string.toString().trim();
                               value = text;
                               if (DEBUG) {
                                 System.out.printf("block comment = '%s'%n", text);
@@ -418,22 +428,33 @@ control_character   = [abefnrtvx]
   [^]                       { string.append(yytext()); }
 }
 
+<IN_DOC_COMMENT_PRE> {
+  <<EOF>>                   { return BAD_CHARACTER; }
+  "*"+                      { /* ignore leading asterisks */ }
+  "*"* {nl} ({w} "*" {w})?  { yybegin(IN_DOC_COMMENT); }
+  "*"* "*/"                 { yybegin(IN_DOC_COMMENT_POST); }
+  [^]                       { string.append(yytext()); }
+}
+
 <IN_DOC_COMMENT> {
   <<EOF>>                   { return BAD_CHARACTER; }
-  "*/"                      { String text = string.toString();
+  {w}? {nl} ({w} "*" {w})?  { string.append(' '); }
+  "*"* "*/"                 { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }
+  [^]                       { string.append(yytext()); }
+}
+
+<IN_DOC_COMMENT_POST> {
+  [^]                       |
+  <<EOF>>                   { String text = string.toString().trim();
                               value = text;
                               if (DEBUG) {
                                 System.out.printf("doc comment = '%s'%n", text);
                               }
 
                               yybegin(YYINITIAL);
+                              yypushback(yylength());
                               return DOC_COMMENT;
                             }
-  "*"+                      {  }
-  {w}                       {  }
-  {nl}+                     { string.append(' '); }
-  [^*] {w} / [^"*/"]        { string.append(yytext()); }
-  [^]                       { string.append(yytext()); }
 }
 
 <IN_PREPROCESSOR> {
