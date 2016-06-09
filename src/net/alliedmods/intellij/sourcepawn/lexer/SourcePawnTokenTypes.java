@@ -16,37 +16,41 @@ public class SourcePawnTokenTypes {
   public static IElementType NEW_LINE = new SourcePawnTokenType("EOL");
 
   // PREPROCESSOR DIRECTIVES
-  public static IElementType PREPROCESSOR_ASSERT = new SourcePawnTokenType("PREPROCESSOR_ASSERT");
-  public static IElementType PREPROCESSOR_DEFINE = new SourcePawnTokenType("PREPROCESSOR_DEFINE");
-  public static IElementType PREPROCESSOR_ELSE = new SourcePawnTokenType("PREPROCESSOR_ELSE");
-  public static IElementType PREPROCESSOR_ELSEIF = new SourcePawnTokenType("PREPROCESSOR_ELSEIF");
-  public static IElementType PREPROCESSOR_ENDIF = new SourcePawnTokenType("PREPROCESSOR_ENDIF");
-  public static IElementType PREPROCESSOR_ENDINPUT = new SourcePawnTokenType("PREPROCESSOR_ENDINPUT");
-  public static IElementType PREPROCESSOR_ENDSCRIPT = new SourcePawnTokenType("PREPROCESSOR_ENDSCRIPT");
-  public static IElementType PREPROCESSOR_ERROR = new SourcePawnTokenType("PREPROCESSOR_ERROR");
-  public static IElementType PREPROCESSOR_FILE = new SourcePawnTokenType("PREPROCESSOR_FILE");
-  public static IElementType PREPROCESSOR_IF = new SourcePawnTokenType("PREPROCESSOR_IF");
-  public static IElementType PREPROCESSOR_INCLUDE = new SourcePawnTokenType("PREPROCESSOR_INCLUDE");
-  public static IElementType PREPROCESSOR_LINE = new SourcePawnTokenType("PREPROCESSOR_LINE");
-  public static IElementType PREPROCESSOR_PRAGMA = new SourcePawnTokenType("PREPROCESSOR_PRAGMA");
-  public static IElementType PREPROCESSOR_TRYINCLUDE = new SourcePawnTokenType("PREPROCESSOR_TRYINCLUDE");
-  public static IElementType PREPROCESSOR_UNDEF = new SourcePawnTokenType("PREPROCESSOR_UNDEF");
+  public static IElementType PREPROCESSOR_ASSERT = new SourcePawnTokenType("assert");
+  public static IElementType PREPROCESSOR_DEFINE = new SourcePawnTokenType("define");
+  public static IElementType PREPROCESSOR_ELSE = new SourcePawnTokenType("else");
+  public static IElementType PREPROCESSOR_ELSEIF = new SourcePawnTokenType("elseif");
+  public static IElementType PREPROCESSOR_ENDIF = new SourcePawnTokenType("endif");
+  public static IElementType PREPROCESSOR_ENDINPUT = new SourcePawnTokenType("endinput");
+  public static IElementType PREPROCESSOR_ENDSCRIPT = new SourcePawnTokenType("endscript");
+  public static IElementType PREPROCESSOR_ERROR = new SourcePawnTokenType("error");
+  public static IElementType PREPROCESSOR_FILE = new SourcePawnTokenType("file");
+  public static IElementType PREPROCESSOR_IF = new SourcePawnTokenType("if");
+  public static IElementType PREPROCESSOR_INCLUDE = new SourcePawnTokenType("include");
+  public static IElementType PREPROCESSOR_LINE = new SourcePawnTokenType("line");
+  public static IElementType PREPROCESSOR_PRAGMA = new SourcePawnTokenType("pragma");
+  public static IElementType PREPROCESSOR_TRYINCLUDE = new SourcePawnTokenType("tryinclude");
+  public static IElementType PREPROCESSOR_UNDEF = new SourcePawnTokenType("undef");
+
+  // INCLUDE FILE FORMATS
+  public static IElementType PREPROCESSOR_INCLUDE_SYSTEMFILE = new SourcePawnTokenType("-system file-");
+  public static IElementType PREPROCESSOR_INCLUDE_RELATIVEFILE = new SourcePawnTokenType("-relative file-");
 
   // PRAGMA DIRECTIVES
-  public static IElementType PRAGMA_CODEPAGE = new SourcePawnTokenType("PRAGMA_CODEPAGE");
-  public static IElementType PRAGMA_CTRLCHAR = new SourcePawnTokenType("PRAGMA_CTRLCHAR");
-  public static IElementType PRAGMA_DEPRECATED = new SourcePawnTokenType("PRAGMA_DEPRECATED");
+  public static IElementType PRAGMA_CODEPAGE = new SourcePawnTokenType("codepage");
+  public static IElementType PRAGMA_CTRLCHAR = new SourcePawnTokenType("ctrlchar");
+  public static IElementType PRAGMA_DEPRECATED = new SourcePawnTokenType("deprecated");
   public static IElementType PRAGMA_DEPRECATED_STRING = new SourcePawnTokenType("PRAGMA_DEPRECATED_STRING");
-  public static IElementType PRAGMA_DYNAMIC = new SourcePawnTokenType("PRAGMA_DYNAMIC");
-  public static IElementType PRAGMA_RATIONAL = new SourcePawnTokenType("PRAGMA_RATIONAL");
-  public static IElementType PRAGMA_SEMICOLON = new SourcePawnTokenType("PRAGMA_SEMICOLON");
-  public static IElementType PRAGMA_NEWDECLS = new SourcePawnTokenType("PRAGMA_NEWDECLS");
-  public static IElementType PRAGMA_TABSIZE = new SourcePawnTokenType("PRAGMA_TABSIZE");
-  public static IElementType PRAGMA_UNUSED = new SourcePawnTokenType("PRAGMA_UNUSED");
+  public static IElementType PRAGMA_DYNAMIC = new SourcePawnTokenType("dynamic");
+  public static IElementType PRAGMA_RATIONAL = new SourcePawnTokenType("rational");
+  public static IElementType PRAGMA_SEMICOLON = new SourcePawnTokenType("semicolon");
+  public static IElementType PRAGMA_NEWDECLS = new SourcePawnTokenType("newdecls");
+  public static IElementType PRAGMA_TABSIZE = new SourcePawnTokenType("tabsize");
+  public static IElementType PRAGMA_UNUSED = new SourcePawnTokenType("unused");
   
   // PRAGMA NEWDECLS DIRECTIVES
-  public static IElementType PRAGMA_NEWDECLS_REQUIRED = new SourcePawnTokenType("PRAGMA_NEWDECLS_REQUIRED");
-  public static IElementType PRAGMA_NEWDECLS_OPTIONAL = new SourcePawnTokenType("PRAGMA_NEWDECLS_OPTIONAL");
+  public static IElementType PRAGMA_NEWDECLS_REQUIRED = new SourcePawnTokenType("required");
+  public static IElementType PRAGMA_NEWDECLS_OPTIONAL = new SourcePawnTokenType("optional");
 
   // OPERATORS
   public static IElementType AMPERSAND = new SourcePawnTokenType("&");
@@ -194,16 +198,16 @@ public class SourcePawnTokenTypes {
   public static IElementType WITH = new SourcePawnTokenType("with");
 
   // LITERALS
-  public static IElementType NUMBER_LITERAL = new SourcePawnTokenType("NUMBER_LITERAL");
-  public static IElementType CHARACTER_LITERAL = new SourcePawnTokenType("CHARACTER_LITERAL");
-  public static IElementType STRING_LITERAL = new SourcePawnTokenType("STRING_LITERAL");
+  public static IElementType NUMBER_LITERAL = new SourcePawnTokenType("-number-");
+  public static IElementType CHARACTER_LITERAL = new SourcePawnTokenType("-character-");
+  public static IElementType STRING_LITERAL = new SourcePawnTokenType("-string-");
 
   // IDENTIFIER
-  public static IElementType IDENTIFIER = new SourcePawnTokenType("IDENTIFIER");
-  public static IElementType TAG = new SourcePawnTokenType("TAG");
+  public static IElementType IDENTIFIER = new SourcePawnTokenType("-identifier-");
+  public static IElementType TAG = new SourcePawnTokenType("-tag-");
 
   // CASE LABEL
-  public static IElementType LABEL = new SourcePawnTokenType("LABEL");
+  public static IElementType LABEL = new SourcePawnTokenType("-label-");
 
   // COMMENTS
   public static IElementType LINE_COMMENT = new SourcePawnTokenType("LINE_COMMENT");

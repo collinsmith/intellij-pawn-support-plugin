@@ -14,7 +14,7 @@ import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
 %class SourcePawnLexer
 %implements FlexLexer
-%debug
+//%debug
 
 %unicode
 
@@ -174,6 +174,12 @@ exponent            = e -? {decimal_digit}+
 control_character   = [abefnrtvx]
 
 %x IN_PREPROCESSOR
+%x IN_PREPROCESSOR_INCLUDE_PRE
+%x IN_PREPROCESSOR_INCLUDE
+%x IN_PREPROCESSOR_INCLUDE_SYSTEMFILE_PRE
+%x IN_PREPROCESSOR_INCLUDE_SYSTEMFILE
+%x IN_PREPROCESSOR_INCLUDE_RELATIVEFILE_PRE
+%x IN_PREPROCESSOR_INCLUDE_RELATIVEFILE
 %x IN_PREPROCESSOR_PRAGMA_PRE
 %x IN_PREPROCESSOR_PRAGMA
 %x IN_PRAGMA_DEPRECATED_STRING_PRE
@@ -341,8 +347,8 @@ control_character   = [abefnrtvx]
 "while"             { return WHILE; }
 "with"              { return WITH; }
 
-\'                  { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
-\"                  { string.setLength(0); yybegin(IN_STRING_LITERAL); }
+"\'"                { string.setLength(0); yybegin(IN_CHARACTER_LITERAL); }
+"\""                { string.setLength(0); yybegin(IN_STRING_LITERAL); }
 
 "//" {w}?           { string.setLength(0); yybegin(IN_LINE_COMMENT); }
 "/**" {w}?          { string.setLength(0); yybegin(IN_DOC_COMMENT_PRE); }
@@ -482,12 +488,63 @@ control_character   = [abefnrtvx]
   "error"               { yybegin(YYINITIAL); return PREPROCESSOR_ERROR; }
   "file"                { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
   "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
-  "include"             { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
+  "include"             { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_INCLUDE; }
   "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
   "pragma"              { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
-  "tryinclude"          { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
+  "tryinclude"          { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_TRYINCLUDE; }
   "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_INCLUDE_PRE> {
+  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE); return WHITESPACE; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_INCLUDE> {
+  "<"                   { string.setLength(0);
+                          yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMFILE_PRE); return LT; }
+  "\""                  { string.setLength(0);
+                          yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEFILE_PRE); }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_INCLUDE_SYSTEMFILE_PRE> {
+  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMFILE); return WHITESPACE; }
+  [^]                   { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMFILE); }
+}
+
+<IN_PREPROCESSOR_INCLUDE_SYSTEMFILE> {
+  {whitespace}? ">"     { String text = string.toString();
+                          value = text;
+                          if (DEBUG) {
+                            System.out.printf("system file = \"%s\"%n", text);
+                          }
+                          
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          return PREPROCESSOR_INCLUDE_SYSTEMFILE;
+                        }
+  {whitespace} .        |
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_PREPROCESSOR_INCLUDE_RELATIVEFILE_PRE> {
+  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEFILE); }
+  [^]                   { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEFILE); }
+}
+
+<IN_PREPROCESSOR_INCLUDE_RELATIVEFILE> {
+  {whitespace}? "\""    { String text = string.toString();
+                          value = text;
+                          if (DEBUG) {
+                            System.out.printf("relative file = \"%s\"%n", text);
+                          }
+                          
+                          yybegin(YYINITIAL);
+                          return PREPROCESSOR_INCLUDE_RELATIVEFILE; }
+  {whitespace} .        |
+  [^]                   { string.append(yytext()); }
 }
 
 <IN_PREPROCESSOR_PRAGMA_PRE> {
