@@ -26,13 +26,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <fileTypeFactory
-                implementation="net.alliedmods.intellij.sourcepawn.file.SourcePawnScriptFileTypeFactory"/>
-        <fileTypeFactory
-                implementation="net.alliedmods.intellij.sourcepawn.file.SourcePawnIncludeFileTypeFactory"/>
-        <lang.parserDefinition
-                language="SourcePawn"
-                implementationClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserDefinition"/>
+        <fileTypeFactory implementation="net.sourcemod.sourcepawn.SpFileTypeFactory"/>
+        <!--<lang.parserDefinition-->
+                <!--language="SourcePawn"-->
+                <!--implementationClass="net.alliedmods.intellij.sourcepawn.parser.SourcePawnParserDefinition"/>-->
     </extensions>
 
     <actions>
