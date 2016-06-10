@@ -12,6 +12,17 @@ import static org.junit.Assert.assertTrue;
 public class SpUtilsTests {
 
   @Test
+  public void testParseCharacter() {
+    assertTrue(SpUtils.parseCharacter("'a'", '\\').equals(BigInteger.valueOf('a')));
+    assertTrue(SpUtils.parseCharacter("'A'", '\\').equals(BigInteger.valueOf('A')));
+    assertTrue(SpUtils.parseCharacter("'\\n'", '\\').equals(BigInteger.valueOf('\n')));
+    assertTrue(SpUtils.parseCharacter("'^n'", '^').equals(BigInteger.valueOf('\n')));
+    assertTrue(SpUtils.parseCharacter("'\\97'", '\\').equals(BigInteger.valueOf('a')));
+    assertTrue(SpUtils.parseCharacter("'\\0'", '\\').equals(BigInteger.ZERO));
+    assertTrue(SpUtils.parseCharacter("'\\x61'", '\\').equals(BigInteger.valueOf('a')));
+  }
+
+  @Test
   public void testParseRational() {
     assertTrue(SpUtils.parseRational("0.0").doubleValue() == BigDecimal.ZERO.doubleValue());
     assertTrue(SpUtils.parseRational("1.0").doubleValue() == BigDecimal.ONE.doubleValue());
