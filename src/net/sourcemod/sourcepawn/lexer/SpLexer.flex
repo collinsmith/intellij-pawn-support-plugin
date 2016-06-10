@@ -541,7 +541,8 @@ doc_pre             = {w} "*" {w}
                             string.appendCodePoint(codePoint);
                             yybegin(IN_CHARACTER_LITERAL_FINISH);
                           } else {
-                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
+                            string.appendCodePoint(codePoint);
+                            yybegin(IN_ESCAPE_SEQUENCE);
                           }
                         }
   .                     { int codePoint = codePointAt(0);
