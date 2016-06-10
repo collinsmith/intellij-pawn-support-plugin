@@ -264,6 +264,8 @@ public class SpTokenTypes {
   private static final TokenSet MATCHED_PAIRS = TokenSet.create(
       LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN);
 
+  private static final TokenSet STRING_LITERALS = TokenSet.create(STRING_LITERAL);
+
   @NotNull
   public static TokenSet getWhiteSpaceTokens() {
     return WHITE_SPACES;
@@ -292,6 +294,11 @@ public class SpTokenTypes {
   @NotNull
   public static TokenSet getBracketTokens() {
     return MATCHED_PAIRS;
+  }
+
+  @NotNull
+  public static TokenSet getStringLiteralTokens() {
+    return STRING_LITERALS;
   }
 
   private SpTokenTypes() {

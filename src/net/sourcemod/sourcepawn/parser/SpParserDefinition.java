@@ -58,7 +58,7 @@ public class SpParserDefinition implements ParserDefinition {
   @NotNull
   @Override
   public TokenSet getStringLiteralElements() {
-    return TokenSet.EMPTY;
+    return SpTokenTypes.getStringLiteralTokens();
   }
 
   @NotNull
