@@ -1,0 +1,31 @@
+{
+  generate = [
+    tokens = "no"
+    psi-factory = "yes"
+  ]
+  
+  parserImports=[
+    "static net.sourcemod.sourcepawn.lexer.SpTokenTypes.*"
+  ]
+
+  parserClass="net.sourcemod.sourcepawn.parser.SpParser"
+  parserUtilClass="net.sourcemod.sourcepawn.parser.SpParserUtils"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Sp"
+  psiImplClassSuffix="Impl"
+  psiPackage="net.sourcemod.sourcepawn.psi"
+  psiImplPackage="net.sourcemod.sourcepawn.psi.impl"
+
+  elementTypeHolderClass="net.sourcemod.sourcepawn.psi.SpElementTypes"
+  elementTypeClass="net.sourcemod.sourcepawn.psi.SpElementType"
+  tokenTypeClass="net.sourcemod.sourcepawn.SpTokenType"
+
+  extends(".*_expression")=expression
+}
+
+root ::= root_item *
+private root_item ::= !<<eof>> compilation_unit
+private compilation_unit ::=
+    (WHITE_SPACE? NEW_LINE)+

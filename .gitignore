@@ -77,3 +77,4 @@ gen/net/alliedmods/intellij/sourcepawn/_SourcePawnLexer.java~
 gen/net/alliedmods/intellij/sourcepawn/lexer/_SourcePawnLexer.java~
 gen/net/alliedmods/intellij/sourcepawn/psi/
 out/
+/gen/net/sourcemod/sourcepawn/psi/
