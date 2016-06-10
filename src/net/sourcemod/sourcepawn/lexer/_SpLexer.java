@@ -1403,9 +1403,9 @@ public class _SpLexer implements FlexLexer {
             case 781: break;
             case IN_PREPROCESSOR_STRING: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [440] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"message = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          if (!((String)value).isEmpty()) {"+ZZ_NL+"                            return PREPROCESSOR_STRING;"+ZZ_NL+"                          } }");
+              System.out.println("action [440] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG && !((String)value).isEmpty()) {"+ZZ_NL+"                            System.out.printf(\"message = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          if (!((String)value).isEmpty()) {"+ZZ_NL+"                            return PREPROCESSOR_STRING;"+ZZ_NL+"                          } }");
               value = string.toString().trim();
-                          if (DEBUG) {
+                          if (DEBUG && !((String)value).isEmpty()) {
                             System.out.printf("message = %s%n", value);
                           }
 
@@ -1911,9 +1911,9 @@ public class _SpLexer implements FlexLexer {
           case 292: break;
           case 63: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [440] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"message = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          if (!((String)value).isEmpty()) {"+ZZ_NL+"                            return PREPROCESSOR_STRING;"+ZZ_NL+"                          } }");
+            System.out.println("action [440] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG && !((String)value).isEmpty()) {"+ZZ_NL+"                            System.out.printf(\"message = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          if (!((String)value).isEmpty()) {"+ZZ_NL+"                            return PREPROCESSOR_STRING;"+ZZ_NL+"                          } }");
             { value = string.toString().trim();
-                          if (DEBUG) {
+                          if (DEBUG && !((String)value).isEmpty()) {
                             System.out.printf("message = %s%n", value);
                           }
 

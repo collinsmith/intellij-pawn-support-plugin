@@ -438,7 +438,7 @@ doc_pre             = {w} "*" {w}
   {brknl}               { /* ignore whitespace */ }
   {w}? {nl}             |
   <<EOF>>               { value = string.toString().trim();
-                          if (DEBUG) {
+                          if (DEBUG && !((String)value).isEmpty()) {
                             System.out.printf("message = %s%n", value);
                           }
 
