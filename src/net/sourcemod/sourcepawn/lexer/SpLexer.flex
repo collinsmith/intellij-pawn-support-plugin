@@ -5,10 +5,10 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.*;
-import net.alliedmods.intellij.sourcepawn.SourcePawnUtils;
 
 import java.io.Reader;
 import java.util.function.IntConsumer;
+import java.util.NoSuchElementException;
 
 %%
 
@@ -56,7 +56,12 @@ import java.util.function.IntConsumer;
 
   private final StringBuilder string = new StringBuilder(32);
 
+  private IElementType BAD_LITERAL_REASON;
+  private int GOTO_AFTER_ESCAPE_SEQUENCE;
+  private int GOTO_AFTER_ESCAPE_SEQUENCE_FAIL;
+
   private int escapeCharacter;
+
   private Object value;
 
   public _SpLexer() {
@@ -90,6 +95,24 @@ import java.util.function.IntConsumer;
 
   public boolean isEscapeCharacter(int codePoint) {
     return codePoint == getEscapeCharacter();
+  }
+
+  private int codePointAt(int index) {
+    final int length = yylength();
+    if (index >= length) {
+        throw new NoSuchElementException();
+    }
+
+    char c1 = zzBuffer.charAt(zzStartRead + index);
+    index++;
+    if (Character.isHighSurrogate(c1) && index < length) {
+        char c2 = zzBuffer.charAt(zzStartRead + index);
+        if (Character.isLowSurrogate(c2)) {
+            return Character.toCodePoint(c1, c2);
+        }
+    }
+
+    return c1;
   }
 %}
 
@@ -127,6 +150,8 @@ number              = {boolean_literal} | {binary_literal} | {octal_literal} | {
 rational_literal    = {decimal_digit} \. {decimal_digit} {exponent}?
 exponent            = e -? {decimal_digit}+
 
+control_character   = [abefnrtvx]
+
 %xstate IN_PREPROCESSOR
 %xstate IN_PREPROCESSOR_INCLUDE_PRE
 %xstate IN_PREPROCESSOR_INCLUDE
@@ -134,6 +159,15 @@ exponent            = e -? {decimal_digit}+
 %xstate IN_PREPROCESSOR_INCLUDE_SYSTEMPATH
 %xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE
 %xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH
+
+%xstate IN_CASE
+
+%xstate IN_CHARACTER_LITERAL
+%xstate IN_CHARACTER_LITERAL_FINISH
+%xstate IN_BAD_LITERAL
+%xstate IN_ESCAPE_SEQUENCE
+%xstate IN_DECIMAL_ESCAPE_SEQUENCE
+%xstate IN_UNICODE_ESCAPE_SEQUENCE
 
 %%
 
@@ -198,7 +232,7 @@ exponent            = e -? {decimal_digit}+
 //"*begin"              { return BEGIN; }
 "break"                 { return BREAK; }
 "builtin"               { return BUILTIN; }
-"case"                  { return CASE; }
+"case"                  { yybegin(IN_CASE); return CASE; }
 "cast_to"               { return CAST_TO; }
 "catch"                 { return CATCH; }
 "cellsof"               { return CELLSOF; }
@@ -280,6 +314,14 @@ exponent            = e -? {decimal_digit}+
 "volatile"              { return VOLATILE; }
 "while"                 { return WHILE; }
 "with"                  { return WITH; }
+
+// String/Character Literals
+"\'"                    { string.setLength(0); string.append('\'');
+                          GOTO_AFTER_ESCAPE_SEQUENCE = IN_CHARACTER_LITERAL_FINISH;
+                          GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
+                          BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
+                          yybegin(IN_CHARACTER_LITERAL); }
+//"\""                    { string.setLength(0); string.append('\"'); yybegin(IN_STRING_LITERAL); }
 
 // White space
 {whitespace}            { return WHITE_SPACE; }
@@ -397,4 +439,108 @@ exponent            = e -? {decimal_digit}+
   {identifier} / {whitespace}? ":"  { yybegin(YYINITIAL); return LABEL; }
   {identifier} / {whitespace}? "::" { yypushback(yylength()); yybegin(YYINITIAL); }
   [^]                               { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_CHARACTER_LITERAL> {
+  \'                    { string.append('\'');
+                          value = string.toString();
+                          if (DEBUG) {
+                            System.out.printf("character = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL); return EMPTY_CHARACTER_LITERAL; }
+  . / \'                { int codePoint = codePointAt(0);
+                          string.appendCodePoint(codePoint);
+                          yybegin(IN_CHARACTER_LITERAL_FINISH);
+                        }
+  .                     { int codePoint = codePointAt(0);
+                          if (isEscapeCharacter(codePoint)) {
+                            string.appendCodePoint(codePoint);
+                            yybegin(IN_ESCAPE_SEQUENCE);
+                          } else {
+                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
+                          }
+                        }
+  <<EOF>>               { BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
+                          yybegin(IN_BAD_LITERAL); }
+  [^]                   { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+}
+
+<IN_CHARACTER_LITERAL_FINISH> {
+  \'                    { string.append('\'');
+                          value = string.toString();
+                          if (DEBUG) {
+                            System.out.printf("character = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          return CHARACTER_LITERAL; }
+  <<EOF>>               { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
+                          yybegin(IN_BAD_LITERAL); }
+  [^]                   { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+}
+
+<IN_BAD_LITERAL> {
+  {nl}                  |
+  <<EOF>>               { value = string.toString();
+                          if (DEBUG) {
+                            System.out.printf("%s = %s%n", BAD_LITERAL_REASON, value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          return BAD_LITERAL_REASON; }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_ESCAPE_SEQUENCE> {
+  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
+  {control_character}   { int codePoint = codePointAt(0);
+                          if (codePoint == 'x') {
+                            string.appendCodePoint(codePoint);
+                            yybegin(IN_UNICODE_ESCAPE_SEQUENCE);
+                          } else {
+                            switch(codePoint) {
+                              case 'a': string.append('\u0007'); break;
+                              case 'b': string.append('\b'); break;
+                              case 'e': string.append('\u001B'); break;
+                              case 'f': string.append('\f'); break;
+                              case 'n': string.append('\n'); break;
+                              case 'r': string.append('\r'); break;
+                              case 't': string.append('\t'); break;
+                              case 'v': string.append('\u000B'); break;
+                              default:
+                                throw new AssertionError(String.format(
+                                    "Unsupported control character: %c (%1$d)", codePoint));
+                            }
+
+                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
+                          }
+                        }
+  [\"'%]                { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+  {decimal_digit}       { yypushback(yylength()); yybegin(IN_DECIMAL_ESCAPE_SEQUENCE); }
+  .                     { int codePoint = codePointAt(0);
+                          if (isEscapeCharacter(codePoint)) {
+                            string.appendCodePoint(codePoint);
+                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
+                          } else {
+                            BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;
+                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
+                          }
+                        }
+  [^]                   { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+}
+
+<IN_DECIMAL_ESCAPE_SEQUENCE> {
+  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
+  {decimal_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+  [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+}
+
+<IN_UNICODE_ESCAPE_SEQUENCE> {
+  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
+  {unicode_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+  [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
 }

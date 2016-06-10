@@ -186,6 +186,25 @@ public class SpTokenTypes {
   public static final IElementType WHILE = new SpTokenType("WHILE");
   public static final IElementType WITH = new SpTokenType("WITH");
 
+  // LITERALS
+  public static final IElementType NUMBER_LITERAL = new SpTokenType("-number-");
+  public static final IElementType RATIONAL_LITERAL = new SpTokenType("-rational number-");
+
+  public static final IElementType BAD_ESCAPE_SEQUENCE = TokenType.BAD_CHARACTER;
+
+  public static final IElementType CHARACTER_LITERAL = new SpTokenType("-character-");
+  public static final IElementType BAD_CHARACTER_LITERAL = TokenType.BAD_CHARACTER;
+  public static final IElementType INCOMPLETE_CHARACTER_LITERAL = TokenType.BAD_CHARACTER;
+  public static final IElementType EMPTY_CHARACTER_LITERAL = BAD_CHARACTER_LITERAL;
+
+  public static final IElementType BAD_STRING_LITERAL = TokenType.BAD_CHARACTER;
+  public static final IElementType INCOMPLETE_STRING_LITERAL = TokenType.BAD_CHARACTER;
+  public static final IElementType STRING_LITERAL = new SpTokenType("-string-");
+
+  // IDENTIFIER
+  public static final IElementType IDENTIFIER = new SpTokenType("-identifier-");
+  public static final IElementType TAG = new SpTokenType("-tag-");
+  public static final IElementType LABEL = new SpTokenType("-label-");
 
   private static final TokenSet WHITE_SPACES = TokenSet.create(WHITE_SPACE);
 
