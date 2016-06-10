@@ -206,7 +206,16 @@ public class SpTokenTypes {
   public static final IElementType TAG = new SpTokenType("-tag-");
   public static final IElementType LABEL = new SpTokenType("-label-");
 
+  // COMMENTS
+  public static final IElementType LINE_COMMENT = new SpTokenType("LINE_COMMENT");
+  public static final IElementType BLOCK_COMMENT = new SpTokenType("BLOCK_COMMENT");
+  public static final IElementType DOC_COMMENT = new SpTokenType("DOC_COMMENT");
+  public static final IElementType UNTERMINATED_COMMENT = new SpTokenType("UNTERMINATED_COMMENT");
+
   private static final TokenSet WHITE_SPACES = TokenSet.create(WHITE_SPACE);
+
+  private static final TokenSet COMMENTS = TokenSet.create(
+      LINE_COMMENT, BLOCK_COMMENT, DOC_COMMENT, UNTERMINATED_COMMENT);
 
   private static final TokenSet KEYWORDS = TokenSet.create(
       ACQUIRE, AS, ASSERT, BEGIN, BREAK, BUILTIN, CASE, CAST_TO, CATCH, CELLSOF, CHAR, CONST,
@@ -236,6 +245,11 @@ public class SpTokenTypes {
   @NotNull
   public static TokenSet getWhiteSpaces() {
     return WHITE_SPACES;
+  }
+
+  @NotNull
+  public static TokenSet getComments() {
+    return COMMENTS;
   }
 
   @NotNull

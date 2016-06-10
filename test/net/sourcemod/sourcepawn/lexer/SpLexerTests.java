@@ -5,7 +5,6 @@ import com.intellij.psi.tree.IElementType;
 
 import net.sourcemod.sourcepawn.SpLanguage;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SpLexerTests {
@@ -17,7 +16,6 @@ public class SpLexerTests {
   }
 
   @Test
-  @Ignore
   public void testPreprocessor() {
     LEXER.start("#include <file>");
 
@@ -37,4 +35,15 @@ public class SpLexerTests {
       System.out.println(LEXER.getTokenType() + " -> " + LEXER.getTokenText());
     }
   }
+
+  @Test
+  public void testComments() {
+    LEXER.start("/**\n * This is a javadoc comment\n */");
+    for (IElementType type = LEXER.getTokenType();
+         type != null;
+         LEXER.advance(), type = LEXER.getTokenType()) {
+      System.out.println(LEXER.getTokenType() + " -> " + LEXER.getTokenText());
+    }
+  }
+
 }

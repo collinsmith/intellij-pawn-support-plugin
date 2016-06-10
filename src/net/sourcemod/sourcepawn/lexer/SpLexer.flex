@@ -152,6 +152,14 @@ exponent            = e -? {decimal_digit}+
 
 control_character   = [abefnrtvx]
 
+doc_pre             = {w} "*" {w}
+
+%xstate IN_LINE_COMMENT
+%xstate IN_BLOCK_COMMENT
+%xstate IN_DOC_COMMENT_PRE
+%xstate IN_DOC_COMMENT
+%xstate IN_DOC_COMMENT_POST
+
 %xstate IN_PREPROCESSOR
 %xstate IN_PREPROCESSOR_INCLUDE_PRE
 %xstate IN_PREPROCESSOR_INCLUDE
@@ -174,31 +182,31 @@ control_character   = [abefnrtvx]
 
 %%
 
-// Single character symbols
+// PUNCTUATION
+":"                     { return COLON; }
+","                     { return COMMA; }
+"#"                     { yybegin(IN_PREPROCESSOR); return HASH; }
+"."                     { return PERIOD; }
+";"                     { return SEMICOLON; }
+"..."                   { return ELLIPSIS; }
+
+// OPERATORS
 "&"                     { return AMPERSAND; }
 "="                     { return ASSIGN; }
 "*"                     { return ASTERISK; }
 "^"                     { return CARET; }
-":"                     { return COLON; }
-","                     { return COMMA; }
 "!"                     { return EXCLAMATION; }
-"#"                     { yybegin(IN_PREPROCESSOR); return HASH; }
 "-"                     { return MINUS; }
 "%"                     { return PERCENT; }
-"."                     { return PERIOD; }
 "+"                     { return PLUS; }
-";"                     { return SEMICOLON; }
 "/"                     { return SLASH; }
 "~"                     { return TILDE; }
 "|"                     { return VERTICAL_BAR; }
-
-// Multiple character symbols
 "+="                    { return ADDEQ; }
 "&&"                    { return AND; }
 "&="                    { return ANDEQ; }
 "--"                    { return DECREMENT; }
 "/="                    { return DIVEQ; }
-"..."                   { return ELLIPSIS; }
 "=="                    { return EQUALTO; }
 ">="                    { return GTEQ; }
 "++"                    { return INCREMENT; }
@@ -219,6 +227,7 @@ control_character   = [abefnrtvx]
 "-="                    { return SUBEQ; }
 "^="                    { return XOREQ; }
 
+// MATCHED PAIRS
 "{"                     { return LBRACE; }
 "}"                     { return RBRACE; }
 "["                     { return LBRACKET; }
@@ -228,7 +237,7 @@ control_character   = [abefnrtvx]
 "<"                     { return LT; }
 ">"                     { return GT; }
 
-// keywords
+// KEYWORDS
 "acquire"               { return ACQUIRE; }
 "as"                    { return AS; }
 "assert"                { return ASSERT; }
@@ -318,23 +327,30 @@ control_character   = [abefnrtvx]
 "while"                 { return WHILE; }
 "with"                  { return WITH; }
 
-// String/Character Literals
+// CHARACTER LITERALS
 "\'"                    { string.setLength(0); string.append('\'');
                           GOTO_AFTER_ESCAPE_SEQUENCE = IN_CHARACTER_LITERAL_FINISH;
                           GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
                           BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
                           yybegin(IN_CHARACTER_LITERAL); }
+
+// STRING LITERALS
 "\""                    { string.setLength(0); string.append('\"');
                           GOTO_AFTER_ESCAPE_SEQUENCE = IN_STRING_LITERAL;
                           GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
                           BAD_LITERAL_REASON = BAD_STRING_LITERAL;
                           yybegin(IN_STRING_LITERAL); }
 
-// White space
+// COMMENTS
+"//" {w}?               { string.setLength(0); yybegin(IN_LINE_COMMENT); }
+"/**" {w}?              { string.setLength(0); yybegin(IN_DOC_COMMENT_PRE); }
+"/*" {w}?               { string.setLength(0); yybegin(IN_BLOCK_COMMENT); }
+
+// WHITE SPACE
 {whitespace}            { return WHITE_SPACE; }
 {nl}                    { return NEW_LINE; }
 
-// Identifiers
+// IDENTIFIERS
 {identifier}            { return IDENTIFIER; }
 {identifier} / "::"     { return IDENTIFIER; }
 
@@ -343,10 +359,11 @@ control_character   = [abefnrtvx]
 
 "@"                     { return AT_SIGN; }
 
-// Tags
+// TAGS
 {identifier} / ":"      { return TAG; }
 "_" / ":"               { return TAG; }
 
+// NUMBER LITERALS
 {number}                { value = SpUtils.parseNumber(yytext());
                           if (DEBUG) {
                             System.out.printf("number %s = %d%n", yytext(), value);
@@ -359,6 +376,8 @@ control_character   = [abefnrtvx]
 
                           return NUMBER_LITERAL;
                         }
+
+// RATIONAL LITERALS
 {rational_literal}      { value = SpUtils.parseRational(yytext());
                           if (DEBUG) {
                             System.out.printf("rational %s = %d%n", yytext(), value);
@@ -574,4 +593,72 @@ control_character   = [abefnrtvx]
   <<EOF>>               { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }
   {unicode_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
   [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+}
+
+<IN_LINE_COMMENT> {
+  {w} .                 { string.append(yytext()); }
+  {w}? {nl}             { value = string.toString();
+                          if (DEBUG) {
+                            System.out.printf("line comment = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          return LINE_COMMENT;
+                        }
+  <<EOF>>               { value = string.toString().trim();
+                          if (DEBUG) {
+                            System.out.printf("line comment = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          return LINE_COMMENT;
+                        }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_BLOCK_COMMENT> {
+  <<EOF>>               { return UNTERMINATED_COMMENT; }
+  {w} .                 { string.append(yytext()); }
+  {w}? {nl}+ {w}?       { string.append(' '); }
+  {w}? "*/"             { value = string.toString().trim();
+                          if (DEBUG) {
+                            System.out.printf("block comment = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          return BLOCK_COMMENT;
+                        }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_DOC_COMMENT_PRE> {
+  <<EOF>>               { return UNTERMINATED_COMMENT; }
+  "*"+                  { /* ignore leading asterisks */ }
+  "*"* {nl} {doc_pre}?  { yybegin(IN_DOC_COMMENT); }
+  "*"* "*/"             { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_DOC_COMMENT> {
+  <<EOF>>               { return UNTERMINATED_COMMENT; }
+  {w}? {nl} {doc_pre}?  { string.append(' '); }
+  "*"* "*/"             { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_DOC_COMMENT_POST> {
+  <<EOF>>               { return UNTERMINATED_COMMENT; }
+  "*"* "*/"             { value = string.toString().trim();
+                          if (DEBUG) {
+                            System.out.printf("doc comment = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          return DOC_COMMENT;
+                        }
+  [^]                   { throw new AssertionError(
+                              "Doc comment terminator should already have been read " +
+                              "and pushed back into the stream."); }
 }
