@@ -102,6 +102,31 @@ nobrknl             = [^\[\r\n]
 brknl               = \\{w}?{nl}{w}?
 whitespace          = ({w}|{brknl})+
 
+identifier          = ([_@][_@a-zA-Z0-9]+) | ([a-zA-Z][_@a-zA-Z0-9]*)
+
+binary_digit        = [01]
+octal_digit         = [0-7]
+decimal_digit       = [0-9]
+hexadecimal_digit   = [0-9a-fA-F]
+
+binary_prefix       = 0b
+octal_prefix        = 0o
+decimal_prefix      = {decimal_digit}
+hexadecimal_prefix  = 0x
+
+unicode_escape      = ({hexadecimal_digit}){0,2};?
+decimal_escape      = {decimal_digit}*;?
+
+boolean_literal     = true | false
+binary_literal      = {binary_prefix}       ( _ | {binary_digit} )*
+octal_literal       = {octal_prefix}        ( _ | {octal_digit} )*
+decimal_literal     = {decimal_prefix}      ( _ | {decimal_digit} )*
+hexadecimal_literal = {hexadecimal_prefix}  ( _ | {hexadecimal_digit} )*
+number              = {boolean_literal} | {binary_literal} | {octal_literal} | {decimal_literal} | {hexadecimal_literal}
+
+rational_literal    = {decimal_digit} \. {decimal_digit} {exponent}?
+exponent            = e -? {decimal_digit}+
+
 %xstate IN_PREPROCESSOR
 %xstate IN_PREPROCESSOR_INCLUDE_PRE
 %xstate IN_PREPROCESSOR_INCLUDE
@@ -112,10 +137,191 @@ whitespace          = ({w}|{brknl})+
 
 %%
 
+// Single character symbols
+"&"                     { return AMPERSAND; }
+"="                     { return ASSIGN; }
+"*"                     { return ASTERISK; }
+"^"                     { return CARET; }
+":"                     { return COLON; }
+","                     { return COMMA; }
+"!"                     { return EXCLAMATION; }
 "#"                     { yybegin(IN_PREPROCESSOR); return HASH; }
+"-"                     { return MINUS; }
+"%"                     { return PERCENT; }
+"."                     { return PERIOD; }
+"+"                     { return PLUS; }
+";"                     { return SEMICOLON; }
+"/"                     { return SLASH; }
+"~"                     { return TILDE; }
+"|"                     { return VERTICAL_BAR; }
 
+// Multiple character symbols
+"+="                    { return ADDEQ; }
+"&&"                    { return AND; }
+"&="                    { return ANDEQ; }
+"--"                    { return DECREMENT; }
+"/="                    { return DIVEQ; }
+"..."                   { return ELLIPSIS; }
+"=="                    { return EQUALTO; }
+">="                    { return GTEQ; }
+"++"                    { return INCREMENT; }
+"<="                    { return LTEQ; }
+"%="                    { return MODEQ; }
+"*="                    { return MULEQ; }
+"!="                    { return NEQUALTO; }
+"||"                    { return OR; }
+"|="                    { return OREQ; }
+".."                    { return RANGE; }
+"::"                    { return SCOPE_RESOLUTION; }
+"<<"                    { return SL; }
+"<<="                   { return SLEQ; }
+">>"                    { return SRA; }
+">>="                   { return SRAEQ; }
+">>>"                   { return SRL; }
+">>>="                  { return SRLEQ; }
+"-="                    { return SUBEQ; }
+"^="                    { return XOREQ; }
+
+"{"                     { return LBRACE; }
+"}"                     { return RBRACE; }
+"["                     { return LBRACKET; }
+"]"                     { return RBRACKET; }
+"("                     { return LPAREN; }
+")"                     { return RPAREN; }
+"<"                     { return LT; }
+">"                     { return GT; }
+
+// keywords
+"acquire"               { return ACQUIRE; }
+"as"                    { return AS; }
+"assert"                { return ASSERT; }
+//"*begin"              { return BEGIN; }
+"break"                 { return BREAK; }
+"builtin"               { return BUILTIN; }
+"case"                  { return CASE; }
+"cast_to"               { return CAST_TO; }
+"catch"                 { return CATCH; }
+"cellsof"               { return CELLSOF; }
+"char"                  { return CHAR; }
+"const"                 { return CONST; }
+"continue"              { return CONTINUE; }
+"decl"                  { return DECL; }
+"default"               { return DEFAULT; }
+"defined"               { return DEFINED; }
+"delete"                { return DELETE; }
+"do"                    { return DO; }
+"double"                { return DOUBLE; }
+"else"                  { return ELSE; }
+//"*end"                { return END; }
+"enum"                  { return ENUM; }
+"exit"                  { return EXIT; }
+"explicit"              { return EXPLICIT; }
+"finally"               { return FINALLY; }
+"for"                   { return FOR; }
+"foreach"               { return FOREACH; }
+"forward"               { return FORWARD; }
+"funcenum"              { return FUNCENUM; }
+"functag"               { return FUNCTAG; }
+"function"              { return FUNCTION; }
+"goto"                  { return GOTO; }
+"if"                    { return IF; }
+"implicit"              { return IMPLICIT; }
+"import"                { return IMPORT; }
+"in"                    { return IN; }
+"int"                   { return INT; }
+"int8"                  { return INT8; }
+"int16"                 { return INT16; }
+"int32"                 { return INT32; }
+"int64"                 { return INT64; }
+"interface"             { return INTERFACE; }
+"intn"                  { return INTN; }
+"let"                   { return LET; }
+"methodmap"             { return METHODMAP; }
+"namespace"             { return NAMESPACE; }
+"native"                { return NATIVE; }
+"new"                   { return NEW; }
+"null"                  { return NULL; }
+"__nullable__"          { return NULLABLE; }
+"object"                { return OBJECT; }
+"operator"              { return OPERATOR; }
+"package"               { return PACKAGE; }
+"private"               { return PRIVATE; }
+"protected"             { return PROTECTED; }
+"public"                { return PUBLIC; }
+"readonly"              { return READONLY; }
+"return"                { return RETURN; }
+"sealed"                { return SEALED; }
+"sizeof"                { return SIZEOF; }
+"sleep"                 { return SLEEP; }
+"static"                { return STATIC; }
+"stock"                 { return STOCK; }
+"struct"                { return STRUCT; }
+"switch"                { return SWITCH; }
+"tagof"                 { return TAGOF; }
+//"*then"               { return THEN; }
+"this"                  { return THIS; }
+"throw"                 { return THROW; }
+"try"                   { return TRY; }
+"typedef"               { return TYPEDEF; }
+"typeof"                { return TYPEOF; }
+"typeset"               { return TYPESET; }
+"uint8"                 { return UINT8; }
+"uint16"                { return UINT16; }
+"uint32"                { return UINT32; }
+"uint64"                { return UINT64; }
+"uintn"                 { return UINTN; }
+"union"                 { return UNION; }
+"using"                 { return USING; }
+"var"                   { return VAR; }
+"variant"               { return VARIANT; }
+"view_as"               { return VIEW_AS; }
+"virtual"               { return VIRTUAL; }
+"void"                  { return VOID; }
+"volatile"              { return VOLATILE; }
+"while"                 { return WHILE; }
+"with"                  { return WITH; }
+
+// White space
 {whitespace}            { return WHITE_SPACE; }
 {nl}                    { return NEW_LINE; }
+
+// Identifiers
+{identifier}            { return IDENTIFIER; }
+{identifier} / "::"     { return IDENTIFIER; }
+
+"_"                     { return UNDERSCORE; }
+"_" / "::"              { return UNDERSCORE; }
+
+"@"                     { return AT_SIGN; }
+
+// Tags
+{identifier} / ":"      { return TAG; }
+"_" / ":"               { return TAG; }
+
+{number}                { value = SpUtils.parseNumber(yytext());
+                          if (DEBUG) {
+                            System.out.printf("number %s = %d%n", yytext(), value);
+                          }
+
+                          if (value == null) {
+                            throw new AssertionError(
+                                value + " should be a valid number, but it couldn't be parsed");
+                          }
+
+                          return NUMBER_LITERAL;
+                        }
+{rational_literal}      { value = SpUtils.parseRational(yytext());
+                          if (DEBUG) {
+                            System.out.printf("rational %s = %d%n", yytext(), value);
+                          }
+
+                          if (value == null) {
+                            throw new AssertionError(
+                                value + " should be a valid rational, but it couldn't be parsed");
+                          }
+
+                          return RATIONAL_LITERAL;
+                        }
 
 [^]                     { return BAD_CHARACTER; }
 
@@ -184,4 +390,11 @@ whitespace          = ({w}|{brknl})+
                           return PREPROCESSOR_INCLUDE_RELATIVEPATH; }
   {whitespace} .        |
   [^]                   { string.append(yytext()); }
+}
+
+<IN_CASE> {
+  {whitespace}                      { return WHITE_SPACE; }
+  {identifier} / {whitespace}? ":"  { yybegin(YYINITIAL); return LABEL; }
+  {identifier} / {whitespace}? "::" { yypushback(yylength()); yybegin(YYINITIAL); }
+  [^]                               { yypushback(yylength()); yybegin(YYINITIAL); }
 }
