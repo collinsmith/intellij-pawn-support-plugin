@@ -9,13 +9,21 @@ import net.sourcemod.sourcepawn.psi.impl.*;
 
 public interface SpElementTypes {
 
+  IElementType DEFINE_ARGS = new SpElementType("DEFINE_ARGS");
+  IElementType DEFINE_SUBSTITUTION = new SpElementType("DEFINE_SUBSTITUTION");
   IElementType PRAGMA = new SpElementType("PRAGMA");
   IElementType PREPROCESSOR = new SpElementType("PREPROCESSOR");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-       if (type == PRAGMA) {
+       if (type == DEFINE_ARGS) {
+        return new SpDefineArgsImpl(node);
+      }
+      else if (type == DEFINE_SUBSTITUTION) {
+        return new SpDefineSubstitutionImpl(node);
+      }
+      else if (type == PRAGMA) {
         return new SpPragmaImpl(node);
       }
       else if (type == PREPROCESSOR) {

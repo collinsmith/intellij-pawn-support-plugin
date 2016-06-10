@@ -33,7 +33,7 @@ private compilation_unit ::=
 
 preprocessor ::=
     PREPROCESSOR_ASSERT
-  | PREPROCESSOR_DEFINE define_pattern define_substitution?
+  | PREPROCESSOR_DEFINE DEFINE_PATTERN ( (define_args define_substitution) | define_substitution )?
   | PREPROCESSOR_ENDINPUT
   | PREPROCESSOR_ENDSCRIPT
   | PREPROCESSOR_ERROR PREPROCESSOR_STRING?
@@ -46,16 +46,10 @@ preprocessor ::=
   | PREPROCESSOR_UNDEF IDENTIFIER
   { name="preprocessor directive" }
 
-// Need custom token for define pattern?
-// Need to add digit token
-private define_pattern ::=
-    IDENTIFIER (LPAREN define_pattern_args? RPAREN)?
-
-private define_pattern_args ::=
-    (PERCENT NUMBER_LITERAL) (COMMA PERCENT NUMBER_LITERAL)*
-
-private define_substitution ::=
-    PREPROCESSOR_STRING
+define_args ::= (LPAREN (DEFINE_PATTERN_ARG (COMMA DEFINE_PATTERN_ARG)* )? RPAREN)
+  { name="macro args" }
+define_substitution ::= PREPROCESSOR_STRING
+  { name="substitution" }
 
 private include_file_reference ::=
     PREPROCESSOR_INCLUDE_SYSTEMPATH
