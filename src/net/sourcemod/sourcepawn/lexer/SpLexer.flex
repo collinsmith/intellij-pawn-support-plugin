@@ -165,6 +165,7 @@ doc_pre             = {w} "*" {w}
 %xstate IN_PREPROCESSOR
 %xstate IN_PREPROCESSOR_DEFINE_PRE
 %xstate IN_PREPROCESSOR_DEFINE_PATTERN
+%xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE
 %xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS
 %xstate IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE
 %xstate IN_PREPROCESSOR_DEFINE_SUBSTITUTION
@@ -459,7 +460,13 @@ doc_pre             = {w} "*" {w}
 <IN_PREPROCESSOR_DEFINE_PATTERN> {
   {whitespace}          { yypushback(yylength());
                           yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return WHITE_SPACE; }
-  "("                   { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN; }
+  "("                   { value = SpUtils.parseString(string, getEscapeCharacter());
+                          if (DEBUG) {
+                            System.out.printf("pattern = %s%n", value);
+                          }
+
+                          yypushback(yylength()); yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE);
+                          return DEFINE_PATTERN; }
   .                     { int codePoint = codePointAt(0);
                           if (isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
@@ -479,6 +486,12 @@ doc_pre             = {w} "*" {w}
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
 }
 
+<IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE> {
+  "("                   { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN; }
+  [^]                   { throw new AssertionError(
+                              "( should already have been read and pushed back into the stream."); }
+}
+
 <IN_PREPROCESSOR_DEFINE_PATTERN_ARGS> {
   {whitespace}          { BAD_LITERAL_REASON = BAD_PATTERN;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
@@ -486,6 +499,8 @@ doc_pre             = {w} "*" {w}
   ","                   { return COMMA; }
   ")"                   { string.setLength(0);
                           yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return RPAREN; }
+  [^]                   { BAD_LITERAL_REASON = BAD_PATTERN;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
 }
 
 <IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE> {
