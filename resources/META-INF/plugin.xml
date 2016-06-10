@@ -29,6 +29,8 @@
         <fileTypeFactory implementation="net.sourcemod.sourcepawn.SpFileTypeFactory"/>
         <lang.parserDefinition language="SourcePawn"
                                implementationClass="net.sourcemod.sourcepawn.parser.SpParserDefinition"/>
+        <lang.braceMatcher language="SourcePawn"
+                           implementationClass="net.sourcemod.sourcepawn.SpBraceMatcher"/>
     </extensions>
 
     <actions>
