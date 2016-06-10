@@ -53,10 +53,14 @@ public class SpLookAheadLexerAdapter extends LookAheadLexer {
       if (token == CHARACTER_LITERAL) {
         String text = spLexer.value();
         BigInteger codePoint = SpUtils.parseCharacter(text, spLexer.getEscapeCharacter());
-        spLexer.setEscapeCharacter(codePoint.intValue());
+        if (codePoint != null) {
+          spLexer.setEscapeCharacter(codePoint.intValue());
+        }
       } else if (token == NUMBER_LITERAL) {
         BigInteger codePoint = spLexer.value();
-        spLexer.setEscapeCharacter(codePoint.intValue());
+        if (codePoint != null) {
+          spLexer.setEscapeCharacter(codePoint.intValue());
+        }
       } else if (token == NEW_LINE) {
         spLexer.resetEscapeCharacter();
       } else if (token == null) {
