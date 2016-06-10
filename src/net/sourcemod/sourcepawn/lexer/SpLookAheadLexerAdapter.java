@@ -6,6 +6,8 @@ import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LookAheadLexer;
 import com.intellij.psi.tree.IElementType;
 
+import java.math.BigInteger;
+
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.BLOCK_COMMENT;
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.CHARACTER_LITERAL;
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.DOC_COMMENT;
@@ -49,11 +51,12 @@ public class SpLookAheadLexerAdapter extends LookAheadLexer {
       addToken(token);
       baseLexer.advance();
       if (token == CHARACTER_LITERAL) {
-        spLexer.setEscapeCharacter(spLexer.value());
+        String text = spLexer.value();
+        BigInteger codePoint = SpUtils.parseCharacter(text, spLexer.getEscapeCharacter());
+        spLexer.setEscapeCharacter(codePoint.intValue());
       } else if (token == NUMBER_LITERAL) {
-        Number number = spLexer.value();
-        int codePoint = number.intValue();
-        spLexer.setEscapeCharacter((char) codePoint);
+        BigInteger codePoint = spLexer.value();
+        spLexer.setEscapeCharacter(codePoint.intValue());
       } else if (token == NEW_LINE) {
         spLexer.resetEscapeCharacter();
       } else if (token == null) {
