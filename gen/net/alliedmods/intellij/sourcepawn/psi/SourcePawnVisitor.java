@@ -7,18 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public class SourcePawnVisitor extends PsiElementVisitor {
 
-  public void visitBooleanLiteral(@NotNull SourcePawnBooleanLiteral o) {
-    visitPsiElement(o);
-  }
-
-  public void visitExpression(@NotNull SourcePawnExpression o) {
-    visitPsiElement(o);
-  }
-
-  public void visitNumber(@NotNull SourcePawnNumber o) {
-    visitPsiElement(o);
-  }
-
   public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }
