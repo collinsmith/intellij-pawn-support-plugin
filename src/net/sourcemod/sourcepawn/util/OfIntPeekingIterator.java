@@ -10,13 +10,13 @@ import java.util.PrimitiveIterator;
 /**
  * Specialized implementation of com.google.common.collect.PeekingIterator for OfInt
  */
-public class OfIntPeekingIteratorImpl implements PeekingIterator<Integer> {
+public class OfIntPeekingIterator implements PeekingIterator<Integer> {
 
   private final PrimitiveIterator.OfInt iterator;
   private boolean hasPeeked;
   private int peekedElement;
 
-  public OfIntPeekingIteratorImpl(@NotNull PrimitiveIterator.OfInt iterator) {
+  public OfIntPeekingIterator(@NotNull PrimitiveIterator.OfInt iterator) {
     Preconditions.checkArgument(iterator != null);
     this.iterator = iterator;
   }
