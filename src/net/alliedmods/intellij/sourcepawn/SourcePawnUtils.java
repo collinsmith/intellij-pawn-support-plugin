@@ -1,9 +1,5 @@
 package net.alliedmods.intellij.sourcepawn;
 
-import com.intellij.psi.tree.IElementType;
-
-import net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes;
-
 public class SourcePawnUtils {
 
   private SourcePawnUtils() {
@@ -27,19 +23,6 @@ public class SourcePawnUtils {
         }
       }
     }
-  }
-
-  public static long parsePawnBooleanLiteral(IElementType type) {
-    if (type == SourcePawnTypes.TRUE) {
-      return 1;
-    } else if (type == SourcePawnTypes.FALSE) {
-      return 0;
-    }
-
-    throw new NumberFormatException(String.format(
-        "Invalid SourcePawn boolean literal: %s; " +
-            "SourcePawn boolean literals should be either \"true\" or \"false\"",
-        type));
   }
 
   public static long parsePawnBooleanLiteral(String text) {

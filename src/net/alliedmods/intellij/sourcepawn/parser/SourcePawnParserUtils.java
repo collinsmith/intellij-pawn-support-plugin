@@ -1,14 +1,9 @@
 package net.alliedmods.intellij.sourcepawn.parser;
 
-import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
-import com.intellij.psi.TokenType;
-import com.intellij.psi.tree.IElementType;
-
-import net.alliedmods.intellij.sourcepawn.psi.SourcePawnTypes;
 
 public class SourcePawnParserUtils extends GeneratedParserUtilBase {
-
+/*
   private static final boolean DEFAULT_REQUIRE_SEMICOLONS = false;
   private static final char DEFAULT_CTRL_CHAR = '\\';
 
@@ -393,7 +388,7 @@ public class SourcePawnParserUtils extends GeneratedParserUtilBase {
     }
 
     return parseTokens(builder, 1, TokenType.WHITE_SPACE);
-  }
+  }*/
 
   private SourcePawnParserUtils() {
   }

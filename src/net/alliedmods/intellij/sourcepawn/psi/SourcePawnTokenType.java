@@ -13,9 +13,9 @@ public class SourcePawnTokenType extends IElementType {
     super(debugName, SourcePawnLanguage.INSTANCE);
   }
 
-  @Override
+  /*@Override
   public String toString() {
     return SourcePawnTokenType.class.getSimpleName() + "." + super.toString();
-  }
+  }*/
 
 }
