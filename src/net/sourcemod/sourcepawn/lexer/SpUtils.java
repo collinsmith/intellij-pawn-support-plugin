@@ -19,6 +19,13 @@ public class SpUtils {
       return value;
     }
 
+    BigDecimal rational;
+    if ((rational = parseRational(text)) != null) {
+      double doubleValue = rational.doubleValue();
+      value = BigInteger.valueOf(Double.doubleToRawLongBits(doubleValue));
+      return value;
+    }
+
     return null;
   }
 
