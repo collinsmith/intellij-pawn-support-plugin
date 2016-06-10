@@ -534,13 +534,13 @@ control_character   = [abefnrtvx]
 }
 
 <IN_DECIMAL_ESCAPE_SEQUENCE> {
-  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
+  <<EOF>>               { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }
   {decimal_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
   [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
 }
 
 <IN_UNICODE_ESCAPE_SEQUENCE> {
-  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
+  <<EOF>>               { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }
   {unicode_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
   [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
 }
