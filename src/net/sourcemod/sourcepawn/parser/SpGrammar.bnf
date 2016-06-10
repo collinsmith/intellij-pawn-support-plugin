@@ -28,4 +28,47 @@
 root ::= root_item *
 private root_item ::= !<<eof>> compilation_unit
 private compilation_unit ::=
-    (WHITE_SPACE? NEW_LINE)+
+    NEW_LINE+
+  | HASH preprocessor (NEW_LINE | <<eof>>)
+
+preprocessor ::=
+    PREPROCESSOR_ASSERT
+  | PREPROCESSOR_DEFINE define_pattern define_substitution?
+  | PREPROCESSOR_ENDINPUT
+  | PREPROCESSOR_ENDSCRIPT
+  | PREPROCESSOR_ERROR PREPROCESSOR_STRING?
+  | PREPROCESSOR_FILE STRING_LITERAL
+  | PREPROCESSOR_IF PREPROCESSOR_ELSEIF* PREPROCESSOR_ELSE? PREPROCESSOR_ENDIF
+  | PREPROCESSOR_INCLUDE include_file_reference
+  | PREPROCESSOR_LINE NUMBER_LITERAL
+  | PREPROCESSOR_PRAGMA pragma
+  | PREPROCESSOR_TRYINCLUDE include_file_reference
+  | PREPROCESSOR_UNDEF IDENTIFIER
+  { name="preprocessor directive" }
+
+// Need custom token for define pattern?
+// Need to add digit token
+private define_pattern ::=
+    IDENTIFIER (LPAREN define_pattern_args? RPAREN)?
+
+private define_pattern_args ::=
+    (PERCENT NUMBER_LITERAL) (COMMA PERCENT NUMBER_LITERAL)*
+
+private define_substitution ::=
+    PREPROCESSOR_STRING
+
+private include_file_reference ::=
+    PREPROCESSOR_INCLUDE_SYSTEMPATH
+  | PREPROCESSOR_INCLUDE_RELATIVEPATH
+
+pragma ::=
+    PRAGMA_CODEPAGE STRING_LITERAL
+  | PRAGMA_CTRLCHAR (CHARACTER_LITERAL | NUMBER_LITERAL)?
+  | PRAGMA_DEPRECATED PREPROCESSOR_STRING?
+  | PRAGMA_DYNAMIC NUMBER_LITERAL
+  | PRAGMA_RATIONAL IDENTIFIER (LPAREN NUMBER_LITERAL RPAREN)?
+  | PRAGMA_SEMICOLON NUMBER_LITERAL
+  | PRAGMA_NEWDECLS (PRAGMA_NEWDECLS_OPTIONAL | PRAGMA_NEWDECLS_REQUIRED)
+  | PRAGMA_TABSIZE NUMBER_LITERAL
+  | PRAGMA_UNUSED IDENTIFIER (COMMA IDENTIFIER)*
+  { name="pragma directive" }

@@ -7,6 +7,14 @@ import com.intellij.psi.PsiElement;
 
 public class SpVisitor extends PsiElementVisitor {
 
+  public void visitPragma(@NotNull SpPragma o) {
+    visitPsiElement(o);
+  }
+
+  public void visitPreprocessor(@NotNull SpPreprocessor o) {
+    visitPsiElement(o);
+  }
+
   public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }

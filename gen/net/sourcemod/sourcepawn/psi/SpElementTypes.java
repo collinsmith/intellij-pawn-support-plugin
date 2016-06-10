@@ -9,10 +9,18 @@ import net.sourcemod.sourcepawn.psi.impl.*;
 
 public interface SpElementTypes {
 
+  IElementType PRAGMA = new SpElementType("PRAGMA");
+  IElementType PREPROCESSOR = new SpElementType("PREPROCESSOR");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
+       if (type == PRAGMA) {
+        return new SpPragmaImpl(node);
+      }
+      else if (type == PREPROCESSOR) {
+        return new SpPreprocessorImpl(node);
+      }
       throw new AssertionError("Unknown element type: " + type);
     }
   }
