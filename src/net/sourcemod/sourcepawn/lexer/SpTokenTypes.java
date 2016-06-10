@@ -265,32 +265,32 @@ public class SpTokenTypes {
       LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN);
 
   @NotNull
-  public static TokenSet getWhiteSpaces() {
+  public static TokenSet getWhiteSpaceTokens() {
     return WHITE_SPACES;
   }
 
   @NotNull
-  public static TokenSet getComments() {
+  public static TokenSet getCommentTokens() {
     return COMMENTS;
   }
 
   @NotNull
-  public static TokenSet getKeywords() {
+  public static TokenSet getKeywordTokens() {
     return KEYWORDS;
   }
 
   @NotNull
-  public static TokenSet getOperators() {
+  public static TokenSet getOperatorTokens() {
     return OPERATORS;
   }
 
   @NotNull
-  public static TokenSet getPreprocessorDirectives() {
+  public static TokenSet getPreprocessorTokens() {
     return PREPROCESSOR_DIRECTIVES;
   }
 
   @NotNull
-  public static TokenSet getMatchedPairs() {
+  public static TokenSet getBracketTokens() {
     return MATCHED_PAIRS;
   }
 
