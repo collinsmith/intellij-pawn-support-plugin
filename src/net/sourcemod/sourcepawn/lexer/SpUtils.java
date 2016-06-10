@@ -11,6 +11,18 @@ import java.util.PrimitiveIterator;
 public class SpUtils {
 
   @Nullable
+  public static BigInteger parseCell(@NotNull @NonNls CharSequence text, int ctrl) {
+    BigInteger value;
+    if ((value = parseNumber(text)) != null) {
+      return value;
+    } else if ((value = parseCharacter(text, ctrl)) != null) {
+      return value;
+    }
+
+    return null;
+  }
+
+  @Nullable
   public static BigInteger parseNumber(@NotNull @NonNls CharSequence text) {
     BigInteger value;
     if ((value = parseBoolean(text)) != null) {
