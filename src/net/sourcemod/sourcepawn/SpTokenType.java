@@ -1,4 +1,4 @@
-package net.sourcemod.sourcepawn.lexer;
+package net.sourcemod.sourcepawn;
 
 import com.intellij.psi.tree.IElementType;
 

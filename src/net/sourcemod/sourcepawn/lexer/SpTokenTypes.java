@@ -4,6 +4,8 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 
+import net.sourcemod.sourcepawn.SpTokenType;
+
 import org.jetbrains.annotations.NotNull;
 
 public class SpTokenTypes {
