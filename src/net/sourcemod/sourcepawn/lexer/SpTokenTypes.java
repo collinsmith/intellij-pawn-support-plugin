@@ -47,6 +47,8 @@ public class SpTokenTypes {
       = new SpTokenType("-SYSTEM FILE-");
   public static final IElementType PREPROCESSOR_INCLUDE_RELATIVEPATH
       = new SpTokenType("-RELATIVE PATH-");
+  public static final IElementType PREPROCESSOR_INCLUDE_EMPTYPATH
+      = new SpTokenType("PREPROCESSOR_INCLUDE_EMPTYPATH");
 
   // PRAGMA DIRECTIVES
   public static final IElementType PRAGMA_CODEPAGE = new SpTokenType("codepage");

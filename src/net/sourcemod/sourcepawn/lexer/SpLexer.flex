@@ -527,7 +527,12 @@ doc_pre             = {w} "*" {w}
 }
 
 <IN_PREPROCESSOR_INCLUDE_SYSTEMPATH> {
-  {whitespace}? ">"     { value = string.toString();
+  {whitespace}? ">"     { if (string.length() == 0) {
+                            yybegin(YYINITIAL);
+                            return PREPROCESSOR_INCLUDE_EMPTYPATH;
+                          }
+
+                          value = string.toString();
                           if (DEBUG) {
                             System.out.printf("system file = \"%s\"%n", value);
                           }
@@ -545,7 +550,12 @@ doc_pre             = {w} "*" {w}
 }
 
 <IN_PREPROCESSOR_INCLUDE_RELATIVEPATH> {
-  {whitespace}? "\""    { value = string.toString();
+  {whitespace}? "\""    { if (string.length() == 0) {
+                            yybegin(YYINITIAL);
+                            return PREPROCESSOR_INCLUDE_EMPTYPATH;
+                          }
+
+                          value = string.toString();
                           if (DEBUG) {
                             System.out.printf("relative file = \"%s\"%n", value);
                           }
