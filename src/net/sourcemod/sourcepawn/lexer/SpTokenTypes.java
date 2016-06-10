@@ -34,6 +34,11 @@ public class SpTokenTypes {
   public static final IElementType PREPROCESSOR_TRYINCLUDE = new SpTokenType("TRYINCLUDE");
   public static final IElementType PREPROCESSOR_UNDEF = new SpTokenType("UNDEF");
 
+  // DEFINE
+  public static final IElementType DEFINE_PATTERN = new SpTokenType("PATTERN");
+  public static final IElementType DEFINE_PATTERN_ARG = new SpTokenType("PATTERN_ARG");
+  public static final IElementType BAD_PATTERN = new SpTokenType("BAD_PATTERN");
+
   // PREPROCESSOR
   public static final IElementType PREPROCESSOR_STRING = new SpTokenType("PREPROCESSOR_STRING");
 

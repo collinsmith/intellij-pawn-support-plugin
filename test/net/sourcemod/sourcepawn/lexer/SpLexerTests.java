@@ -27,6 +27,17 @@ public class SpLexerTests {
   }
 
   @Test
+  public void testPreprocessorDefine() {
+    LEXER.start("#define PATTERN(%1)\\\n(%1++)");
+
+    for (IElementType type = LEXER.getTokenType();
+         type != null;
+         LEXER.advance(), type = LEXER.getTokenType()) {
+      System.out.println(LEXER.getTokenType() + " -> " + LEXER.getTokenText());
+    }
+  }
+
+  @Test
   public void testCharacterLiterals() {
     LEXER.start("'\\x61'");
     for (IElementType type = LEXER.getTokenType();
