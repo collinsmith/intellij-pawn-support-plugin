@@ -164,6 +164,9 @@ control_character   = [abefnrtvx]
 
 %xstate IN_CHARACTER_LITERAL
 %xstate IN_CHARACTER_LITERAL_FINISH
+
+%xstate IN_STRING_LITERAL
+
 %xstate IN_BAD_LITERAL
 %xstate IN_ESCAPE_SEQUENCE
 %xstate IN_DECIMAL_ESCAPE_SEQUENCE
@@ -321,7 +324,11 @@ control_character   = [abefnrtvx]
                           GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
                           BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
                           yybegin(IN_CHARACTER_LITERAL); }
-//"\""                    { string.setLength(0); string.append('\"'); yybegin(IN_STRING_LITERAL); }
+"\""                    { string.setLength(0); string.append('\"');
+                          GOTO_AFTER_ESCAPE_SEQUENCE = IN_STRING_LITERAL;
+                          GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
+                          BAD_LITERAL_REASON = BAD_STRING_LITERAL;
+                          yybegin(IN_STRING_LITERAL); }
 
 // White space
 {whitespace}            { return WHITE_SPACE; }
@@ -479,6 +486,30 @@ control_character   = [abefnrtvx]
   <<EOF>>               { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
                           yybegin(IN_BAD_LITERAL); }
   [^]                   { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+}
+
+<IN_STRING_LITERAL> {
+  \"                    { string.append('\"');
+                          value = string.toString();
+                          if (DEBUG) {
+                            System.out.printf("string = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          return STRING_LITERAL; }
+  {brknl}               { /* line continuation */ }
+  .                     { int codePoint = codePointAt(0);
+                          if (isEscapeCharacter(codePoint)) {
+                            string.appendCodePoint(codePoint);
+                            yybegin(IN_ESCAPE_SEQUENCE);
+                          } else {
+                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
+                          }
+                        }
+  <<EOF>>               { BAD_LITERAL_REASON = INCOMPLETE_STRING_LITERAL;
+                          yybegin(IN_BAD_LITERAL); }
+  [^]                   { BAD_LITERAL_REASON = BAD_STRING_LITERAL;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
 }
 
