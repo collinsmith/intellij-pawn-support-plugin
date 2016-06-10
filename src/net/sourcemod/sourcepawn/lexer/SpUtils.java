@@ -4,14 +4,127 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.PrimitiveIterator;
 
 public class SpUtils {
 
-  @NotNull
+  @Nullable
   public static BigInteger parseNumber(@NotNull @NonNls CharSequence text) {
+    BigInteger value;
+    if ((value = parseBoolean(text)) != null) {
+      return value;
+    } else if ((value = parseBinary(text)) != null) {
+      return value;
+    } else if ((value = parseOctal(text)) != null) {
+      return value;
+    } else if ((value = parseDecimal(text)) != null) {
+      return value;
+    } else if ((value = parseHexadecimal(text)) != null) {
+      return value;
+    }
+
     return null;
+  }
+
+  @Nullable
+  public static BigDecimal parseRational(@NotNull @NonNls CharSequence text) {
+    if (text.length() < 3) {
+      return null;
+    }
+
+    PrimitiveIterator.OfInt iterator = text.codePoints().iterator();
+    int codePoint = iterator.nextInt();
+    if (!Character.isDigit(codePoint)) {
+      return null; // Must start with digit
+    }
+
+    BigDecimal value = BigDecimal.valueOf(Character.getNumericValue(codePoint));
+
+    FoundPoint:
+    while (iterator.hasNext()) {
+      codePoint = iterator.next();
+      switch (codePoint) {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+          value = value.scaleByPowerOfTen(1);
+          value = value.add(BigDecimal.valueOf(Character.getNumericValue(codePoint)));
+          break;
+        case '_':
+          break;
+        case '.':
+          break FoundPoint;
+        default:
+          return null;
+      }
+    }
+
+    if (codePoint != '.') {
+      return null; // Must contain a '.'
+    }
+
+    if (!iterator.hasNext()) {
+      return null;
+    }
+
+    codePoint = iterator.nextInt();
+    if (!Character.isDigit(codePoint)) {
+      return null; // Must have a digit after '.'
+    }
+
+    int scale = 1;
+    value = value.scaleByPowerOfTen(1);
+    value = value.add(BigDecimal.valueOf(Character.getNumericValue(codePoint)));
+
+    FoundExponent:
+    while (iterator.hasNext()) {
+      codePoint = iterator.next();
+      switch (codePoint) {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+          scale++;
+          value = value.scaleByPowerOfTen(1);
+          value = value.add(BigDecimal.valueOf(Character.getNumericValue(codePoint)));
+          break;
+        case '_':
+          break;
+        case 'e':
+          break FoundExponent;
+        default:
+          return null;
+      }
+    }
+
+    value = value.scaleByPowerOfTen(-scale);
+    if (codePoint != 'e') {
+      return value;
+    }
+
+    if (!iterator.hasNext()) {
+      return null;
+    }
+
+    int sign = 1;
+    codePoint = iterator.nextInt();
+    if (codePoint == '-') {
+      sign = -1;
+    } else if (Character.isDigit(codePoint)) {
+      value = value.scaleByPowerOfTen(Character.getNumericValue(codePoint));
+    } else {
+      return null; // Must have '-' or [0-1] following 'e'
+    }
+
+    while (iterator.hasNext()) {
+      codePoint = iterator.next();
+      if (!Character.isDigit(codePoint)) {
+        return null;
+      }
+
+      value = value.scaleByPowerOfTen(Character.getNumericValue(codePoint) * sign);
+    }
+
+    return value;
   }
 
   @Nullable

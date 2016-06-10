@@ -4,11 +4,24 @@ import net.sourcemod.sourcepawn.lexer.SpUtils;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertTrue;
 
 public class SpUtilsTests {
+
+  @Test
+  public void testParseRational() {
+    assertTrue(SpUtils.parseRational("0.0").doubleValue() == BigDecimal.ZERO.doubleValue());
+    assertTrue(SpUtils.parseRational("1.0").doubleValue() == BigDecimal.ONE.doubleValue());
+    assertTrue(SpUtils.parseRational("1.0e-0").doubleValue() == BigDecimal.ONE.doubleValue());
+    assertTrue(SpUtils.parseRational("1.0e0").doubleValue() == BigDecimal.ONE.doubleValue());
+    assertTrue(SpUtils.parseRational("1.00000000").doubleValue() == BigDecimal.ONE.doubleValue());
+    assertTrue(SpUtils.parseRational("10000000.00000000").doubleValue() == BigDecimal.ONE.scaleByPowerOfTen(7).doubleValue());
+    assertTrue(SpUtils.parseRational("10000001.10000001").doubleValue() == new BigDecimal("10000001.10000001").doubleValue());
+    assertTrue(SpUtils.parseRational("10000001.0e-7").doubleValue() == new BigDecimal("10000001.0e-7").doubleValue());
+  }
 
   @Test
   public void testParseBoolean() {
