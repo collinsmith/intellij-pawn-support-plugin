@@ -1,5 +1,7 @@
 package net.sourcemod.sourcepawn.lexer;
 
+import net.sourcemod.sourcepawn.util.OfIntPeekingIterator;
+
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -149,107 +151,125 @@ public class SpUtils {
   @Nullable
   public static BigInteger parseCharacter(@NotNull @NonNls CharSequence text, int ctrl) {
     PrimitiveIterator.OfInt iterator = text.codePoints().iterator();
-    if (!iterator.hasNext()) {
+    OfIntPeekingIterator peekingIterator = new OfIntPeekingIterator(iterator);
+    if (!peekingIterator.hasNext() || peekingIterator.nextInt() != '\'') {
       return null;
     }
 
-    int codePoint = iterator.nextInt();
-    if (codePoint != '\'') {
-      return null; // First character must be '\''
-    }
-
-    if (!iterator.hasNext()) {
-      return null;
-    }
-
-    BigInteger value;
-    boolean needsConsume = true;
-    codePoint = iterator.nextInt();
-    if (codePoint != ctrl) {
+    BigInteger value = null;
+    try {
+      int codePoint = parseCodePoint(peekingIterator, ctrl);
       value = BigInteger.valueOf(codePoint);
-    } else if (iterator.hasNext()) {
-      codePoint = iterator.nextInt();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+
+    if (!peekingIterator.hasNext() || peekingIterator.nextInt() != '\'') {
+      return null;
+    }
+
+    return value;
+  }
+
+  @Nullable
+  public static String parseString(@NotNull @NonNls CharSequence text, int ctrl) {
+    PrimitiveIterator.OfInt iterator = text.codePoints().iterator();
+    OfIntPeekingIterator peekingIterator = new OfIntPeekingIterator(iterator);
+    StringBuilder string = new StringBuilder(text.length());
+    try {
+      while (peekingIterator.hasNext()) {
+        int codePoint = parseCodePoint(peekingIterator, ctrl);
+        string.appendCodePoint(codePoint);
+      }
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+
+    return string.toString();
+  }
+
+  public static int parseCodePoint(@NotNull OfIntPeekingIterator codePoints, int ctrl) {
+    if (!codePoints.hasNext()) {
+      throw new IllegalArgumentException("Empty sequence");
+    }
+
+    int codePointValue = 0;
+    int codePoint = codePoints.nextInt();
+    if (codePoint != ctrl) {
+      return codePoint;
+    } else if (codePoints.hasNext()) {
+      codePoint = codePoints.nextInt();
+      if (codePoint == ctrl) {
+        return ctrl;
+      }
+
       switch (codePoint) {
-        case 'a': value = BigInteger.valueOf(7); break;
-        case 'b': value = BigInteger.valueOf(8); break;
-        case 'e': value = BigInteger.valueOf(27); break;
-        case 'f': value = BigInteger.valueOf(12); break;
-        case 'n': value = BigInteger.valueOf(10); break;
-        case 'r': value = BigInteger.valueOf(13); break;
-        case 't': value = BigInteger.valueOf(9); break;
-        case 'v': value = BigInteger.valueOf(11); break;
+        case 'a': return 7;
+        case 'b': return 8;
+        case 'e': return 27;
+        case 'f': return 12;
+        case 'n': return 10;
+        case 'r': return 13;
+        case 't': return 9;
+        case 'v': return 11;
         case 'x':
-          value = BigInteger.ZERO;
+          final int MAX_HEX_DIGITS = 2;
+          int digits = 0;
           HexDigits:
-          while (iterator.hasNext()) {
-            codePoint = iterator.nextInt();
+          while (codePoints.hasNext() && digits < MAX_HEX_DIGITS) {
+            codePoint = codePoints.peekInt();
             switch (codePoint) {
               case '0': case '1': case '2': case '3': case '4':
               case '5': case '6': case '7': case '8': case '9':
               case 'A': case 'B': case 'C': case 'D': case 'E':
               case 'a': case 'b': case 'c': case 'd': case 'e':
-                value = value.shiftLeft(4);
-                value = value.add(BigInteger.valueOf(Character.getNumericValue(codePoint)));
+                codePoints.nextInt(); digits++;
+                codePointValue = (codePointValue << 4) | Character.getNumericValue(codePoint);
                 break;
               default:
                 break HexDigits;
             }
           }
 
-          if (iterator.hasNext() && codePoint != ';' && codePoint != '\'') {
-            return null; // Only ';' can follow hex literals
+          if (codePoints.hasNext() && codePoints.peekInt() == ';') {
+            codePoints.nextInt();
           }
 
-          needsConsume = false;
-          break;
+          return codePointValue;
         case '\'':
         case '\"':
         case '%':
-          value = BigInteger.valueOf(codePoint);
-          break;
+          return codePoint;
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
-          value = BigInteger.ZERO;
+          codePointValue = Character.getNumericValue(codePoint);
+
           DecimalDigits:
-          do {
+          while (codePoints.hasNext()) {
+            codePoint = codePoints.peekInt();
             switch (codePoint) {
               case '0': case '1': case '2': case '3': case '4':
               case '5': case '6': case '7': case '8': case '9':
-                value = value.multiply(BigInteger.TEN);
-                value = value.add(BigInteger.valueOf(Character.getNumericValue(codePoint)));
+                codePoints.nextInt();
+                codePointValue = (codePointValue * 10) + Character.getNumericValue(codePoint);
                 break;
               default:
                 break DecimalDigits;
             }
-            codePoint = iterator.nextInt();
-          } while (iterator.hasNext());
-
-          if (iterator.hasNext() && codePoint != ';' && codePoint != '\'') {
-            return null; // Only ';' can follow decimal literals
           }
 
-          needsConsume = false;
-          break;
+          if (codePoints.hasNext() && codePoints.peekInt() == ';') {
+            codePoints.nextInt();
+          }
+
+          return codePointValue;
         default:
-          return null; // Invalid character code
+          String string = new String(Character.toChars(codePoint));
+          throw new IllegalArgumentException("Illegal escape sequence character: " + string);
       }
-    } else {
-      return null; // Escape sequences must be nonempty
     }
 
-    if (needsConsume) {
-      if (!iterator.hasNext()) {
-        return null; // Need to attempt to consume in order to find '\''
-      }
-
-      codePoint = iterator.nextInt();
-    }
-
-    if (codePoint != '\'' || iterator.hasNext()) {
-      return null; // Last character must be '\''
-    }
-
-    return value;
+    throw new IllegalArgumentException("Empty escape sequence");
   }
 
   @Nullable
