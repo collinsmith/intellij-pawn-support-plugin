@@ -1352,7 +1352,7 @@ public class _SpLexer implements FlexLexer {
         switch (zzLexicalState) {
             case IN_LINE_COMMENT: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [724] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"line comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return LINE_COMMENT; }");
+              System.out.println("action [725] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"line comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return LINE_COMMENT; }");
               value = string.toString().trim();
                           if (DEBUG) {
                             System.out.printf("line comment = %s%n", value);
@@ -1364,31 +1364,31 @@ public class _SpLexer implements FlexLexer {
             case 772: break;
             case IN_BLOCK_COMMENT: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [736] { return UNTERMINATED_COMMENT; }");
+              System.out.println("action [737] { return UNTERMINATED_COMMENT; }");
               return UNTERMINATED_COMMENT;
             }
             case 773: break;
             case IN_DOC_COMMENT_PRE: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [751] { return UNTERMINATED_COMMENT; }");
+              System.out.println("action [752] { return UNTERMINATED_COMMENT; }");
               return UNTERMINATED_COMMENT;
             }
             case 774: break;
             case IN_DOC_COMMENT: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [759] { return UNTERMINATED_COMMENT; }");
+              System.out.println("action [760] { return UNTERMINATED_COMMENT; }");
               return UNTERMINATED_COMMENT;
             }
             case 775: break;
             case IN_DOC_COMMENT_POST: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [766] { return UNTERMINATED_COMMENT; }");
+              System.out.println("action [767] { return UNTERMINATED_COMMENT; }");
               return UNTERMINATED_COMMENT;
             }
             case 776: break;
             case IN_PREPROCESSOR_DEFINE_PATTERN: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [470] { value = SpUtils.parseString(string, getEscapeCharacter());"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"pattern = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return DEFINE_PATTERN; }");
+              System.out.println("action [471] { value = SpUtils.parseString(string, getEscapeCharacter());"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"pattern = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return DEFINE_PATTERN; }");
               value = SpUtils.parseString(string, getEscapeCharacter());
                           if (DEBUG) {
                             System.out.printf("pattern = %s%n", value);
@@ -1415,34 +1415,34 @@ public class _SpLexer implements FlexLexer {
             case 778: break;
             case IN_PREPROCESSOR_PRAGMA_NEWDECLS: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [570] { yypushback(yylength()); yybegin(YYINITIAL); }");
+              System.out.println("action [571] { yypushback(yylength()); yybegin(YYINITIAL); }");
               yypushback(yylength()); yybegin(YYINITIAL);
             }
             case 779: break;
             case IN_CHARACTER_LITERAL: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [605] { BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
+              System.out.println("action [606] { BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
               BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
                           yybegin(IN_BAD_LITERAL);
             }
             case 780: break;
             case IN_CHARACTER_LITERAL_FINISH: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [620] { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
+              System.out.println("action [621] { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
               BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
                           yybegin(IN_BAD_LITERAL);
             }
             case 781: break;
             case IN_STRING_LITERAL: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [644] { BAD_LITERAL_REASON = INCOMPLETE_STRING_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
+              System.out.println("action [645] { BAD_LITERAL_REASON = INCOMPLETE_STRING_LITERAL;"+ZZ_NL+"                          yybegin(IN_BAD_LITERAL); }");
               BAD_LITERAL_REASON = INCOMPLETE_STRING_LITERAL;
                           yybegin(IN_BAD_LITERAL);
             }
             case 782: break;
             case IN_BAD_LITERAL: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [652] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"%s = %s%n\", BAD_LITERAL_REASON, value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BAD_LITERAL_REASON; }");
+              System.out.println("action [653] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"%s = %s%n\", BAD_LITERAL_REASON, value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BAD_LITERAL_REASON; }");
               value = string.toString();
                           if (DEBUG) {
                             System.out.printf("%s = %s%n", BAD_LITERAL_REASON, value);
@@ -1454,19 +1454,19 @@ public class _SpLexer implements FlexLexer {
             case 783: break;
             case IN_ESCAPE_SEQUENCE: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [663] { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }");
+              System.out.println("action [664] { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }");
               yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE;
             }
             case 784: break;
             case IN_DECIMAL_ESCAPE_SEQUENCE: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [702] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }");
+              System.out.println("action [703] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }");
               BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL);
             }
             case 785: break;
             case IN_UNICODE_ESCAPE_SEQUENCE: {
               System.out.println("match: <<EOF>>");
-              System.out.println("action [708] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }");
+              System.out.println("action [709] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }");
               BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL);
             }
             case 786: break;
@@ -1478,7 +1478,7 @@ public class _SpLexer implements FlexLexer {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [703] { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }");
+            System.out.println("action [704] { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }");
             { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
             }
           case 229: break;
@@ -1700,13 +1700,13 @@ public class _SpLexer implements FlexLexer {
           case 262: break;
           case 35: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [732] { string.append(yytext()); }");
+            System.out.println("action [733] { string.append(yytext()); }");
             { string.append(yytext());
             }
           case 263: break;
           case 36: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [715] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"line comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          return LINE_COMMENT; }");
+            System.out.println("action [716] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"line comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          return LINE_COMMENT; }");
             { value = string.toString();
                           if (DEBUG) {
                             System.out.printf("line comment = %s%n", value);
@@ -1719,25 +1719,25 @@ public class _SpLexer implements FlexLexer {
           case 264: break;
           case 37: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [738] { string.append(\' \'); }");
+            System.out.println("action [739] { string.append(\' \'); }");
             { string.append(' ');
             }
           case 265: break;
           case 38: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [753] { yybegin(IN_DOC_COMMENT); }");
+            System.out.println("action [754] { yybegin(IN_DOC_COMMENT); }");
             { yybegin(IN_DOC_COMMENT);
             }
           case 266: break;
           case 39: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [752] { /* ignore leading asterisks */ }");
+            System.out.println("action [753] { /* ignore leading asterisks */ }");
             { /* ignore leading asterisks */
             }
           case 267: break;
           case 40: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [776] { throw new AssertionError("+ZZ_NL+"                              \"Doc comment terminator should already have been read \" +"+ZZ_NL+"                              \"and pushed back into the stream.\"); }");
+            System.out.println("action [777] { throw new AssertionError("+ZZ_NL+"                              \"Doc comment terminator should already have been read \" +"+ZZ_NL+"                              \"and pushed back into the stream.\"); }");
             { throw new AssertionError(
                               "Doc comment terminator should already have been read " +
                               "and pushed back into the stream.");
@@ -1751,19 +1751,20 @@ public class _SpLexer implements FlexLexer {
           case 269: break;
           case 42: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [455] { yypushback(yylength()); yybegin(YYINITIAL); }");
+            System.out.println("action [456] { yypushback(yylength()); yybegin(YYINITIAL); }");
             { yypushback(yylength()); yybegin(YYINITIAL);
             }
           case 270: break;
           case 43: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [454] { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE; }");
-            { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE;
+            System.out.println("action [454] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE; }");
+            { string.setLength(0);
+                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE;
             }
           case 271: break;
           case 44: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [462] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                          } }");
+            System.out.println("action [463] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                          } }");
             { int codePoint = codePointAt(0);
                           if (isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
@@ -1775,78 +1776,78 @@ public class _SpLexer implements FlexLexer {
           case 272: break;
           case 45: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [459] { yypushback(yylength());"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return WHITE_SPACE; }");
+            System.out.println("action [460] { yypushback(yylength());"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return WHITE_SPACE; }");
             { yypushback(yylength());
                           yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return WHITE_SPACE;
             }
           case 273: break;
           case 46: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [477] { BAD_LITERAL_REASON = BAD_PATTERN;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
+            System.out.println("action [478] { BAD_LITERAL_REASON = BAD_PATTERN;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
             { BAD_LITERAL_REASON = BAD_PATTERN;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL);
             }
           case 274: break;
           case 47: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [461] { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN; }");
+            System.out.println("action [462] { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN; }");
             { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN;
             }
           case 275: break;
           case 48: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [486] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return RPAREN; }");
+            System.out.println("action [487] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return RPAREN; }");
             { string.setLength(0);
                           yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return RPAREN;
             }
           case 276: break;
           case 49: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [491] { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING); }");
+            System.out.println("action [492] { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING); }");
             { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING);
             }
           case 277: break;
           case 50: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [497] { yypushback(yylength()); yybegin(YYINITIAL); return BAD_CHARACTER; }");
+            System.out.println("action [498] { yypushback(yylength()); yybegin(YYINITIAL); return BAD_CHARACTER; }");
             { yypushback(yylength()); yybegin(YYINITIAL); return BAD_CHARACTER;
             }
           case 278: break;
           case 51: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [496] { yybegin(IN_PREPROCESSOR_INCLUDE); return WHITE_SPACE; }");
+            System.out.println("action [497] { yybegin(IN_PREPROCESSOR_INCLUDE); return WHITE_SPACE; }");
             { yybegin(IN_PREPROCESSOR_INCLUDE); return WHITE_SPACE;
             }
           case 279: break;
           case 52: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [501] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE); }");
+            System.out.println("action [502] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE); }");
             { string.setLength(0);
                           yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE);
             }
           case 280: break;
           case 53: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [503] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE); }");
+            System.out.println("action [504] { string.setLength(0);"+ZZ_NL+"                          yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE); }");
             { string.setLength(0);
                           yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE);
             }
           case 281: break;
           case 54: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [510] { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }");
+            System.out.println("action [511] { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }");
             { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH);
             }
           case 282: break;
           case 55: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [509] { yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }");
+            System.out.println("action [510] { yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }");
             { yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH);
             }
           case 283: break;
           case 56: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [514] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"system file = \\\"%s\\\"%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return PREPROCESSOR_INCLUDE_SYSTEMPATH; }");
+            System.out.println("action [515] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"system file = \\\"%s\\\"%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return PREPROCESSOR_INCLUDE_SYSTEMPATH; }");
             { value = string.toString();
                           if (DEBUG) {
                             System.out.printf("system file = \"%s\"%n", value);
@@ -1858,19 +1859,19 @@ public class _SpLexer implements FlexLexer {
           case 284: break;
           case 57: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [528] { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }");
+            System.out.println("action [529] { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }");
             { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH);
             }
           case 285: break;
           case 58: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [527] { yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }");
+            System.out.println("action [528] { yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }");
             { yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH);
             }
           case 286: break;
           case 59: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [532] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"relative file = \\\"%s\\\"%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return PREPROCESSOR_INCLUDE_RELATIVEPATH; }");
+            System.out.println("action [533] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"relative file = \\\"%s\\\"%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return PREPROCESSOR_INCLUDE_RELATIVEPATH; }");
             { value = string.toString();
                           if (DEBUG) {
                             System.out.printf("relative file = \"%s\"%n", value);
@@ -1882,7 +1883,7 @@ public class _SpLexer implements FlexLexer {
           case 287: break;
           case 60: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [544] { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITE_SPACE; }");
+            System.out.println("action [545] { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITE_SPACE; }");
             { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITE_SPACE;
             }
           case 288: break;
@@ -1903,13 +1904,13 @@ public class _SpLexer implements FlexLexer {
           case 289: break;
           case 62: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [562] { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITE_SPACE; }");
+            System.out.println("action [563] { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITE_SPACE; }");
             { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITE_SPACE;
             }
           case 290: break;
           case 63: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [597] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);"+ZZ_NL+"                          } }");
+            System.out.println("action [598] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);"+ZZ_NL+"                          } }");
             { int codePoint = codePointAt(0);
                           if (isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
@@ -1921,14 +1922,14 @@ public class _SpLexer implements FlexLexer {
           case 291: break;
           case 64: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [607] { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
+            System.out.println("action [608] { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
             { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL);
             }
           case 292: break;
           case 65: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [581] { string.append(\'\\\'\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"character = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL); return EMPTY_CHARACTER_LITERAL; }");
+            System.out.println("action [582] { string.append(\'\\\'\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"character = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL); return EMPTY_CHARACTER_LITERAL; }");
             { string.append('\'');
                           value = string.toString();
                           if (DEBUG) {
@@ -1940,7 +1941,7 @@ public class _SpLexer implements FlexLexer {
           case 293: break;
           case 66: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [612] { string.append(\'\\\'\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"character = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return CHARACTER_LITERAL; }");
+            System.out.println("action [613] { string.append(\'\\\'\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"character = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return CHARACTER_LITERAL; }");
             { string.append('\'');
                           value = string.toString();
                           if (DEBUG) {
@@ -1953,14 +1954,14 @@ public class _SpLexer implements FlexLexer {
           case 294: break;
           case 67: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [646] { BAD_LITERAL_REASON = BAD_STRING_LITERAL;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
+            System.out.println("action [647] { BAD_LITERAL_REASON = BAD_STRING_LITERAL;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
             { BAD_LITERAL_REASON = BAD_STRING_LITERAL;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL);
             }
           case 295: break;
           case 68: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [627] { string.append(\'\\\"\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"string = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return STRING_LITERAL; }");
+            System.out.println("action [628] { string.append(\'\\\"\');"+ZZ_NL+"                          value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"string = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return STRING_LITERAL; }");
             { string.append('\"');
                           value = string.toString();
                           if (DEBUG) {
@@ -1973,7 +1974,7 @@ public class _SpLexer implements FlexLexer {
           case 296: break;
           case 69: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [652] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"%s = %s%n\", BAD_LITERAL_REASON, value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BAD_LITERAL_REASON; }");
+            System.out.println("action [653] { value = string.toString();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"%s = %s%n\", BAD_LITERAL_REASON, value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BAD_LITERAL_REASON; }");
             { value = string.toString();
                           if (DEBUG) {
                             System.out.printf("%s = %s%n", BAD_LITERAL_REASON, value);
@@ -1985,7 +1986,7 @@ public class _SpLexer implements FlexLexer {
           case 297: break;
           case 70: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [688] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;"+ZZ_NL+"                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);"+ZZ_NL+"                          } }");
+            System.out.println("action [689] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;"+ZZ_NL+"                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);"+ZZ_NL+"                          } }");
             { int codePoint = codePointAt(0);
                           if (isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
@@ -1998,20 +1999,20 @@ public class _SpLexer implements FlexLexer {
           case 298: break;
           case 71: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [697] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
+            System.out.println("action [698] { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;"+ZZ_NL+"                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }");
             { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;
                           yypushback(yylength()); yybegin(IN_BAD_LITERAL);
             }
           case 299: break;
           case 72: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [687] { yypushback(yylength()); yybegin(IN_DECIMAL_ESCAPE_SEQUENCE); }");
+            System.out.println("action [688] { yypushback(yylength()); yybegin(IN_DECIMAL_ESCAPE_SEQUENCE); }");
             { yypushback(yylength()); yybegin(IN_DECIMAL_ESCAPE_SEQUENCE);
             }
           case 300: break;
           case 73: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [664] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (codePoint == \'x\') {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_UNICODE_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            switch(codePoint) {"+ZZ_NL+"                              case \'a\': string.append(\'\\u0007\'); break;"+ZZ_NL+"                              case \'b\': string.append(\'\\b\'); break;"+ZZ_NL+"                              case \'e\': string.append(\'\\u001B\'); break;"+ZZ_NL+"                              case \'f\': string.append(\'\\f\'); break;"+ZZ_NL+"                              case \'n\': string.append(\'\\n\'); break;"+ZZ_NL+"                              case \'r\': string.append(\'\\r\'); break;"+ZZ_NL+"                              case \'t\': string.append(\'\\t\'); break;"+ZZ_NL+"                              case \'v\': string.append(\'\\u000B\'); break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(String.format("+ZZ_NL+"                                    \"Unsupported control character: %c (%1$d)\", codePoint));"+ZZ_NL+"                            }"+ZZ_NL+""+ZZ_NL+"                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } }");
+            System.out.println("action [665] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (codePoint == \'x\') {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_UNICODE_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            switch(codePoint) {"+ZZ_NL+"                              case \'a\': string.append(\'\\u0007\'); break;"+ZZ_NL+"                              case \'b\': string.append(\'\\b\'); break;"+ZZ_NL+"                              case \'e\': string.append(\'\\u001B\'); break;"+ZZ_NL+"                              case \'f\': string.append(\'\\f\'); break;"+ZZ_NL+"                              case \'n\': string.append(\'\\n\'); break;"+ZZ_NL+"                              case \'r\': string.append(\'\\r\'); break;"+ZZ_NL+"                              case \'t\': string.append(\'\\t\'); break;"+ZZ_NL+"                              case \'v\': string.append(\'\\u000B\'); break;"+ZZ_NL+"                              default:"+ZZ_NL+"                                throw new AssertionError(String.format("+ZZ_NL+"                                    \"Unsupported control character: %c (%1$d)\", codePoint));"+ZZ_NL+"                            }"+ZZ_NL+""+ZZ_NL+"                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } }");
             { int codePoint = codePointAt(0);
                           if (codePoint == 'x') {
                             string.appendCodePoint(codePoint);
@@ -2037,7 +2038,7 @@ public class _SpLexer implements FlexLexer {
           case 301: break;
           case 74: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [704] { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }");
+            System.out.println("action [705] { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }");
             { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
             }
           case 302: break;
@@ -2217,7 +2218,7 @@ public class _SpLexer implements FlexLexer {
           case 330: break;
           case 103: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [739] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"block comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BLOCK_COMMENT; }");
+            System.out.println("action [740] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"block comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          return BLOCK_COMMENT; }");
             { value = string.toString().trim();
                           if (DEBUG) {
                             System.out.printf("block comment = %s%n", value);
@@ -2229,13 +2230,13 @@ public class _SpLexer implements FlexLexer {
           case 331: break;
           case 104: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [754] { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }");
+            System.out.println("action [755] { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }");
             { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST);
             }
           case 332: break;
           case 105: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [767] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"doc comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          return DOC_COMMENT; }");
+            System.out.println("action [768] { value = string.toString().trim();"+ZZ_NL+"                          if (DEBUG) {"+ZZ_NL+"                            System.out.printf(\"doc comment = %s%n\", value);"+ZZ_NL+"                          }"+ZZ_NL+""+ZZ_NL+"                          yybegin(YYINITIAL);"+ZZ_NL+"                          yypushback(yylength());"+ZZ_NL+"                          return DOC_COMMENT; }");
             { value = string.toString().trim();
                           if (DEBUG) {
                             System.out.printf("doc comment = %s%n", value);
@@ -2254,7 +2255,7 @@ public class _SpLexer implements FlexLexer {
           case 334: break;
           case 107: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [484] { value = yytext().toString(); return DEFINE_PATTERN_ARG; }");
+            System.out.println("action [485] { value = yytext().toString(); return DEFINE_PATTERN_ARG; }");
             { value = yytext().toString(); return DEFINE_PATTERN_ARG;
             }
           case 335: break;
@@ -2291,7 +2292,7 @@ public class _SpLexer implements FlexLexer {
               zzMarkedPos = zzFPos;
             }
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [575] { yybegin(YYINITIAL); return LABEL; }");
+            System.out.println("action [576] { yybegin(YYINITIAL); return LABEL; }");
             { yybegin(YYINITIAL); return LABEL;
             }
           case 337: break;
@@ -2300,7 +2301,7 @@ public class _SpLexer implements FlexLexer {
             zzMarkedPos = Character.offsetByCodePoints
                 (zzBufferL/*, zzStartRead, zzEndRead - zzStartRead*/, zzStartRead, 1);
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [588] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (!isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_CHARACTER_LITERAL_FINISH);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } }");
+            System.out.println("action [589] { int codePoint = codePointAt(0);"+ZZ_NL+"                          if (!isEscapeCharacter(codePoint)) {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_CHARACTER_LITERAL_FINISH);"+ZZ_NL+"                          } else {"+ZZ_NL+"                            string.appendCodePoint(codePoint);"+ZZ_NL+"                            yybegin(IN_ESCAPE_SEQUENCE);"+ZZ_NL+"                          } }");
             { int codePoint = codePointAt(0);
                           if (!isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
@@ -2313,7 +2314,7 @@ public class _SpLexer implements FlexLexer {
           case 338: break;
           case 111: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [635] { /* line continuation */ }");
+            System.out.println("action [636] { /* line continuation */ }");
             { /* line continuation */
             }
           case 339: break;
@@ -2444,7 +2445,7 @@ public class _SpLexer implements FlexLexer {
               zzMarkedPos = zzFPos;
             }
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [576] { yypushback(yylength()); yybegin(YYINITIAL); }");
+            System.out.println("action [577] { yypushback(yylength()); yybegin(YYINITIAL); }");
             { yypushback(yylength()); yybegin(YYINITIAL);
             }
           case 354: break;
@@ -2817,7 +2818,7 @@ public class _SpLexer implements FlexLexer {
           case 411: break;
           case 184: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [557] { yybegin(YYINITIAL); return PRAGMA_UNUSED; }");
+            System.out.println("action [558] { yybegin(YYINITIAL); return PRAGMA_UNUSED; }");
             { yybegin(YYINITIAL); return PRAGMA_UNUSED;
             }
           case 412: break;
@@ -2931,13 +2932,13 @@ public class _SpLexer implements FlexLexer {
           case 430: break;
           case 203: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [556] { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }");
+            System.out.println("action [557] { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }");
             { yybegin(YYINITIAL); return PRAGMA_TABSIZE;
             }
           case 431: break;
           case 204: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [552] { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }");
+            System.out.println("action [553] { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }");
             { yybegin(YYINITIAL); return PRAGMA_DYNAMIC;
             }
           case 432: break;
@@ -2997,37 +2998,37 @@ public class _SpLexer implements FlexLexer {
           case 441: break;
           case 214: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [553] { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }");
+            System.out.println("action [554] { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }");
             { yybegin(YYINITIAL); return PRAGMA_RATIONAL;
             }
           case 442: break;
           case 215: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [549] { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }");
+            System.out.println("action [550] { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }");
             { yybegin(YYINITIAL); return PRAGMA_CODEPAGE;
             }
           case 443: break;
           case 216: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [550] { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }");
+            System.out.println("action [551] { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }");
             { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR;
             }
           case 444: break;
           case 217: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [555] { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }");
+            System.out.println("action [556] { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }");
             { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS;
             }
           case 445: break;
           case 218: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [568] { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }");
+            System.out.println("action [569] { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }");
             { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL;
             }
           case 446: break;
           case 219: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [567] { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }");
+            System.out.println("action [568] { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }");
             { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED;
             }
           case 447: break;
@@ -3063,7 +3064,7 @@ public class _SpLexer implements FlexLexer {
           case 452: break;
           case 225: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [554] { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }");
+            System.out.println("action [555] { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }");
             { yybegin(YYINITIAL); return PRAGMA_SEMICOLON;
             }
           case 453: break;
@@ -3075,7 +3076,7 @@ public class _SpLexer implements FlexLexer {
           case 454: break;
           case 227: 
             System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [551] { yybegin(IN_PREPROCESSOR_STRING_PRE); return PRAGMA_DEPRECATED; }");
+            System.out.println("action [552] { yybegin(IN_PREPROCESSOR_STRING_PRE); return PRAGMA_DEPRECATED; }");
             { yybegin(IN_PREPROCESSOR_STRING_PRE); return PRAGMA_DEPRECATED;
             }
           case 455: break;

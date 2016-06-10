@@ -451,7 +451,8 @@ doc_pre             = {w} "*" {w}
 }
 
 <IN_PREPROCESSOR_DEFINE_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE; }
+  {whitespace}          { string.setLength(0);
+                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
