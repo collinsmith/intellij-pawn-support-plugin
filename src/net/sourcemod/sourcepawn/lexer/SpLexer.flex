@@ -168,6 +168,13 @@ doc_pre             = {w} "*" {w}
 %xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE
 %xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH
 
+%xstate IN_PREPROCESSOR_PRAGMA_PRE
+%xstate IN_PREPROCESSOR_PRAGMA
+%xstate IN_PRAGMA_DEPRECATED_STRING_PRE
+%xstate IN_PRAGMA_DEPRECATED_STRING
+%xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE
+%xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS
+
 %xstate IN_CASE
 
 %xstate IN_CHARACTER_LITERAL
@@ -406,8 +413,8 @@ doc_pre             = {w} "*" {w}
   "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
   "include"             { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_INCLUDE; }
   "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
-  "pragma"              { yybegin(YYINITIAL); return PREPROCESSOR_PRAGMA; }
-  "tryinclude"          { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
+  "pragma"              { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
+  "tryinclude"          { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_TRYINCLUDE; }
   "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
   [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
@@ -458,6 +465,60 @@ doc_pre             = {w} "*" {w}
                           return PREPROCESSOR_INCLUDE_RELATIVEPATH; }
   {whitespace} .        |
   [^]                   { string.append(yytext()); }
+}
+
+<IN_PREPROCESSOR_PRAGMA_PRE> {
+  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITE_SPACE; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_PRAGMA> {
+  "codepage"            { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
+  "ctrlchar"            { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
+  "deprecated"          { yybegin(IN_PRAGMA_DEPRECATED_STRING_PRE); return PRAGMA_DEPRECATED; }
+  "dynamic"             { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
+  "rational"            { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
+  "semicolon"           { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
+  "newdecls"            { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }
+  "tabsize"             { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
+  "unused"              { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PRAGMA_DEPRECATED_STRING_PRE> {
+  {whitespace}          { string.setLength(0); yybegin(IN_PRAGMA_DEPRECATED_STRING); }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PRAGMA_DEPRECATED_STRING> {
+  {w} .                 { string.append(yytext()); }
+  . {w} / {brknl}       { string.append(yytext()); }
+  {brknl}               { /* ignore whitespace */ }
+  {w}? {nl}             |
+  <<EOF>>               { value = string.toString().trim();
+                          if (DEBUG) {
+                            System.out.printf("deprecated message = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          if (!((String)value).isEmpty()) {
+                            return PRAGMA_DEPRECATED_STRING;
+                          }
+                        }
+  [^]                   { string.append(yytext()); }
+}
+
+<IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE> {
+  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITE_SPACE; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_PRAGMA_NEWDECLS> {
+  "required"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }
+  "optional"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }
+  [^]                   |
+  <<EOF>>               { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 <IN_CASE> {

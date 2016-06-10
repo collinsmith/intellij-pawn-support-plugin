@@ -40,7 +40,27 @@ public class SpTokenTypes {
   public static final IElementType PREPROCESSOR_INCLUDE_RELATIVEPATH
       = new SpTokenType("-RELATIVE PATH-");
 
-  // PUNCTUATOR
+  // PRAGMA DIRECTIVES
+  public static final IElementType PRAGMA_CODEPAGE = new SpTokenType("codepage");
+  public static final IElementType PRAGMA_CTRLCHAR = new SpTokenType("ctrlchar");
+  public static final IElementType PRAGMA_DEPRECATED = new SpTokenType("deprecated");
+  public static final IElementType PRAGMA_DYNAMIC = new SpTokenType("dynamic");
+  public static final IElementType PRAGMA_RATIONAL = new SpTokenType("rational");
+  public static final IElementType PRAGMA_SEMICOLON = new SpTokenType("semicolon");
+  public static final IElementType PRAGMA_NEWDECLS = new SpTokenType("newdecls");
+  public static final IElementType PRAGMA_TABSIZE = new SpTokenType("tabsize");
+  public static final IElementType PRAGMA_UNUSED = new SpTokenType("unused");
+
+  // PRAGMA DEPRECATED STRING
+  public static final IElementType PRAGMA_DEPRECATED_STRING
+      = new SpTokenType("PRAGMA_DEPRECATED_STRING");
+
+  // PRAGMA NEWDECLS DIRECTIVES
+  public static final IElementType PRAGMA_NEWDECLS_REQUIRED = new SpTokenType("required");
+  public static final IElementType PRAGMA_NEWDECLS_OPTIONAL = new SpTokenType("optional");
+
+
+  // PUNCTUATION
   public static final IElementType AT_SIGN = new SpTokenType("AT_SIGN");
   public static final IElementType COLON = new SpTokenType("COLON");
   public static final IElementType COMMA = new SpTokenType("COMMA");
