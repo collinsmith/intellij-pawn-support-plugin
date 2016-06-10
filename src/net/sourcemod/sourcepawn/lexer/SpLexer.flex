@@ -170,8 +170,8 @@ doc_pre             = {w} "*" {w}
 
 %xstate IN_PREPROCESSOR_PRAGMA_PRE
 %xstate IN_PREPROCESSOR_PRAGMA
-%xstate IN_PRAGMA_DEPRECATED_STRING_PRE
-%xstate IN_PRAGMA_DEPRECATED_STRING
+%xstate IN_PREPROCESSOR_STRING_PRE
+%xstate IN_PREPROCESSOR_STRING
 %xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE
 %xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS
 
@@ -408,7 +408,7 @@ doc_pre             = {w} "*" {w}
   "endif"               { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
   "endinput"            { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
   "endscript"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
-  "error"               { yybegin(YYINITIAL); return PREPROCESSOR_ERROR; }
+  "error"               { yybegin(IN_PREPROCESSOR_STRING_PRE); return PREPROCESSOR_ERROR; }
   "file"                { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
   "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
   "include"             { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_INCLUDE; }
@@ -417,6 +417,30 @@ doc_pre             = {w} "*" {w}
   "tryinclude"          { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_TRYINCLUDE; }
   "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
   [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
+}
+
+<IN_PREPROCESSOR_STRING_PRE> {
+  {whitespace}          { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING); }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_PREPROCESSOR_STRING> {
+  {w} .                 { string.append(yytext()); }
+  . {w} / {brknl}       { string.append(yytext()); }
+  {brknl}               { /* ignore whitespace */ }
+  {w}? {nl}             |
+  <<EOF>>               { value = string.toString().trim();
+                          if (DEBUG) {
+                            System.out.printf("message = %s%n", value);
+                          }
+
+                          yybegin(YYINITIAL);
+                          yypushback(yylength());
+                          if (!((String)value).isEmpty()) {
+                            return PREPROCESSOR_STRING;
+                          }
+                        }
+  [^]                   { string.append(yytext()); }
 }
 
 <IN_PREPROCESSOR_INCLUDE_PRE> {
@@ -475,7 +499,7 @@ doc_pre             = {w} "*" {w}
 <IN_PREPROCESSOR_PRAGMA> {
   "codepage"            { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
   "ctrlchar"            { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
-  "deprecated"          { yybegin(IN_PRAGMA_DEPRECATED_STRING_PRE); return PRAGMA_DEPRECATED; }
+  "deprecated"          { yybegin(IN_PREPROCESSOR_STRING_PRE); return PRAGMA_DEPRECATED; }
   "dynamic"             { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
   "rational"            { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
   "semicolon"           { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
@@ -483,30 +507,6 @@ doc_pre             = {w} "*" {w}
   "tabsize"             { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
   "unused"              { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PRAGMA_DEPRECATED_STRING_PRE> {
-  {whitespace}          { string.setLength(0); yybegin(IN_PRAGMA_DEPRECATED_STRING); }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PRAGMA_DEPRECATED_STRING> {
-  {w} .                 { string.append(yytext()); }
-  . {w} / {brknl}       { string.append(yytext()); }
-  {brknl}               { /* ignore whitespace */ }
-  {w}? {nl}             |
-  <<EOF>>               { value = string.toString().trim();
-                          if (DEBUG) {
-                            System.out.printf("deprecated message = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          yypushback(yylength());
-                          if (!((String)value).isEmpty()) {
-                            return PRAGMA_DEPRECATED_STRING;
-                          }
-                        }
-  [^]                   { string.append(yytext()); }
 }
 
 <IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE> {

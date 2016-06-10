@@ -34,6 +34,9 @@ public class SpTokenTypes {
   public static final IElementType PREPROCESSOR_TRYINCLUDE = new SpTokenType("TRYINCLUDE");
   public static final IElementType PREPROCESSOR_UNDEF = new SpTokenType("UNDEF");
 
+  // PREPROCESSOR
+  public static final IElementType PREPROCESSOR_STRING = new SpTokenType("PREPROCESSOR_STRING");
+
   // INCLUDE FILE FORMATS
   public static final IElementType PREPROCESSOR_INCLUDE_SYSTEMPATH
       = new SpTokenType("-SYSTEM FILE-");
@@ -50,10 +53,6 @@ public class SpTokenTypes {
   public static final IElementType PRAGMA_NEWDECLS = new SpTokenType("newdecls");
   public static final IElementType PRAGMA_TABSIZE = new SpTokenType("tabsize");
   public static final IElementType PRAGMA_UNUSED = new SpTokenType("unused");
-
-  // PRAGMA DEPRECATED STRING
-  public static final IElementType PRAGMA_DEPRECATED_STRING
-      = new SpTokenType("PRAGMA_DEPRECATED_STRING");
 
   // PRAGMA NEWDECLS DIRECTIVES
   public static final IElementType PRAGMA_NEWDECLS_REQUIRED = new SpTokenType("required");
