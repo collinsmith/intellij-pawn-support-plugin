@@ -1,4 +1,4 @@
-package net.sourcemod.sourcepawn;
+package net.sourcemod.sourcepawn.editor;
 
 import com.intellij.lang.BracePair;
 import com.intellij.lang.PairedBraceMatcher;

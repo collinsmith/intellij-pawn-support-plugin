@@ -3,8 +3,9 @@
     <name>SourcePawn Language Support</name>
     <version>1.0</version>
     <vendor email="collinsmith70@gmail.com"
-            url="https://alliedmods.net/">AlliedModders
-    </vendor>
+            url="https://alliedmods.net/">AlliedModders</vendor>
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="extended_platform.xml">com.intellij.modules.java</depends>
 
     <description><![CDATA[
       Adds support for the AMXX Pawn and SourcePawn scripting languages.
@@ -30,8 +31,22 @@
         <lang.parserDefinition language="SourcePawn"
                                implementationClass="net.sourcemod.sourcepawn.parser.SpParserDefinition"/>
         <lang.braceMatcher language="SourcePawn"
-                           implementationClass="net.sourcemod.sourcepawn.SpBraceMatcher"/>
+                           implementationClass="net.sourcemod.sourcepawn.editor.SpBraceMatcher"/>
+        <quoteHandler fileType="SourcePawn" className="net.sourcemod.sourcepawn.editor.SpQuoteHandler"/>
+        <projectConfigurable provider="net.sourcemod.sourcepawn.pages.SpConfigurationProvider"/>
     </extensions>
+
+    <application-components>
+        <component>
+            <implementation-class>net.sourcemod.sourcepawn.SpSettings</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>net.sourcemod.sourcepawn.SpSupport</implementation-class>
+        </component>
+    </project-components>
 
     <actions>
         <!-- Add your actions here -->
