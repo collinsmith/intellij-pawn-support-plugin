@@ -1,6 +1,6 @@
 <idea-plugin version="2">
     <id>com.your.company.unique.plugin.id</id>
-    <name>AlliedModders Language Support</name>
+    <name>SourcePawn Language Support</name>
     <version>1.0</version>
     <vendor email="collinsmith70@gmail.com"
             url="https://alliedmods.net/">AlliedModders
