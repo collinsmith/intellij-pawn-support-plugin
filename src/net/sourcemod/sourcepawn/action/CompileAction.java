@@ -8,8 +8,10 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import net.sourcemod.sourcepawn.SpSupport;
 import net.sourcemod.sourcepawn.build.BuildConfiguration;
 import net.sourcemod.sourcepawn.build.BuildUtils;
 import net.sourcemod.sourcepawn.build.ConsoleBuilder;
@@ -39,13 +41,19 @@ public class CompileAction extends AnAction {
                        @Nullable BuildConfiguration buildConfiguration) {
     Preconditions.checkArgument(project != null, "project cannot be null");
     Preconditions.checkArgument(file != null, "file cannot be null");
+    if (!SpSupport.isSpFile(file)) {
+      Messages.showErrorDialog(project,
+          "Cannot compile " + file.getName() + " because it is not a SourcePawn file.",
+          "Cannot Compile");
+      return;
+    }
+
     if (buildConfiguration == null) {
       Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
       buildConfiguration = BuildConfiguration.create()
           .setProcess(SpSdkUtils.getCompilerPath(sdk))
           .setWorkingDirectory(Paths.get(file.getParent().getPath()))
           .appendTarget(Paths.get(file.getPath()));
-      System.out.println(buildConfiguration);
     }
 
     ImmutableBuildConfiguration savedBuildConfiguration = buildConfiguration.commit();

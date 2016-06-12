@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableSet;
 
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.vfs.VirtualFile;
+
+import net.sourcemod.sourcepawn.file.SpScript;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +64,10 @@ public class SpSupport implements ProjectComponent {
 
   public static String getCompiler() {
     return SP_COMPILER;
+  }
+
+  public static boolean isSpFile(@NotNull VirtualFile file) {
+    return !file.isDirectory() && file.getFileType() == SpScript.INSTANCE;
   }
 
   private SpSupport() {
