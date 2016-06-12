@@ -19,6 +19,8 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -240,7 +242,7 @@ public class ConsoleBuilder implements Builder {
 
         Runnable onEndAction = ConsoleBuilder.this.onEndAction;
         if (!errorDetected[0] && onEndAction != null) {
-          SwingUtilities.invokeLater(onEndAction);
+          ApplicationManager.getApplication().invokeLater(onEndAction, ModalityState.NON_MODAL);
         }
       }
     });
