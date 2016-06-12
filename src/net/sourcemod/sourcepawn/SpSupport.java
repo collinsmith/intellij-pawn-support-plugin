@@ -2,12 +2,15 @@ package net.sourcemod.sourcepawn;
 
 import com.google.common.collect.ImmutableSet;
 
+import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.util.SystemInfo;
+
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class SpSupport {
+public class SpSupport implements ProjectComponent {
 
   @NotNull @NonNls public static final String SP_EXTENSION = "sp";
   @NotNull @NonNls public static final String P_EXTENSION = "p";
@@ -40,7 +43,53 @@ public class SpSupport {
     return EXTENSIONS;
   }
 
+  @NotNull
+  @NonNls
+  private static final String SP_COMPILER;
+
+  static {
+    if (SystemInfo.isWindows) {
+      SP_COMPILER = "spcomp.exe";
+    } else if (SystemInfo.isLinux) {
+      SP_COMPILER = "spcomp";
+    } else if (SystemInfo.isMac) {
+      SP_COMPILER = "spcomp";
+    } else {
+      throw new Error("Unsupported platform: " + SystemInfo.OS_NAME);
+    }
+  }
+
+  public static String getCompiler() {
+    return SP_COMPILER;
+  }
+
   private SpSupport() {
+  }
+
+  @Override
+  public void projectOpened() {
+
+  }
+
+  @Override
+  public void projectClosed() {
+
+  }
+
+  @Override
+  public void initComponent() {
+
+  }
+
+  @Override
+  public void disposeComponent() {
+
+  }
+
+  @NotNull
+  @Override
+  public String getComponentName() {
+    return "SourcePawn.Loader";
   }
 
 }

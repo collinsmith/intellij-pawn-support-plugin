@@ -50,6 +50,13 @@
 
     <actions>
         <!-- Add your actions here -->
+        <action class="net.sourcemod.sourcepawn.action.CompileAction"
+                text="Compile Script"
+                id="Sp.Compile">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+            <add-to-group group-id="ScopeViewPopupMenu" anchor="first"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
     </actions>
 
 </idea-plugin>

@@ -2,7 +2,7 @@ package net.sourcemod.sourcepawn.file;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
 
-import net.alliedmods.intellij.sourcepawn.SourcePawnIcons;
+import net.sourcemod.sourcepawn.SpIcons;
 import net.sourcemod.sourcepawn.SpLanguage;
 import net.sourcemod.sourcepawn.SpSupport;
 
@@ -41,6 +41,6 @@ public class SpScript extends LanguageFileType {
   @Nullable
   @Override
   public Icon getIcon() {
-    return SourcePawnIcons.SCRIPT;
+    return SpIcons.SCRIPT;
   }
 }

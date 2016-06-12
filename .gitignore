@@ -1,7 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Gradle template
 .gradle
-build/
+/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -72,9 +72,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-.gitignore
-gen/net/alliedmods/intellij/sourcepawn/_SourcePawnLexer.java~
-gen/net/alliedmods/intellij/sourcepawn/lexer/_SourcePawnLexer.java~
-gen/net/alliedmods/intellij/sourcepawn/psi/
+
 out/
 /gen/net/sourcemod/sourcepawn/psi/

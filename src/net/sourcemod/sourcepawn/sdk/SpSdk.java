@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import net.sourcemod.sourcepawn.SpIcons;
+import net.sourcemod.sourcepawn.SpSupport;
 
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -21,10 +22,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.*;
 
 public class SpSdk extends SdkType implements SpSdkType, ApplicationComponent {
+
+  @NotNull
+  private static final Path PATH_TO_VERSION = Paths.get("include", "version_auto.inc");
 
   public SpSdk() {
     super("SourceModSdk");
@@ -33,7 +39,7 @@ public class SpSdk extends SdkType implements SpSdkType, ApplicationComponent {
   @Override
   @NonNls
   public String getBinPath(Sdk sdk) {
-    VirtualFile compiler = sdk.getHomeDirectory().findChild("spcomp.exe");
+    VirtualFile compiler = sdk.getHomeDirectory().findChild(SpSupport.getCompiler());
     if (compiler == null) {
       return null;
     }
@@ -66,14 +72,14 @@ public class SpSdk extends SdkType implements SpSdkType, ApplicationComponent {
   @Override
   public boolean isValidSdkHome(String path) {
     VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
-    return file != null && file.findChild("spcomp.exe") != null;
+    return file != null && file.findChild(SpSupport.getCompiler()) != null;
   }
 
   @Nullable
   @Override
   public String getVersionString(String sdkHome) {
     VirtualFile version_auto = LocalFileSystem.getInstance()
-        .findFileByPath(sdkHome + "/include/version_auto.inc");
+        .findFileByPath(Paths.get(sdkHome).resolve(PATH_TO_VERSION).toString());
     try (InputStream in = version_auto.getInputStream();
          InputStreamReader reader = new InputStreamReader(in);
          BufferedReader buffer = new BufferedReader(reader)) {
