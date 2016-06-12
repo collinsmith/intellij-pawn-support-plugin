@@ -34,6 +34,8 @@ public class SpConfigurationType implements ConfigurationType {
 
   @Override
   public ConfigurationFactory[] getConfigurationFactories() {
-    return new ConfigurationFactory[0];
+    return new ConfigurationFactory[] {
+        new SpConfigurationFactory(this)
+    };
   }
 }
