@@ -56,6 +56,7 @@
                 text="Compile Script"
                 id="Sp.Compile"
                 icon="/actions/compile.png">
+            <keyboard-shortcut first-keystroke="shift c" keymap="$default"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
             <add-to-group group-id="ScopeViewPopupMenu" anchor="first"/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
