@@ -5,7 +5,6 @@
     <vendor email="collinsmith70@gmail.com"
             url="https://alliedmods.net/">AlliedModders</vendor>
     <depends>com.intellij.modules.lang</depends>
-    <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="extended_platform.xml">com.intellij.modules.java</depends>
 
     <description><![CDATA[
