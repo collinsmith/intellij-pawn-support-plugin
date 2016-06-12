@@ -5,6 +5,7 @@
     <vendor email="collinsmith70@gmail.com"
             url="https://alliedmods.net/">AlliedModders</vendor>
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="extended_platform.xml">com.intellij.modules.java</depends>
 
     <description><![CDATA[
@@ -34,6 +35,7 @@
                            implementationClass="net.sourcemod.sourcepawn.editor.SpBraceMatcher"/>
         <quoteHandler fileType="SourcePawn" className="net.sourcemod.sourcepawn.editor.SpQuoteHandler"/>
         <projectConfigurable provider="net.sourcemod.sourcepawn.pages.SpConfigurationProvider"/>
+        <configurationType implementation="net.sourcemod.sourcepawn.run.SpConfigurationType"/>
     </extensions>
 
     <application-components>
