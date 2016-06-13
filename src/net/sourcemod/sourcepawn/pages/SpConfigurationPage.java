@@ -3,9 +3,9 @@ package net.sourcemod.sourcepawn.pages;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 
 import net.sourcemod.sourcepawn.SpBundle;
+import net.sourcemod.sourcepawn.SpSettings;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +17,8 @@ public class SpConfigurationPage implements SearchableConfigurable {
 
   private Project project;
 
-  private TextFieldWithBrowseButton compilerPathBrowser;
   private JPanel panel;
+  private JCheckBox saveDocuments;
 
   public SpConfigurationPage(Project project) {
     this.project = project;
@@ -51,26 +51,30 @@ public class SpConfigurationPage implements SearchableConfigurable {
   @Nullable
   @Override
   public JComponent createComponent() {
+    reset();
     return panel;
   }
 
   @Override
   public boolean isModified() {
-    return false;
+    return SpSettings.getInstance().saveDocuments != saveDocuments.isSelected();
   }
 
   @Override
   public void apply() throws ConfigurationException {
-
+    SpSettings.getInstance().saveDocuments = saveDocuments.isSelected();
   }
 
   @Override
   public void reset() {
-
+    saveDocuments.setSelected(SpSettings.getInstance().saveDocuments);
   }
 
   @Override
   public void disposeUIResources() {
 
+  }
+
+  private void createUIComponents() {
   }
 }

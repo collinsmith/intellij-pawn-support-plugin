@@ -14,7 +14,12 @@ import javax.swing.*;
 public class SpInclude extends LanguageFileType {
 
   @NotNull
-  public static final SpInclude INSTANCE = new SpInclude();
+  private static final SpInclude INSTANCE = new SpInclude();
+
+  @NotNull
+  public static SpInclude getInstance() {
+    return INSTANCE;
+  }
 
   private SpInclude() {
     super(SpLanguage.INSTANCE);

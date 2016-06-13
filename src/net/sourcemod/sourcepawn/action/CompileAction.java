@@ -11,6 +11,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import net.sourcemod.sourcepawn.SpSettings;
 import net.sourcemod.sourcepawn.SpSupport;
 import net.sourcemod.sourcepawn.build.BuildConfiguration;
 import net.sourcemod.sourcepawn.build.BuildUtils;
@@ -60,7 +61,10 @@ public class CompileAction extends AnAction {
     ConsoleBuilder builder = new ConsoleBuilder(file.getNameWithoutExtension(), project)
         .setBuildConfiguration(savedBuildConfiguration)
         .setRerunAction(() -> compile(project, file, savedBuildConfiguration));
-    BuildUtils.saveDocuments();
+    if (SpSettings.getInstance().saveDocuments) {
+      BuildUtils.saveDocuments();
+    }
+
     builder.build();
   }
 

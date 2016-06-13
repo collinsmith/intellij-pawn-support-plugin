@@ -1,5 +1,6 @@
 package net.sourcemod.sourcepawn.sdk;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.projectRoots.AdditionalDataConfigurable;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -31,6 +32,11 @@ public class SpSdk extends SdkType implements SpSdkType, ApplicationComponent {
 
   @NotNull
   private static final Path PATH_TO_VERSION = Paths.get("include", "version_auto.inc");
+
+  @NotNull
+  public static SpSdk getInstance() {
+    return ApplicationManager.getApplication().getComponent(SpSdk.class);
+  }
 
   public SpSdk() {
     super("SourceModSdk");

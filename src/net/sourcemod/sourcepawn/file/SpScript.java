@@ -14,7 +14,12 @@ import javax.swing.*;
 public class SpScript extends LanguageFileType {
 
   @NotNull
-  public static final SpScript INSTANCE = new SpScript();
+  private static final SpScript INSTANCE = new SpScript();
+
+  @NotNull
+  public static SpScript getInstance() {
+    return INSTANCE;
+  }
 
   private SpScript() {
     super(SpLanguage.INSTANCE);

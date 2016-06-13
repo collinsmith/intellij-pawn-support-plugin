@@ -18,9 +18,9 @@ public class SpFileTypeFactory extends FileTypeFactory {
 
   @Override
   public void createFileTypes(@NotNull FileTypeConsumer consumer) {
-    consumer.consume(SpScript.INSTANCE,
+    consumer.consume(SpScript.getInstance(),
         createFileNameMatchersForExtensions(SpSupport.getScriptExtensions()));
-    consumer.consume(SpInclude.INSTANCE,
+    consumer.consume(SpInclude.getInstance(),
         createFileNameMatchersForExtensions(SpSupport.getIncludeExtensions()));
   }
 

@@ -20,7 +20,7 @@ public class SpScriptFile extends PsiFileBase {
   @NotNull
   @Override
   public FileType getFileType() {
-    return SpScript.INSTANCE;
+    return SpScript.getInstance();
   }
 
   @Override

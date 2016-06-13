@@ -1,0 +1,14 @@
+#parse("File Header.sp")
+#include <sourcemod>
+
+public Plugin myinfo = {
+    name = "${NAME}",
+    author = "${USER}",
+    description = "",
+    version = "0.0.1",
+    url = "http://www.sourcemod.net/"
+};
+
+public void OnPluginStart() {
+  //...
+}

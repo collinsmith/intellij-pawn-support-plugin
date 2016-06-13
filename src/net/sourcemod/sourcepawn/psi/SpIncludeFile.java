@@ -20,7 +20,7 @@ public class SpIncludeFile extends PsiFileBase {
   @NotNull
   @Override
   public FileType getFileType() {
-    return SpInclude.INSTANCE;
+    return SpInclude.getInstance();
   }
 
   @Override

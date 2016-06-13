@@ -4,5 +4,8 @@
         <component>
             <implementation-class>net.sourcemod.sourcepawn.sdk.SpSdk</implementation-class>
         </component>
+        <component>
+            <implementation-class>net.sourcemod.sourcepawn.module.SpModule</implementation-class>
+        </component>
     </application-components>
 </idea-plugin>

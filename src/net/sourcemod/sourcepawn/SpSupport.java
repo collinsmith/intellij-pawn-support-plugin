@@ -67,7 +67,7 @@ public class SpSupport implements ProjectComponent {
   }
 
   public static boolean isSpFile(@NotNull VirtualFile file) {
-    return !file.isDirectory() && file.getFileType() == SpScript.INSTANCE;
+    return !file.isDirectory() && file.getFileType() == SpScript.getInstance();
   }
 
   private SpSupport() {
