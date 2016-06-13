@@ -36,6 +36,8 @@
         <projectConfigurable provider="net.sourcemod.sourcepawn.pages.SpConfigurationProvider"/>
         <configurationType implementation="net.sourcemod.sourcepawn.run.SpConfigurationType"/>
         <applicationService serviceImplementation="net.sourcemod.sourcepawn.SpSettings"/>
+        
+        <fileTemplateGroup implementation="net.sourcemod.sourcepawn.module.SpTemplateGroup"/>
     </extensions>
 
     <application-components>

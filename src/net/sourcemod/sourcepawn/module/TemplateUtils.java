@@ -14,7 +14,8 @@ import java.util.Properties;
 
 public class TemplateUtils {
 
-  public static String getTemplateText(String fileName, String... additionalParameters) throws IOException {
+  public static String getTemplateText(String fileName, String... additionalParameters)
+      throws IOException {
     Properties properties = FileTemplateManager.getDefaultInstance().getDefaultProperties();
     if (additionalParameters != null) {
       for (int i = 0; i < additionalParameters.length; ++i) {
