@@ -22,7 +22,7 @@
   elementTypeClass="net.sourcemod.sourcepawn.psi.SpElementType"
   tokenTypeClass="net.sourcemod.sourcepawn.SpTokenType"
 
-  extends(".*_expression")=expression
+//extends(".*_expression")=expression
 }
 
 root ::= root_item *

@@ -13,6 +13,7 @@ public interface SpElementTypes {
   IElementType DEFINE_SUBSTITUTION = new SpElementType("DEFINE_SUBSTITUTION");
   IElementType PRAGMA = new SpElementType("PRAGMA");
   IElementType PREPROCESSOR = new SpElementType("PREPROCESSOR");
+  IElementType PREPROCESSOR_EXPRESSION = new SpElementType("PREPROCESSOR_EXPRESSION");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
@@ -28,6 +29,9 @@ public interface SpElementTypes {
       }
       else if (type == PREPROCESSOR) {
         return new SpPreprocessorImpl(node);
+      }
+      else if (type == PREPROCESSOR_EXPRESSION) {
+        return new SpPreprocessorExpressionImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

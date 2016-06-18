@@ -60,6 +60,8 @@ import java.util.NoSuchElementException;
   private int GOTO_AFTER_ESCAPE_SEQUENCE;
   private int GOTO_AFTER_ESCAPE_SEQUENCE_FAIL;
 
+  private boolean isPreprocessorUndef;
+
   private int escapeCharacter;
 
   private Object value;
@@ -125,8 +127,6 @@ nobrknl             = [^\[\r\n]
 brknl               = \\{w}?{nl}{w}?
 whitespace          = ({w}|{brknl})+
 
-identifier          = ([_@][_@a-zA-Z0-9]+) | ([a-zA-Z][_@a-zA-Z0-9]*)
-
 binary_digit        = [01]
 octal_digit         = [0-7]
 decimal_digit       = [0-9]
@@ -136,6 +136,11 @@ binary_prefix       = 0b
 octal_prefix        = 0o
 decimal_prefix      = {decimal_digit}
 hexadecimal_prefix  = 0x
+
+alpha               = [_@a-zA-Z]
+alphanum            = [_@a-zA-Z0-9]
+
+identifier          = ([_@]{alphanum}+) | ([a-zA-Z]{alphanum}*)
 
 unicode_escape      = ({hexadecimal_digit}){0,2};?
 decimal_escape      = {decimal_digit}*;?
@@ -164,6 +169,7 @@ doc_pre             = {w} "*" {w}
 
 %xstate IN_PREPROCESSOR
 %xstate IN_PREPROCESSOR_DEFINE_PRE
+%xstate IN_PREPROCESSOR_DEFINE_PATTERN_PRE
 %xstate IN_PREPROCESSOR_DEFINE_PATTERN
 %xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE
 %xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS
@@ -410,7 +416,8 @@ doc_pre             = {w} "*" {w}
 
 <IN_PREPROCESSOR> {
   "assert"              { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
-  "define"              { yybegin(IN_PREPROCESSOR_DEFINE_PRE); return PREPROCESSOR_DEFINE; }
+  "define"              { isPreprocessorUndef = false;
+                          yybegin(IN_PREPROCESSOR_DEFINE_PRE); return PREPROCESSOR_DEFINE; }
   "else"                { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
   "elseif"              { yybegin(YYINITIAL); return PREPROCESSOR_ELSEIF; }
   "endif"               { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
@@ -423,7 +430,8 @@ doc_pre             = {w} "*" {w}
   "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
   "pragma"              { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
   "tryinclude"          { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_TRYINCLUDE; }
-  "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
+  "undef"               { isPreprocessorUndef = true;
+                          yybegin(IN_PREPROCESSOR_DEFINE_PRE); return PREPROCESSOR_UNDEF; }
   [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
@@ -453,26 +461,68 @@ doc_pre             = {w} "*" {w}
 
 <IN_PREPROCESSOR_DEFINE_PRE> {
   {whitespace}          { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN); return WHITE_SPACE; }
+                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_PRE); return WHITE_SPACE; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
+<IN_PREPROCESSOR_DEFINE_PATTERN_PRE> {
+  {alpha}               { yypushback(yylength()); yybegin(IN_PREPROCESSOR_DEFINE_PATTERN);
+                          return WHITE_SPACE; }
+  [^]                   |
+  <<EOF>>               { BAD_LITERAL_REASON = BAD_PATTERN;
+                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+}
+
 <IN_PREPROCESSOR_DEFINE_PATTERN> {
-  {whitespace}          { yypushback(yylength());
-                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return WHITE_SPACE; }
-  "("                   { value = SpUtils.parseString(string, getEscapeCharacter());
+  {nl}                  { value = SpUtils.parseString(string, getEscapeCharacter());
                           if (DEBUG) {
                             System.out.printf("pattern = %s%n", value);
                           }
 
-                          yypushback(yylength()); yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE);
+                          yypushback(yylength()); yybegin(YYINITIAL);
+                          return DEFINE_PATTERN; }
+  {whitespace}          { value = SpUtils.parseString(string, getEscapeCharacter());
+                          if (DEBUG) {
+                            System.out.printf("pattern = %s%n", value);
+                          }
+
+                          if (!isPreprocessorUndef) {
+                            yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE);
+                          } else {
+                            isPreprocessorUndef = false;
+                            yypushback(yylength());
+                            yybegin(YYINITIAL);
+                          }
+
+                          return DEFINE_PATTERN;
+                        }
+  "("                   { if (string.length() == 0) {
+                            yybegin(YYINITIAL);
+                            return RPAREN;
+                          }
+
+                          value = SpUtils.parseString(string, getEscapeCharacter());
+                          if (DEBUG) {
+                            System.out.printf("pattern = %s%n", value);
+                          }
+
+                          yypushback(yylength());
+                          if (!isPreprocessorUndef) {
+                            yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE);
+                          } else {
+                            isPreprocessorUndef = false;
+                          }
+
                           return DEFINE_PATTERN; }
   .                     { int codePoint = codePointAt(0);
                           if (isEscapeCharacter(codePoint)) {
                             string.appendCodePoint(codePoint);
                             yybegin(IN_ESCAPE_SEQUENCE);
-                          } else {
+                          } else if (codePoint > ' ') {
                             string.appendCodePoint(codePoint);
+                          } else {
+                            BAD_LITERAL_REASON = BAD_PATTERN;
+                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
                           }
                         }
   <<EOF>>               { value = SpUtils.parseString(string, getEscapeCharacter());
@@ -504,7 +554,8 @@ doc_pre             = {w} "*" {w}
 }
 
 <IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE> {
-  {whitespace}          { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING); }
+  {whitespace}          { string.setLength(0);
+                          yybegin(IN_PREPROCESSOR_STRING); return WHITE_SPACE; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 

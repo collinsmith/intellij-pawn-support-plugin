@@ -36,6 +36,9 @@ public class SpParser implements PsiParser, LightPsiParser {
     else if (t == PREPROCESSOR) {
       r = preprocessor(b, 0);
     }
+    else if (t == PREPROCESSOR_EXPRESSION) {
+      r = preprocessor_expression(b, 0);
+    }
     else {
       r = parse_root_(t, b, 0);
     }
@@ -337,7 +340,7 @@ public class SpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // PREPROCESSOR_ASSERT
+  // PREPROCESSOR_ASSERT preprocessor_expression
   //   | PREPROCESSOR_DEFINE DEFINE_PATTERN ( (define_args define_substitution) | define_substitution )?
   //   | PREPROCESSOR_ENDINPUT
   //   | PREPROCESSOR_ENDSCRIPT
@@ -348,12 +351,12 @@ public class SpParser implements PsiParser, LightPsiParser {
   //   | PREPROCESSOR_LINE NUMBER_LITERAL
   //   | PREPROCESSOR_PRAGMA pragma
   //   | PREPROCESSOR_TRYINCLUDE include_file_reference
-  //   | PREPROCESSOR_UNDEF IDENTIFIER
+  //   | PREPROCESSOR_UNDEF DEFINE_PATTERN
   public static boolean preprocessor(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "preprocessor")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, PREPROCESSOR, "<preprocessor directive>");
-    r = consumeToken(b, PREPROCESSOR_ASSERT);
+    r = preprocessor_0(b, l + 1);
     if (!r) r = preprocessor_1(b, l + 1);
     if (!r) r = consumeToken(b, PREPROCESSOR_ENDINPUT);
     if (!r) r = consumeToken(b, PREPROCESSOR_ENDSCRIPT);
@@ -364,8 +367,19 @@ public class SpParser implements PsiParser, LightPsiParser {
     if (!r) r = parseTokens(b, 0, PREPROCESSOR_LINE, NUMBER_LITERAL);
     if (!r) r = preprocessor_9(b, l + 1);
     if (!r) r = preprocessor_10(b, l + 1);
-    if (!r) r = parseTokens(b, 0, PREPROCESSOR_UNDEF, IDENTIFIER);
+    if (!r) r = parseTokens(b, 0, PREPROCESSOR_UNDEF, DEFINE_PATTERN);
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // PREPROCESSOR_ASSERT preprocessor_expression
+  private static boolean preprocessor_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "preprocessor_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, PREPROCESSOR_ASSERT);
+    r = r && preprocessor_expression(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -489,6 +503,20 @@ public class SpParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, PREPROCESSOR_TRYINCLUDE);
     r = r && include_file_reference(b, l + 1);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // NUMBER_LITERAL
+  //   | CHARACTER_LITERAL
+  public static boolean preprocessor_expression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "preprocessor_expression")) return false;
+    if (!nextTokenIs(b, "<preprocessor expression>", CHARACTER_LITERAL, NUMBER_LITERAL)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, PREPROCESSOR_EXPRESSION, "<preprocessor expression>");
+    r = consumeToken(b, NUMBER_LITERAL);
+    if (!r) r = consumeToken(b, CHARACTER_LITERAL);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
