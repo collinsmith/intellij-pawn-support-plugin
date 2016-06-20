@@ -12,6 +12,17 @@ import java.util.PrimitiveIterator;
 
 public class SpUtils {
 
+  public static boolean isAlpha(int codePoint) {
+    return ('A' <= codePoint && codePoint <= 'Z')
+        || ('a' <= codePoint && codePoint <= 'z')
+        || codePoint == '_'
+        || codePoint == '@';
+  }
+
+  public static boolean isAlphaNumeric(int codePoint) {
+    return isAlpha(codePoint) || ('0' <= codePoint && codePoint <= '9');
+  }
+
   @Nullable
   public static BigInteger parseCell(@NotNull @NonNls CharSequence text, int ctrl) {
     BigInteger value;
@@ -186,6 +197,13 @@ public class SpUtils {
     }
 
     return string.toString();
+  }
+
+  public static int parseCodePoint(@NotNull @NonNls CharSequence text, int ctrl) {
+    PrimitiveIterator.OfInt iterator = text.codePoints().iterator();
+    OfIntPeekingIterator peekingIterator = new OfIntPeekingIterator(iterator);
+    int codePoint = parseCodePoint(peekingIterator, ctrl);
+    return codePoint;
   }
 
   public static int parseCodePoint(@NotNull OfIntPeekingIterator codePoints, int ctrl) {
