@@ -10,6 +10,10 @@ import java.io.Reader;
 import java.util.function.IntConsumer;
 import java.util.NoSuchElementException;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.PrimitiveIterator;
+
 %%
 
 %public
@@ -27,6 +31,11 @@ import java.util.NoSuchElementException;
 %eof}
 
 %init{
+  SUBSTITUTIONS.put("__BINARY_PATH__", "path");
+  SUBSTITUTIONS.put("__BINARY_NAME__", "name");
+  SUBSTITUTIONS.put("__DATE__", "date");
+  SUBSTITUTIONS.put("__TIME__", "time");
+
   resetState();
 %init}
 
@@ -54,11 +63,16 @@ import java.util.NoSuchElementException;
     return builder.toString();
   }
 
-  private final StringBuilder string = new StringBuilder(32);
+  final Map<CharSequence, CharSequence> SUBSTITUTIONS = new HashMap<>();
 
-  private IElementType BAD_LITERAL_REASON;
+  private final StringBuilder string = new StringBuilder(32);
+  private final StringBuilder escapeSequence = new StringBuilder(8);
+  private int escapedCodePoint;
+
+  private IElementType BAD_WORD_REASON;
+  private IElementType BAD_LINE_REASON;
+
   private int GOTO_AFTER_ESCAPE_SEQUENCE;
-  private int GOTO_AFTER_ESCAPE_SEQUENCE_FAIL;
 
   private boolean isPreprocessorUndef;
 
@@ -99,6 +113,25 @@ import java.util.NoSuchElementException;
     return codePoint == getEscapeCharacter();
   }
 
+  private void prepareInlineEscapeSequence(int GOTO_AFTER_ESCAPE_SEQUENCE) {
+    this.GOTO_AFTER_ESCAPE_SEQUENCE = GOTO_AFTER_ESCAPE_SEQUENCE;
+    escapedCodePoint = 0;
+    escapeSequence.setLength(0);
+    escapeSequence.appendCodePoint(getEscapeCharacter());
+  }
+
+  private void gotoBadWord(IElementType BAD_WORD_REASON) {
+    this.BAD_WORD_REASON = BAD_WORD_REASON;
+    string.setLength(0);
+    yybegin(IN_BAD_WORD);
+  }
+
+  /*private void gotoBadLine(int BAD_LINE_REASON) {
+    this.BAD_LINE_REASON = BAD_LINE_REASON;
+    string.setLength(0);
+    yybegin(IN_BAD_LINE);
+  }*/
+
   private int codePointAt(int index) {
     final int length = yylength();
     if (index >= length) {
@@ -121,6 +154,7 @@ import java.util.NoSuchElementException;
 w                   = [ \t]+
 now                 = [^ \t]
 wnl                 = [ \r\n\t]+
+nownl               = [^ \r\n\t]+
 nl                  = \r|\n|\r\n
 nonl                = [^\r\n]
 nobrknl             = [^\[\r\n]
@@ -161,696 +195,225 @@ pattern_arg         = % {decimal_digit}
 
 doc_pre             = {w} "*" {w}
 
-%xstate IN_LINE_COMMENT
-%xstate IN_BLOCK_COMMENT
-%xstate IN_DOC_COMMENT_PRE
-%xstate IN_DOC_COMMENT
-%xstate IN_DOC_COMMENT_POST
+%xstate IN_BAD_WORD
 
+%xstate LOOKING_FOR_PATTERN
+%xstate INITIAL
 %xstate IN_PREPROCESSOR
-%xstate IN_PREPROCESSOR_DEFINE_PRE
-%xstate IN_PREPROCESSOR_DEFINE_PATTERN_PRE
-%xstate IN_PREPROCESSOR_DEFINE_PATTERN
-%xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE
-%xstate IN_PREPROCESSOR_DEFINE_PATTERN_ARGS
-%xstate IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE
-%xstate IN_PREPROCESSOR_DEFINE_SUBSTITUTION
-%xstate IN_PREPROCESSOR_INCLUDE_PRE
-%xstate IN_PREPROCESSOR_INCLUDE
-%xstate IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE
-%xstate IN_PREPROCESSOR_INCLUDE_SYSTEMPATH
-%xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE
-%xstate IN_PREPROCESSOR_INCLUDE_RELATIVEPATH
 
-%xstate IN_PREPROCESSOR_PRAGMA_PRE
-%xstate IN_PREPROCESSOR_PRAGMA
 %xstate IN_PREPROCESSOR_STRING_PRE
 %xstate IN_PREPROCESSOR_STRING
-%xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE
-%xstate IN_PREPROCESSOR_PRAGMA_NEWDECLS
-
-%xstate IN_CASE
-
-%xstate IN_CHARACTER_LITERAL
-%xstate IN_CHARACTER_LITERAL_FINISH
-
-%xstate IN_STRING_LITERAL
-
-%xstate IN_BAD_LITERAL
-%xstate IN_ESCAPE_SEQUENCE
-%xstate IN_DECIMAL_ESCAPE_SEQUENCE
-%xstate IN_UNICODE_ESCAPE_SEQUENCE
 
 %%
 
-// PUNCTUATION
-":"                     { return COLON; }
-","                     { return COMMA; }
-"#"                     { yybegin(IN_PREPROCESSOR); return HASH; }
-"."                     { return PERIOD; }
-";"                     { return SEMICOLON; }
-"..."                   { return ELLIPSIS; }
+[^]                     { yypushback(yylength()); yybegin(LOOKING_FOR_PATTERN); }
 
-// OPERATORS
-"&"                     { return AMPERSAND; }
-"="                     { return ASSIGN; }
-"*"                     { return ASTERISK; }
-"^"                     { return CARET; }
-"!"                     { return EXCLAMATION; }
-"-"                     { return MINUS; }
-"%"                     { return PERCENT; }
-"+"                     { return PLUS; }
-"/"                     { return SLASH; }
-"~"                     { return TILDE; }
-"|"                     { return VERTICAL_BAR; }
-"+="                    { return ADDEQ; }
-"&&"                    { return AND; }
-"&="                    { return ANDEQ; }
-"--"                    { return DECREMENT; }
-"/="                    { return DIVEQ; }
-"=="                    { return EQUALTO; }
-">="                    { return GTEQ; }
-"++"                    { return INCREMENT; }
-"<="                    { return LTEQ; }
-"%="                    { return MODEQ; }
-"*="                    { return MULEQ; }
-"!="                    { return NEQUALTO; }
-"||"                    { return OR; }
-"|="                    { return OREQ; }
-".."                    { return RANGE; }
-"::"                    { return SCOPE_RESOLUTION; }
-"<<"                    { return SL; }
-"<<="                   { return SLEQ; }
-">>"                    { return SRA; }
-">>="                   { return SRAEQ; }
-">>>"                   { return SRL; }
-">>>="                  { return SRLEQ; }
-"-="                    { return SUBEQ; }
-"^="                    { return XOREQ; }
-
-// MATCHED PAIRS
-"{"                     { return LBRACE; }
-"}"                     { return RBRACE; }
-"["                     { return LBRACKET; }
-"]"                     { return RBRACKET; }
-"("                     { return LPAREN; }
-")"                     { return RPAREN; }
-"<"                     { return LT; }
-">"                     { return GT; }
-
-// KEYWORDS
-"acquire"               { return ACQUIRE; }
-"as"                    { return AS; }
-"assert"                { return ASSERT; }
-//"*begin"              { return BEGIN; }
-"break"                 { return BREAK; }
-"builtin"               { return BUILTIN; }
-"case"                  { yybegin(IN_CASE); return CASE; }
-"cast_to"               { return CAST_TO; }
-"catch"                 { return CATCH; }
-"cellsof"               { return CELLSOF; }
-"char"                  { return CHAR; }
-"const"                 { return CONST; }
-"continue"              { return CONTINUE; }
-"decl"                  { return DECL; }
-"default"               { return DEFAULT; }
-"defined"               { return DEFINED; }
-"delete"                { return DELETE; }
-"do"                    { return DO; }
-"double"                { return DOUBLE; }
-"else"                  { return ELSE; }
-//"*end"                { return END; }
-"enum"                  { return ENUM; }
-"exit"                  { return EXIT; }
-"explicit"              { return EXPLICIT; }
-"finally"               { return FINALLY; }
-"for"                   { return FOR; }
-"foreach"               { return FOREACH; }
-"forward"               { return FORWARD; }
-"funcenum"              { return FUNCENUM; }
-"functag"               { return FUNCTAG; }
-"function"              { return FUNCTION; }
-"goto"                  { return GOTO; }
-"if"                    { return IF; }
-"implicit"              { return IMPLICIT; }
-"import"                { return IMPORT; }
-"in"                    { return IN; }
-"int"                   { return INT; }
-"int8"                  { return INT8; }
-"int16"                 { return INT16; }
-"int32"                 { return INT32; }
-"int64"                 { return INT64; }
-"interface"             { return INTERFACE; }
-"intn"                  { return INTN; }
-"let"                   { return LET; }
-"methodmap"             { return METHODMAP; }
-"namespace"             { return NAMESPACE; }
-"native"                { return NATIVE; }
-"new"                   { return NEW; }
-"null"                  { return NULL; }
-"__nullable__"          { return NULLABLE; }
-"object"                { return OBJECT; }
-"operator"              { return OPERATOR; }
-"package"               { return PACKAGE; }
-"private"               { return PRIVATE; }
-"protected"             { return PROTECTED; }
-"public"                { return PUBLIC; }
-"readonly"              { return READONLY; }
-"return"                { return RETURN; }
-"sealed"                { return SEALED; }
-"sizeof"                { return SIZEOF; }
-"sleep"                 { return SLEEP; }
-"static"                { return STATIC; }
-"stock"                 { return STOCK; }
-"struct"                { return STRUCT; }
-"switch"                { return SWITCH; }
-"tagof"                 { return TAGOF; }
-//"*then"               { return THEN; }
-"this"                  { return THIS; }
-"throw"                 { return THROW; }
-"try"                   { return TRY; }
-"typedef"               { return TYPEDEF; }
-"typeof"                { return TYPEOF; }
-"typeset"               { return TYPESET; }
-"uint8"                 { return UINT8; }
-"uint16"                { return UINT16; }
-"uint32"                { return UINT32; }
-"uint64"                { return UINT64; }
-"uintn"                 { return UINTN; }
-"union"                 { return UNION; }
-"using"                 { return USING; }
-"var"                   { return VAR; }
-"variant"               { return VARIANT; }
-"view_as"               { return VIEW_AS; }
-"virtual"               { return VIRTUAL; }
-"void"                  { return VOID; }
-"volatile"              { return VOLATILE; }
-"while"                 { return WHILE; }
-"with"                  { return WITH; }
-
-// CHARACTER LITERALS
-"\'"                    { string.setLength(0); string.append('\'');
-                          GOTO_AFTER_ESCAPE_SEQUENCE = IN_CHARACTER_LITERAL_FINISH;
-                          GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
-                          BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
-                          yybegin(IN_CHARACTER_LITERAL); }
-
-// STRING LITERALS
-"\""                    { string.setLength(0); string.append('\"');
-                          GOTO_AFTER_ESCAPE_SEQUENCE = IN_STRING_LITERAL;
-                          GOTO_AFTER_ESCAPE_SEQUENCE_FAIL = IN_BAD_LITERAL;
-                          BAD_LITERAL_REASON = BAD_STRING_LITERAL;
-                          yybegin(IN_STRING_LITERAL); }
-
-// COMMENTS
-"//" {w}?               { string.setLength(0); yybegin(IN_LINE_COMMENT); }
-"/**" {w}?              { string.setLength(0); yybegin(IN_DOC_COMMENT_PRE); }
-"/*" {w}?               { string.setLength(0); yybegin(IN_BLOCK_COMMENT); }
-
-// WHITE SPACE
-{whitespace}            { return WHITE_SPACE; }
-{nl}                    { return NEW_LINE; }
-
-// IDENTIFIERS
-{identifier}            { return IDENTIFIER; }
-{identifier} / "::"     { return IDENTIFIER; }
-
-"_"                     { return UNDERSCORE; }
-"_" / "::"              { return UNDERSCORE; }
-
-"@"                     { return AT_SIGN; }
-
-// TAGS
-{identifier} / ":"      { return TAG; }
-"_" / ":"               { return TAG; }
-
-// NUMBER LITERALS
-{number}                { value = SpUtils.parseNumber(yytext());
-                          if (DEBUG) {
-                            System.out.printf("number %s = %d%n", yytext(), value);
-                          }
-
-                          if (value == null) {
-                            throw new AssertionError(
-                                value + " should be a valid number, but it couldn't be parsed");
-                          }
-
-                          return NUMBER_LITERAL;
-                        }
-
-// RATIONAL LITERALS
-{rational_literal}      { value = SpUtils.parseRational(yytext());
-                          if (DEBUG) {
-                            System.out.printf("rational %s = %d%n", yytext(), value);
-                          }
-
-                          if (value == null) {
-                            throw new AssertionError(
-                                value + " should be a valid rational, but it couldn't be parsed");
-                          }
-
-                          return RATIONAL_LITERAL;
-                        }
-
-[^]                     { return BAD_CHARACTER; }
-
-<IN_PREPROCESSOR> {
-  "assert"              { yybegin(YYINITIAL); return PREPROCESSOR_ASSERT; }
-  "define"              { isPreprocessorUndef = false;
-                          yybegin(IN_PREPROCESSOR_DEFINE_PRE); return PREPROCESSOR_DEFINE; }
-  "else"                { yybegin(YYINITIAL); return PREPROCESSOR_ELSE; }
-  "elseif"              { yybegin(YYINITIAL); return PREPROCESSOR_ELSEIF; }
-  "endif"               { yybegin(YYINITIAL); return PREPROCESSOR_ENDIF; }
-  "endinput"            { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
-  "endscript"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
-  "error"               { yybegin(IN_PREPROCESSOR_STRING_PRE); return PREPROCESSOR_ERROR; }
-  "file"                { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
-  "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
-  "include"             { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_INCLUDE; }
-  "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
-  "pragma"              { yybegin(IN_PREPROCESSOR_PRAGMA_PRE); return PREPROCESSOR_PRAGMA; }
-  "tryinclude"          { yybegin(IN_PREPROCESSOR_INCLUDE_PRE); return PREPROCESSOR_TRYINCLUDE; }
-  "undef"               { isPreprocessorUndef = true;
-                          yybegin(IN_PREPROCESSOR_DEFINE_PRE); return PREPROCESSOR_UNDEF; }
-  [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
-}
-
-<IN_PREPROCESSOR_STRING_PRE> {
-  {whitespace}          { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING); }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_STRING> {
-  {w} .                 { string.append(yytext()); }
-  . {w} / {brknl}       { string.append(yytext()); }
-  {brknl}               { /* ignore whitespace */ }
-  {w}? {nl}             |
-  <<EOF>>               { value = string.toString().trim();
-                          if (DEBUG && !((String)value).isEmpty()) {
-                            System.out.printf("message = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          yypushback(yylength());
-                          if (!((String)value).isEmpty()) {
-                            return PREPROCESSOR_STRING;
-                          }
-                        }
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_PREPROCESSOR_DEFINE_PRE> {
-  {whitespace}          { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_PRE); return WHITE_SPACE; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_DEFINE_PATTERN_PRE> {
-  {alpha}               { yypushback(yylength()); yybegin(IN_PREPROCESSOR_DEFINE_PATTERN);
-                          return WHITE_SPACE; }
-  [^]                   |
-  <<EOF>>               { BAD_LITERAL_REASON = BAD_PATTERN;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_PREPROCESSOR_DEFINE_PATTERN> {
-  {nl}                  { value = SpUtils.parseString(string, getEscapeCharacter());
-                          if (DEBUG) {
-                            System.out.printf("pattern = %s%n", value);
-                          }
-
-                          yypushback(yylength()); yybegin(YYINITIAL);
-                          return DEFINE_PATTERN; }
-  {whitespace}          { value = SpUtils.parseString(string, getEscapeCharacter());
-                          if (DEBUG) {
-                            System.out.printf("pattern = %s%n", value);
-                          }
-
-                          if (!isPreprocessorUndef) {
-                            yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE);
+<LOOKING_FOR_PATTERN> {
+  {nownl}               { int codePoint = codePointAt(0);
+                          if (!SpUtils.isAlpha(codePoint)) {
+                            yypushback(yylength()); yybegin(INITIAL);
                           } else {
-                            isPreprocessorUndef = false;
-                            yypushback(yylength());
-                            yybegin(YYINITIAL);
-                          }
-
-                          return DEFINE_PATTERN;
-                        }
-  "("                   { if (string.length() == 0) {
-                            yybegin(YYINITIAL);
-                            return RPAREN;
-                          }
-
-                          value = SpUtils.parseString(string, getEscapeCharacter());
-                          if (DEBUG) {
-                            System.out.printf("pattern = %s%n", value);
-                          }
-
-                          yypushback(yylength());
-                          if (!isPreprocessorUndef) {
-                            yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE);
-                          } else {
-                            isPreprocessorUndef = false;
-                          }
-
-                          return DEFINE_PATTERN; }
-  .                     { int codePoint = codePointAt(0);
-                          if (isEscapeCharacter(codePoint)) {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_ESCAPE_SEQUENCE);
-                          } else if (codePoint > ' ') {
-                            string.appendCodePoint(codePoint);
-                          } else {
-                            BAD_LITERAL_REASON = BAD_PATTERN;
-                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
-                          }
-                        }
-  <<EOF>>               { value = SpUtils.parseString(string, getEscapeCharacter());
-                          if (DEBUG) {
-                            System.out.printf("pattern = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return DEFINE_PATTERN; }
-  [^]                   { BAD_LITERAL_REASON = BAD_PATTERN;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_PREPROCESSOR_DEFINE_PATTERN_ARGS_PRE> {
-  "("                   { yybegin(IN_PREPROCESSOR_DEFINE_PATTERN_ARGS); return LPAREN; }
-  [^]                   { throw new AssertionError(
-                              "( should already have been read and pushed back into the stream."); }
-}
-
-<IN_PREPROCESSOR_DEFINE_PATTERN_ARGS> {
-  {whitespace}          { BAD_LITERAL_REASON = BAD_PATTERN;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-  {pattern_arg}         { value = yytext().toString(); return DEFINE_PATTERN_ARG; }
-  ","                   { return COMMA; }
-  ")"                   { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE); return RPAREN; }
-  [^]                   { BAD_LITERAL_REASON = BAD_PATTERN;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_PREPROCESSOR_DEFINE_SUBSTITUTION_PRE> {
-  {whitespace}          { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_STRING); return WHITE_SPACE; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_INCLUDE_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE); return WHITE_SPACE; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); return BAD_CHARACTER; }
-}
-
-<IN_PREPROCESSOR_INCLUDE> {
-  "<"                   { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE); }
-  "\""                  { string.setLength(0);
-                          yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE); }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_INCLUDE_SYSTEMPATH_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }
-  [^]                   { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_SYSTEMPATH); }
-}
-
-<IN_PREPROCESSOR_INCLUDE_SYSTEMPATH> {
-  {whitespace}? ">"     { if (string.length() == 0) {
-                            yybegin(YYINITIAL);
-                            return PREPROCESSOR_INCLUDE_EMPTYPATH;
-                          }
-
-                          value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("system file = \"%s\"%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return PREPROCESSOR_INCLUDE_SYSTEMPATH;
-                        }
-  {whitespace} .        |
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_PREPROCESSOR_INCLUDE_RELATIVEPATH_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }
-  [^]                   { yypushback(yylength()); yybegin(IN_PREPROCESSOR_INCLUDE_RELATIVEPATH); }
-}
-
-<IN_PREPROCESSOR_INCLUDE_RELATIVEPATH> {
-  {whitespace}? "\""    { if (string.length() == 0) {
-                            yybegin(YYINITIAL);
-                            return PREPROCESSOR_INCLUDE_EMPTYPATH;
-                          }
-
-                          value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("relative file = \"%s\"%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return PREPROCESSOR_INCLUDE_RELATIVEPATH; }
-  {whitespace} .        |
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_PREPROCESSOR_PRAGMA_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA); return WHITE_SPACE; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_PRAGMA> {
-  "codepage"            { yybegin(YYINITIAL); return PRAGMA_CODEPAGE; }
-  "ctrlchar"            { yybegin(YYINITIAL); return PRAGMA_CTRLCHAR; }
-  "deprecated"          { yybegin(IN_PREPROCESSOR_STRING_PRE); return PRAGMA_DEPRECATED; }
-  "dynamic"             { yybegin(YYINITIAL); return PRAGMA_DYNAMIC; }
-  "rational"            { yybegin(YYINITIAL); return PRAGMA_RATIONAL; }
-  "semicolon"           { yybegin(YYINITIAL); return PRAGMA_SEMICOLON; }
-  "newdecls"            { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE); return PRAGMA_NEWDECLS; }
-  "tabsize"             { yybegin(YYINITIAL); return PRAGMA_TABSIZE; }
-  "unused"              { yybegin(YYINITIAL); return PRAGMA_UNUSED; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_PRAGMA_NEWDECLS_PRE> {
-  {whitespace}          { yybegin(IN_PREPROCESSOR_PRAGMA_NEWDECLS); return WHITE_SPACE; }
-  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_PREPROCESSOR_PRAGMA_NEWDECLS> {
-  "required"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_REQUIRED; }
-  "optional"            { yybegin(YYINITIAL); return PRAGMA_NEWDECLS_OPTIONAL; }
-  [^]                   |
-  <<EOF>>               { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_CASE> {
-  {whitespace}                      { return WHITE_SPACE; }
-  {identifier} / {whitespace}? ":"  { yybegin(YYINITIAL); return LABEL; }
-  {identifier} / {whitespace}? "::" { yypushback(yylength()); yybegin(YYINITIAL); }
-  [^]                               { yypushback(yylength()); yybegin(YYINITIAL); }
-}
-
-<IN_CHARACTER_LITERAL> {
-  \'                    { string.append('\'');
-                          value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("character = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL); return EMPTY_CHARACTER_LITERAL; }
-  . / \'                { int codePoint = codePointAt(0);
-                          if (!isEscapeCharacter(codePoint)) {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_CHARACTER_LITERAL_FINISH);
-                          } else {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_ESCAPE_SEQUENCE);
-                          }
-                        }
-  .                     { int codePoint = codePointAt(0);
-                          if (isEscapeCharacter(codePoint)) {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_ESCAPE_SEQUENCE);
-                          } else {
-                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
-                          }
-                        }
-  <<EOF>>               { BAD_LITERAL_REASON = INCOMPLETE_CHARACTER_LITERAL;
-                          yybegin(IN_BAD_LITERAL); }
-  [^]                   { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_CHARACTER_LITERAL_FINISH> {
-  \'                    { string.append('\'');
-                          value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("character = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return CHARACTER_LITERAL; }
-  <<EOF>>               { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
-                          yybegin(IN_BAD_LITERAL); }
-  [^]                   { BAD_LITERAL_REASON = BAD_CHARACTER_LITERAL;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_STRING_LITERAL> {
-  \"                    { string.append('\"');
-                          value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("string = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return STRING_LITERAL; }
-  {brknl}               { /* line continuation */ }
-  .                     { int codePoint = codePointAt(0);
-                          if (isEscapeCharacter(codePoint)) {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_ESCAPE_SEQUENCE);
-                          } else {
-                            string.appendCodePoint(codePoint);
-                          }
-                        }
-  <<EOF>>               { BAD_LITERAL_REASON = INCOMPLETE_STRING_LITERAL;
-                          yybegin(IN_BAD_LITERAL); }
-  [^]                   { BAD_LITERAL_REASON = BAD_STRING_LITERAL;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
-}
-
-<IN_BAD_LITERAL> {
-  {nl}                  |
-  <<EOF>>               { value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("%s = %s%n", BAD_LITERAL_REASON, value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          return BAD_LITERAL_REASON; }
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_ESCAPE_SEQUENCE> {
-  <<EOF>>               { yybegin(YYINITIAL); return BAD_ESCAPE_SEQUENCE; }
-  {control_character}   { int codePoint = codePointAt(0);
-                          if (codePoint == 'x') {
-                            string.appendCodePoint(codePoint);
-                            yybegin(IN_UNICODE_ESCAPE_SEQUENCE);
-                          } else {
-                            switch(codePoint) {
-                              case 'a': string.append('\u0007'); break;
-                              case 'b': string.append('\b'); break;
-                              case 'e': string.append('\u001B'); break;
-                              case 'f': string.append('\f'); break;
-                              case 'n': string.append('\n'); break;
-                              case 'r': string.append('\r'); break;
-                              case 't': string.append('\t'); break;
-                              case 'v': string.append('\u000B'); break;
-                              default:
-                                throw new AssertionError(String.format(
-                                    "Unsupported control character: %c (%1$d)", codePoint));
+                            string.setLength(0);
+                            int offset = 0;
+                            CharSequence pattern = yytext();
+                            PrimitiveIterator.OfInt iterator = pattern.codePoints().iterator();
+                            while (iterator.hasNext()) {
+                              codePoint = iterator.nextInt();
+                              if (SpUtils.isAlphaNumeric(codePoint)) {
+                                string.appendCodePoint(codePoint);
+                              } else {
+                                break;
+                              }
                             }
 
-                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
+                            if (SUBSTITUTIONS.containsKey(string)) {
+                              if (DEBUG) {
+                                System.out.printf("pattern prefix = %s%n", string);
+                              }
+
+                              return DEFINED_PATTERN_PREFIX;
+                            } else {
+                              yypushback(yylength()); yybegin(INITIAL);
+                            }
                           }
                         }
-  [\"'%]                { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
-  {decimal_digit}       { yypushback(yylength()); yybegin(IN_DECIMAL_ESCAPE_SEQUENCE); }
-  .                     { int codePoint = codePointAt(0);
-                          if (isEscapeCharacter(codePoint)) {
-                            string.appendCodePoint(codePoint);
-                            yybegin(GOTO_AFTER_ESCAPE_SEQUENCE);
-                          } else {
-                            BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;
-                            yypushback(yylength()); yybegin(IN_BAD_LITERAL);
-                          }
-                        }
-  [^]                   { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE;
-                          yypushback(yylength()); yybegin(IN_BAD_LITERAL); }
+  [^]                   { yypushback(yylength()); yybegin(INITIAL); }
 }
 
-<IN_DECIMAL_ESCAPE_SEQUENCE> {
-  <<EOF>>               { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }
-  {decimal_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
-  [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
+<INITIAL> {
+  "#"                     { yybegin(IN_PREPROCESSOR); return HASH; }
+
+  // KEYWORDS
+  "acquire"               { yybegin(LOOKING_FOR_PATTERN); return ACQUIRE; }
+  "as"                    { yybegin(LOOKING_FOR_PATTERN); return AS; }
+  "assert"                { yybegin(LOOKING_FOR_PATTERN); return ASSERT; }
+  //"*begin"              { yybegin(LOOKING_FOR_PATTERN); return BEGIN; }
+  "break"                 { yybegin(LOOKING_FOR_PATTERN); return BREAK; }
+  "builtin"               { yybegin(LOOKING_FOR_PATTERN); return BUILTIN; }
+  "case"                  { yybegin(LOOKING_FOR_PATTERN); return CASE; }
+  "cast_to"               { yybegin(LOOKING_FOR_PATTERN); return CAST_TO; }
+  "catch"                 { yybegin(LOOKING_FOR_PATTERN); return CATCH; }
+  "cellsof"               { yybegin(LOOKING_FOR_PATTERN); return CELLSOF; }
+  "char"                  { yybegin(LOOKING_FOR_PATTERN); return CHAR; }
+  "const"                 { yybegin(LOOKING_FOR_PATTERN); return CONST; }
+  "continue"              { yybegin(LOOKING_FOR_PATTERN); return CONTINUE; }
+  "decl"                  { yybegin(LOOKING_FOR_PATTERN); return DECL; }
+  "default"               { yybegin(LOOKING_FOR_PATTERN); return DEFAULT; }
+  "defined"               { yybegin(LOOKING_FOR_PATTERN); return DEFINED; }
+  "delete"                { yybegin(LOOKING_FOR_PATTERN); return DELETE; }
+  "do"                    { yybegin(LOOKING_FOR_PATTERN); return DO; }
+  "double"                { yybegin(LOOKING_FOR_PATTERN); return DOUBLE; }
+  "else"                  { yybegin(LOOKING_FOR_PATTERN); return ELSE; }
+  //"*end"                { yybegin(LOOKING_FOR_PATTERN); return END; }
+  "enum"                  { yybegin(LOOKING_FOR_PATTERN); return ENUM; }
+  "exit"                  { yybegin(LOOKING_FOR_PATTERN); return EXIT; }
+  "explicit"              { yybegin(LOOKING_FOR_PATTERN); return EXPLICIT; }
+  "finally"               { yybegin(LOOKING_FOR_PATTERN); return FINALLY; }
+  "for"                   { yybegin(LOOKING_FOR_PATTERN); return FOR; }
+  "foreach"               { yybegin(LOOKING_FOR_PATTERN); return FOREACH; }
+  "forward"               { yybegin(LOOKING_FOR_PATTERN); return FORWARD; }
+  "funcenum"              { yybegin(LOOKING_FOR_PATTERN); return FUNCENUM; }
+  "functag"               { yybegin(LOOKING_FOR_PATTERN); return FUNCTAG; }
+  "function"              { yybegin(LOOKING_FOR_PATTERN); return FUNCTION; }
+  "goto"                  { yybegin(LOOKING_FOR_PATTERN); return GOTO; }
+  "if"                    { yybegin(LOOKING_FOR_PATTERN); return IF; }
+  "implicit"              { yybegin(LOOKING_FOR_PATTERN); return IMPLICIT; }
+  "import"                { yybegin(LOOKING_FOR_PATTERN); return IMPORT; }
+  "in"                    { yybegin(LOOKING_FOR_PATTERN); return IN; }
+  "int"                   { yybegin(LOOKING_FOR_PATTERN); return INT; }
+  "int8"                  { yybegin(LOOKING_FOR_PATTERN); return INT8; }
+  "int16"                 { yybegin(LOOKING_FOR_PATTERN); return INT16; }
+  "int32"                 { yybegin(LOOKING_FOR_PATTERN); return INT32; }
+  "int64"                 { yybegin(LOOKING_FOR_PATTERN); return INT64; }
+  "interface"             { yybegin(LOOKING_FOR_PATTERN); return INTERFACE; }
+  "intn"                  { yybegin(LOOKING_FOR_PATTERN); return INTN; }
+  "let"                   { yybegin(LOOKING_FOR_PATTERN); return LET; }
+  "methodmap"             { yybegin(LOOKING_FOR_PATTERN); return METHODMAP; }
+  "namespace"             { yybegin(LOOKING_FOR_PATTERN); return NAMESPACE; }
+  "native"                { yybegin(LOOKING_FOR_PATTERN); return NATIVE; }
+  "new"                   { yybegin(LOOKING_FOR_PATTERN); return NEW; }
+  "null"                  { yybegin(LOOKING_FOR_PATTERN); return NULL; }
+  "__nullable__"          { yybegin(LOOKING_FOR_PATTERN); return NULLABLE; }
+  "object"                { yybegin(LOOKING_FOR_PATTERN); return OBJECT; }
+  "operator"              { yybegin(LOOKING_FOR_PATTERN); return OPERATOR; }
+  "package"               { yybegin(LOOKING_FOR_PATTERN); return PACKAGE; }
+  "private"               { yybegin(LOOKING_FOR_PATTERN); return PRIVATE; }
+  "protected"             { yybegin(LOOKING_FOR_PATTERN); return PROTECTED; }
+  "public"                { yybegin(LOOKING_FOR_PATTERN); return PUBLIC; }
+  "readonly"              { yybegin(LOOKING_FOR_PATTERN); return READONLY; }
+  "return"                { yybegin(LOOKING_FOR_PATTERN); return RETURN; }
+  "sealed"                { yybegin(LOOKING_FOR_PATTERN); return SEALED; }
+  "sizeof"                { yybegin(LOOKING_FOR_PATTERN); return SIZEOF; }
+  "sleep"                 { yybegin(LOOKING_FOR_PATTERN); return SLEEP; }
+  "static"                { yybegin(LOOKING_FOR_PATTERN); return STATIC; }
+  "stock"                 { yybegin(LOOKING_FOR_PATTERN); return STOCK; }
+  "struct"                { yybegin(LOOKING_FOR_PATTERN); return STRUCT; }
+  "switch"                { yybegin(LOOKING_FOR_PATTERN); return SWITCH; }
+  "tagof"                 { yybegin(LOOKING_FOR_PATTERN); return TAGOF; }
+  //"*then"               { yybegin(LOOKING_FOR_PATTERN); return THEN; }
+  "this"                  { yybegin(LOOKING_FOR_PATTERN); return THIS; }
+  "throw"                 { yybegin(LOOKING_FOR_PATTERN); return THROW; }
+  "try"                   { yybegin(LOOKING_FOR_PATTERN); return TRY; }
+  "typedef"               { yybegin(LOOKING_FOR_PATTERN); return TYPEDEF; }
+  "typeof"                { yybegin(LOOKING_FOR_PATTERN); return TYPEOF; }
+  "typeset"               { yybegin(LOOKING_FOR_PATTERN); return TYPESET; }
+  "uint8"                 { yybegin(LOOKING_FOR_PATTERN); return UINT8; }
+  "uint16"                { yybegin(LOOKING_FOR_PATTERN); return UINT16; }
+  "uint32"                { yybegin(LOOKING_FOR_PATTERN); return UINT32; }
+  "uint64"                { yybegin(LOOKING_FOR_PATTERN); return UINT64; }
+  "uintn"                 { yybegin(LOOKING_FOR_PATTERN); return UINTN; }
+  "union"                 { yybegin(LOOKING_FOR_PATTERN); return UNION; }
+  "using"                 { yybegin(LOOKING_FOR_PATTERN); return USING; }
+  "var"                   { yybegin(LOOKING_FOR_PATTERN); return VAR; }
+  "variant"               { yybegin(LOOKING_FOR_PATTERN); return VARIANT; }
+  "view_as"               { yybegin(LOOKING_FOR_PATTERN); return VIEW_AS; }
+  "virtual"               { yybegin(LOOKING_FOR_PATTERN); return VIRTUAL; }
+  "void"                  { yybegin(LOOKING_FOR_PATTERN); return VOID; }
+  "volatile"              { yybegin(LOOKING_FOR_PATTERN); return VOLATILE; }
+  "while"                 { yybegin(LOOKING_FOR_PATTERN); return WHILE; }
+  "with"                  { yybegin(LOOKING_FOR_PATTERN); return WITH; }
+
+  // WHITE SPACE
+  {whitespace}            { yybegin(LOOKING_FOR_PATTERN); return WHITE_SPACE; }
+  {nl}                    { yybegin(LOOKING_FOR_PATTERN); return NEW_LINE; }
+
+  [^]                     { yybegin(LOOKING_FOR_PATTERN); return BAD_CHARACTER; }
 }
 
-<IN_UNICODE_ESCAPE_SEQUENCE> {
-  <<EOF>>               { BAD_LITERAL_REASON = BAD_ESCAPE_SEQUENCE; yybegin(IN_BAD_LITERAL); }
-  {unicode_escape}      { string.append(yytext()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
-  [^]                   { yypushback(yylength()); yybegin(GOTO_AFTER_ESCAPE_SEQUENCE); }
-}
+<IN_PREPROCESSOR> {
+   "assert"              { yybegin(INITIAL); return PREPROCESSOR_ASSERT; }
+   "define"              { yybegin(INITIAL); return PREPROCESSOR_DEFINE; }
+   "else"                { yybegin(INITIAL); return PREPROCESSOR_ELSE; }
+   "elseif"              { yybegin(INITIAL); return PREPROCESSOR_ELSEIF; }
+   "endif"               { yybegin(INITIAL); return PREPROCESSOR_ENDIF; }
+   "endinput"            { yybegin(YYINITIAL); return PREPROCESSOR_ENDINPUT; }
+   "endscript"           { yybegin(YYINITIAL); return PREPROCESSOR_ENDSCRIPT; }
+   "error"               { yybegin(IN_PREPROCESSOR_STRING_PRE); return PREPROCESSOR_ERROR; }
+   "file"                { yybegin(YYINITIAL); return PREPROCESSOR_FILE; }
+   "if"                  { yybegin(YYINITIAL); return PREPROCESSOR_IF; }
+   "include"             { yybegin(YYINITIAL); return PREPROCESSOR_INCLUDE; }
+   "line"                { yybegin(YYINITIAL); return PREPROCESSOR_LINE; }
+   "pragma"              { yybegin(YYINITIAL); return PREPROCESSOR_PRAGMA; }
+   "tryinclude"          { yybegin(YYINITIAL); return PREPROCESSOR_TRYINCLUDE; }
+   "undef"               { yybegin(YYINITIAL); return PREPROCESSOR_UNDEF; }
+   // Not a valid preprocessor directive
+   [^]                   |
+   <<EOF>>               { yypushback(yylength()); gotoBadWord(INVALID_PREPROCESSOR_DIRECTIVE); }
+ }
 
-<IN_LINE_COMMENT> {
-  {w} .                 { string.append(yytext()); }
-  {w}? {nl}             { value = string.toString();
-                          if (DEBUG) {
-                            System.out.printf("line comment = %s%n", value);
-                          }
+ /**
+  * Invalidates the current characters until EOF or a white space/new line is reached for the reason
+  * given in {@link #BAD_WORD_REASON}.
+  *
+  * @note This state will not consume the white space sequence/new line, and will push them back onto
+  *       the stream
+  */
+ <IN_BAD_WORD> {
+   {wnl}                 |
+   <<EOF>>               { value = string.toString();
+                           if (DEBUG) {
+                             System.out.printf("%s = %s%n", BAD_WORD_REASON, value);
+                           }
 
-                          yybegin(YYINITIAL);
-                          yypushback(yylength());
-                          return LINE_COMMENT;
-                        }
-  <<EOF>>               { value = string.toString().trim();
-                          if (DEBUG) {
-                            System.out.printf("line comment = %s%n", value);
-                          }
+                           yypushback(yylength()); yybegin(YYINITIAL);
+                           return BAD_WORD_REASON; }
+   [^]                   { string.append(yytext()); }
+ }
 
-                          yybegin(YYINITIAL);
-                          return LINE_COMMENT;
-                        }
-  [^]                   { string.append(yytext()); }
-}
+ /**
+  * @precedes IN_PREPROCESSOR_STRING
+  *
+  * Consumes and returns next WHITE_SPACE before transitioning to IN_PREPROCESSOR_STRING. Any other
+  * character should push back and return to YYINITIAL.
+  */
+ <IN_PREPROCESSOR_STRING_PRE> {
+   {whitespace}          { string.setLength(0); yybegin(IN_PREPROCESSOR_STRING);
+                           return WHITE_SPACE; }
+   [^]                   |
+   <<EOF>>               { yypushback(yylength()); yybegin(YYINITIAL); }
+ }
 
-<IN_BLOCK_COMMENT> {
-  <<EOF>>               { return UNTERMINATED_COMMENT; }
-  {w} .                 { string.append(yytext()); }
-  {w}? {nl}+ {w}?       { string.append(' '); }
-  {w}? "*/"             { value = string.toString().trim();
-                          if (DEBUG) {
-                            System.out.printf("block comment = %s%n", value);
-                          }
+ /**
+  * Consumes the remainder of the line (honoring line continuation), and returns it as
+  * {@link SpTokenTypes#PREPROCESSOR_STRING}.
+  *
+  * @note This state will not consume the final new line sequence, and will push them back onto the
+  *       stream
+  */
+ <IN_PREPROCESSOR_STRING> {
+   {w} .                 { string.append(yytext()); }
+   . {w} / {brknl}       { string.append(yytext()); }
+   {brknl}               { /* ignore whitespace */ }
+   {w}? {nl}             |
+   <<EOF>>               { value = string.toString().trim();
+                           if (DEBUG && !((String)value).isEmpty()) {
+                             System.out.printf("message = %s%n", value);
+                           }
 
-                          yybegin(YYINITIAL);
-                          return BLOCK_COMMENT;
-                        }
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_DOC_COMMENT_PRE> {
-  <<EOF>>               { return UNTERMINATED_COMMENT; }
-  "*"+                  { /* ignore leading asterisks */ }
-  "*"* {nl} {doc_pre}?  { yybegin(IN_DOC_COMMENT); }
-  "*"* "*/"             { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_DOC_COMMENT> {
-  <<EOF>>               { return UNTERMINATED_COMMENT; }
-  {w}? {nl} {doc_pre}?  { string.append(' '); }
-  "*"* "*/"             { yypushback(yylength()); yybegin(IN_DOC_COMMENT_POST); }
-  [^]                   { string.append(yytext()); }
-}
-
-<IN_DOC_COMMENT_POST> {
-  <<EOF>>               { return UNTERMINATED_COMMENT; }
-  "*"* "*/"             { value = string.toString().trim();
-                          if (DEBUG) {
-                            System.out.printf("doc comment = %s%n", value);
-                          }
-
-                          yybegin(YYINITIAL);
-                          yypushback(yylength());
-                          return DOC_COMMENT;
-                        }
-  [^]                   { throw new AssertionError(
-                              "Doc comment terminator should already have been read " +
-                              "and pushed back into the stream."); }
-}
+                           yypushback(yylength()); yybegin(YYINITIAL);
+                           if (!((String)value).isEmpty()) {
+                             return PREPROCESSOR_STRING;
+                           }
+                         }
+   [^]                   { string.append(yytext()); }
+ }

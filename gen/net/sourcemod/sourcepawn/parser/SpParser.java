@@ -103,7 +103,7 @@ public class SpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LPAREN (DEFINE_PATTERN_ARG (COMMA DEFINE_PATTERN_ARG)* )? RPAREN
+  // LPAREN (DEFINED_PATTERN_ARG (COMMA DEFINED_PATTERN_ARG)* )? RPAREN
   public static boolean define_args(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "define_args")) return false;
     if (!nextTokenIs(b, LPAREN)) return false;
@@ -116,25 +116,25 @@ public class SpParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (DEFINE_PATTERN_ARG (COMMA DEFINE_PATTERN_ARG)* )?
+  // (DEFINED_PATTERN_ARG (COMMA DEFINED_PATTERN_ARG)* )?
   private static boolean define_args_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "define_args_1")) return false;
     define_args_1_0(b, l + 1);
     return true;
   }
 
-  // DEFINE_PATTERN_ARG (COMMA DEFINE_PATTERN_ARG)*
+  // DEFINED_PATTERN_ARG (COMMA DEFINED_PATTERN_ARG)*
   private static boolean define_args_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "define_args_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, DEFINE_PATTERN_ARG);
+    r = consumeToken(b, DEFINED_PATTERN_ARG);
     r = r && define_args_1_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // (COMMA DEFINE_PATTERN_ARG)*
+  // (COMMA DEFINED_PATTERN_ARG)*
   private static boolean define_args_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "define_args_1_0_1")) return false;
     int c = current_position_(b);
@@ -146,12 +146,12 @@ public class SpParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // COMMA DEFINE_PATTERN_ARG
+  // COMMA DEFINED_PATTERN_ARG
   private static boolean define_args_1_0_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "define_args_1_0_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, COMMA, DEFINE_PATTERN_ARG);
+    r = consumeTokens(b, 0, COMMA, DEFINED_PATTERN_ARG);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -341,7 +341,7 @@ public class SpParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // PREPROCESSOR_ASSERT preprocessor_expression
-  //   | PREPROCESSOR_DEFINE DEFINE_PATTERN ( (define_args define_substitution) | define_substitution )?
+  //   | PREPROCESSOR_DEFINE DEFINED_PATTERN ( (define_args define_substitution) | define_substitution )?
   //   | PREPROCESSOR_ENDINPUT
   //   | PREPROCESSOR_ENDSCRIPT
   //   | PREPROCESSOR_ERROR PREPROCESSOR_STRING?
@@ -351,7 +351,7 @@ public class SpParser implements PsiParser, LightPsiParser {
   //   | PREPROCESSOR_LINE NUMBER_LITERAL
   //   | PREPROCESSOR_PRAGMA pragma
   //   | PREPROCESSOR_TRYINCLUDE include_file_reference
-  //   | PREPROCESSOR_UNDEF DEFINE_PATTERN
+  //   | PREPROCESSOR_UNDEF DEFINED_PATTERN
   public static boolean preprocessor(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "preprocessor")) return false;
     boolean r;
@@ -367,7 +367,7 @@ public class SpParser implements PsiParser, LightPsiParser {
     if (!r) r = parseTokens(b, 0, PREPROCESSOR_LINE, NUMBER_LITERAL);
     if (!r) r = preprocessor_9(b, l + 1);
     if (!r) r = preprocessor_10(b, l + 1);
-    if (!r) r = parseTokens(b, 0, PREPROCESSOR_UNDEF, DEFINE_PATTERN);
+    if (!r) r = parseTokens(b, 0, PREPROCESSOR_UNDEF, DEFINED_PATTERN);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -383,12 +383,12 @@ public class SpParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // PREPROCESSOR_DEFINE DEFINE_PATTERN ( (define_args define_substitution) | define_substitution )?
+  // PREPROCESSOR_DEFINE DEFINED_PATTERN ( (define_args define_substitution) | define_substitution )?
   private static boolean preprocessor_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "preprocessor_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, PREPROCESSOR_DEFINE, DEFINE_PATTERN);
+    r = consumeTokens(b, 0, PREPROCESSOR_DEFINE, DEFINED_PATTERN);
     r = r && preprocessor_1_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
