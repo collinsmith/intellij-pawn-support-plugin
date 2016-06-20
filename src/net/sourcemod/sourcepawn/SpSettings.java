@@ -4,10 +4,10 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDialog;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
@@ -34,7 +34,8 @@ import javax.swing.*;
 
 @State(name = "SourcePawnSettings",
     storages = {
-        @Storage(StoragePathMacros.WORKSPACE_FILE)
+        @Storage(value = "sourcepawn.xml",
+                 roamingType = RoamingType.DISABLED)
     })
 public class SpSettings
     implements ApplicationComponent, Configurable, PersistentStateComponent<SpSettings> {
