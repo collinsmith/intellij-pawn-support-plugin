@@ -9,6 +9,7 @@ import com.intellij.util.text.CharArrayUtil;
 
 import net.sourcemod.sourcepawn.util.OffsetCharSequence;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,9 +25,6 @@ public class SpLexer extends LexerBase {
   private final _SpLexer spFlexLexer;
 
   private final StringBuilder PATTERN_BUILDER = new StringBuilder(32);
-  // @precondition Value is all literal characters following prefix, until end of definition pattern
-  //               This is a regular expression for matching the pattern postfix, thus all macro
-  //               parameters should already be replaced with ".*?" (non-greedy match of N chars).
   private final Map<String, Pattern> PATTERN_PREFIXES = new HashMap<>();
 
   @Nullable
@@ -44,6 +42,16 @@ public class SpLexer extends LexerBase {
 
   public SpLexer() {
     this.spFlexLexer = new _SpLexer();
+  }
+
+  public void define(@NotNull @NonNls String prefix, @NotNull Pattern postfix) {
+    Preconditions.checkArgument(prefix != null, "prefix cannot be null");
+    Preconditions.checkArgument(postfix != null, "postfix cannot be null");
+    PATTERN_PREFIXES.put(prefix, postfix);
+  }
+
+  public void undef(@NotNull @NonNls String prefix) {
+    PATTERN_PREFIXES.remove(prefix);
   }
 
   @Override
@@ -156,7 +164,7 @@ public class SpLexer extends LexerBase {
         break;
 
       default:
-        if (SpUtils.isAlpha(bufferIndex)) {
+        if (SpUtils.isAlpha(bufferIndex) && !PATTERN_PREFIXES.isEmpty()) {
           PATTERN_BUILDER.setLength(0);
           PATTERN_BUILDER.append(ch);
 
@@ -171,18 +179,21 @@ public class SpLexer extends LexerBase {
             pos++;
           }
 
-          Pattern postfix = PATTERN_PREFIXES.get(PATTERN_BUILDER.toString());
-          if (postfix != null) {
-            if (!postfix.pattern().isEmpty()) {
+          String prefix = PATTERN_BUILDER.toString();
+          if (PATTERN_PREFIXES.containsKey(prefix)) {
+            Pattern postfix = PATTERN_PREFIXES.get(prefix);
+            if (postfix != null) {
               CharSequence offsetCharSequence = new OffsetCharSequence(buffer, pos);
-              Matcher m = postfix.matcher(offsetCharSequence);
-              if (m.lookingAt()) {
-                pos += m.end();
+              Matcher matcher = postfix.matcher(offsetCharSequence);
+              if (matcher.lookingAt()) {
+                pos += matcher.end();
               }
             }
 
             tokenType = SpTokenTypes.DEFINED_PATTERN;
             tokenEndOffset = pos;
+          } else {
+            locateFlexToken();
           }
         } else {
           locateFlexToken();
