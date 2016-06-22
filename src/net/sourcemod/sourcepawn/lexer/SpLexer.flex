@@ -53,6 +53,7 @@ import java.util.PrimitiveIterator;
 %}
 
 WHITE_SPACE_CHAR    = [\ \t\f]
+NEW_LINE_SEQUENCE   = \r|\n|\r\n
 
 ALPHA               = [_@a-zA-Z]
 ALPHA_NUM           = [_@a-zA-Z0-9]
@@ -80,6 +81,9 @@ ESCAPE_SEQUENCE     = \\[^\r\n]
 CHARACTER_LITERAL   = "'" ([^\\\'\r\n] | {ESCAPE_SEQUENCE})* ("'"|\\)?
 STRING_LITERAL      = \" ([^\\\"\r\n] | {ESCAPE_SEQUENCE})* (\"|\\)?
 
+BRKNL               = \\{WHITE_SPACE_CHAR}?{NEW_LINE_SEQUENCE}{WHITE_SPACE_CHAR}?
+PREPROCESSOR        = # ([^\\\r\n] | {BRKNL})* {NEW_LINE_SEQUENCE}?
+
 %state IN_CASE
 
 %%
@@ -90,7 +94,10 @@ STRING_LITERAL      = \" ([^\\\"\r\n] | {ESCAPE_SEQUENCE})* (\"|\\)?
 
 <YYINITIAL> {
 
+  {PREPROCESSOR}        { yybegin(YYINITIAL); return PREPROCESSOR; }
+
   {WHITE_SPACE_CHAR}+   { yybegin(YYINITIAL); return WHITE_SPACE; }
+  {NEW_LINE_SEQUENCE}   { yybegin(YYINITIAL); return NEW_LINE; }
 
   {C_STYLE_COMMENT}     { yybegin(YYINITIAL); return C_STYLE_COMMENT; }
   {END_OF_LINE_COMMENT} { yybegin(YYINITIAL); return END_OF_LINE_COMMENT; }
@@ -207,6 +214,60 @@ STRING_LITERAL      = \" ([^\\\"\r\n] | {ESCAPE_SEQUENCE})* (\"|\\)?
   "_" / "::"            { yybegin(YYINITIAL); return UNDERSCORE; }
 
   "@"                   { yybegin(YYINITIAL); return AT_SIGN; }
+
+  "=="                  { yybegin(YYINITIAL); return EQUALTO; }
+  "!="                  { yybegin(YYINITIAL); return NEQUALTO; }
+  "||"                  { yybegin(YYINITIAL); return OR; }
+  "&&"                  { yybegin(YYINITIAL); return AND; }
+
+  "<"                   { yybegin(YYINITIAL); return LT; }
+  "<="                  { yybegin(YYINITIAL); return LTEQ; }
+  "<<"                  { yybegin(YYINITIAL); return SL; }
+  "<<="                 { yybegin(YYINITIAL); return SLEQ; }
+
+  ">"                   { yybegin(YYINITIAL); return GT; }
+  ">>"                  { yybegin(YYINITIAL); return SRA; }
+  ">>="                 { yybegin(YYINITIAL); return SRAEQ; }
+  ">>>"                 { yybegin(YYINITIAL); return SRL; }
+  ">>>="                { yybegin(YYINITIAL); return SRLEQ; }
+
+  "("                   { yybegin(YYINITIAL); return LPAREN; }
+  ")"                   { yybegin(YYINITIAL); return RPAREN; }
+  "{"                   { yybegin(YYINITIAL); return LBRACE; }
+  "}"                   { yybegin(YYINITIAL); return RBRACE; }
+  "["                   { yybegin(YYINITIAL); return LBRACKET; }
+  "]"                   { yybegin(YYINITIAL); return RBRACKET; }
+
+  "+="                  { yybegin(YYINITIAL); return ADDEQ; }
+  "&="                  { yybegin(YYINITIAL); return ANDEQ; }
+  "--"                  { yybegin(YYINITIAL); return DECREMENT; }
+  "/="                  { yybegin(YYINITIAL); return DIVEQ; }
+  ">="                  { yybegin(YYINITIAL); return GTEQ; }
+  "++"                  { yybegin(YYINITIAL); return INCREMENT; }
+  "%="                  { yybegin(YYINITIAL); return MODEQ; }
+  "*="                  { yybegin(YYINITIAL); return MULEQ; }
+  "|="                  { yybegin(YYINITIAL); return OREQ; }
+  "-="                  { yybegin(YYINITIAL); return SUBEQ; }
+  "^="                  { yybegin(YYINITIAL); return XOREQ; }
+
+  ":"                   { yybegin(YYINITIAL); return COLON; }
+  ","                   { yybegin(YYINITIAL); return COMMA; }
+  "."                   { yybegin(YYINITIAL); return PERIOD; }
+  ";"                   { yybegin(YYINITIAL); return SEMICOLON; }
+  "..."                 { yybegin(YYINITIAL); return ELLIPSIS; }
+  "&"                   { yybegin(YYINITIAL); return AMPERSAND; }
+  "="                   { yybegin(YYINITIAL); return ASSIGN; }
+  "*"                   { yybegin(YYINITIAL); return ASTERISK; }
+  "^"                   { yybegin(YYINITIAL); return CARET; }
+  "!"                   { yybegin(YYINITIAL); return EXCLAMATION; }
+  "-"                   { yybegin(YYINITIAL); return MINUS; }
+  "%"                   { yybegin(YYINITIAL); return PERCENT; }
+  "+"                   { yybegin(YYINITIAL); return PLUS; }
+  "/"                   { yybegin(YYINITIAL); return SLASH; }
+  "~"                   { yybegin(YYINITIAL); return TILDE; }
+  "|"                   { yybegin(YYINITIAL); return VERTICAL_BAR; }
+  ".."                  { yybegin(YYINITIAL); return RANGE; }
+  "::"                  { yybegin(YYINITIAL); return SCOPE_RESOLUTION; }
 
 }
 

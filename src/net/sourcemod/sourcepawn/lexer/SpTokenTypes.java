@@ -20,6 +20,7 @@ public class SpTokenTypes {
   public static final IElementType WHITE_SPACE = TokenType.WHITE_SPACE;
 
   // PREPROCESSOR DIRECTIVES
+  public static final IElementType PREPROCESSOR = new SpTokenType("PREPROCESSOR");
   public static final IElementType PREPROCESSOR_ASSERT = new SpTokenType("ASSERT");
   public static final IElementType PREPROCESSOR_DEFINE = new SpTokenType("DEFINE");
   public static final IElementType PREPROCESSOR_ELSE = new SpTokenType("ELSE");
