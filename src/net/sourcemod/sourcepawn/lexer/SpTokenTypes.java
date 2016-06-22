@@ -2,8 +2,10 @@ package net.sourcemod.sourcepawn.lexer;
 
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IReparseableElementType;
 import com.intellij.psi.tree.TokenSet;
 
+import net.sourcemod.sourcepawn.SpLanguage;
 import net.sourcemod.sourcepawn.SpTokenType;
 
 import org.jetbrains.annotations.NotNull;
@@ -132,6 +134,9 @@ public class SpTokenTypes {
   public static final IElementType GT = new SpTokenType("GT");
 
   // KEYWORDS
+  public static final IElementType TRUE = new SpTokenType("TRUE");
+  public static final IElementType FALSE = new SpTokenType("FALSE");
+
   public static final IElementType ACQUIRE = new SpTokenType("ACQUIRE");
   public static final IElementType AS = new SpTokenType("AS");
   public static final IElementType ASSERT = new SpTokenType("ASSERT");
@@ -242,15 +247,18 @@ public class SpTokenTypes {
   public static final IElementType LABEL = new SpTokenType("-label-");
 
   // COMMENTS
-  public static final IElementType LINE_COMMENT = new SpTokenType("LINE_COMMENT");
-  public static final IElementType BLOCK_COMMENT = new SpTokenType("BLOCK_COMMENT");
-  public static final IElementType DOC_COMMENT = new SpTokenType("DOC_COMMENT");
+  public static final IElementType END_OF_LINE_COMMENT = new SpTokenType("END_OF_LINE_COMMENT");
+  public static final IElementType C_STYLE_COMMENT = new SpTokenType("C_STYLE_COMMENT");
+  public static final IElementType DOC_COMMENT
+      = new IReparseableElementType("DOC_COMMENT", SpLanguage.INSTANCE) {
+
+  };
   public static final IElementType UNTERMINATED_COMMENT = new SpTokenType("UNTERMINATED_COMMENT");
 
   private static final TokenSet WHITE_SPACES = TokenSet.create(WHITE_SPACE);
 
   private static final TokenSet COMMENTS = TokenSet.create(
-      LINE_COMMENT, BLOCK_COMMENT, DOC_COMMENT, UNTERMINATED_COMMENT);
+      END_OF_LINE_COMMENT, C_STYLE_COMMENT, DOC_COMMENT, UNTERMINATED_COMMENT);
 
   private static final TokenSet KEYWORDS = TokenSet.create(
       ACQUIRE, AS, ASSERT, BEGIN, BREAK, BUILTIN, CASE, CAST_TO, CATCH, CELLSOF, CHAR, CONST,
