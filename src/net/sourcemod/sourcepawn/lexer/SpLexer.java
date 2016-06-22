@@ -44,10 +44,11 @@ public class SpLexer extends LexerBase {
     this.spFlexLexer = new _SpLexer();
   }
 
-  public void define(@NotNull @NonNls String prefix, @NotNull Pattern postfix) {
+  public void define(@NotNull @NonNls String prefix, @NotNull @NonNls String postfix) {
     Preconditions.checkArgument(prefix != null, "prefix cannot be null");
     Preconditions.checkArgument(postfix != null, "postfix cannot be null");
-    PATTERN_PREFIXES.put(prefix, postfix);
+    postfix = postfix.replaceAll("%[0-9]", ".*?");
+    PATTERN_PREFIXES.put(prefix, Pattern.compile(postfix));
   }
 
   public void undef(@NotNull @NonNls String prefix) {
