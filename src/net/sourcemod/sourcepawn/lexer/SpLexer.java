@@ -122,12 +122,17 @@ public class SpLexer extends LexerBase {
     switch (ch) {
       case ' ':
       case '\t':
-      case '\n':
-      case '\r':
       case '\f':
         tokenType = TokenType.WHITE_SPACE;
         tokenEndOffset = getWhitespaces(bufferIndex + 1);
         break;
+
+      case '\r':
+      case '\n':
+        tokenType = SpTokenTypes.NEW_LINE;
+        tokenEndOffset = getLineTerminator(bufferIndex);
+        break;
+
       case '/':
         if (bufferIndex + 1 >= bufferEndOffset) {
           tokenType = SpTokenTypes.SLASH;
@@ -137,7 +142,7 @@ public class SpLexer extends LexerBase {
           switch (ch) {
             case '/':
               tokenType = SpTokenTypes.END_OF_LINE_COMMENT;
-              tokenEndOffset = getLineTerminator(bufferIndex + 2);
+              tokenEndOffset = getUpToLineTerminator(bufferIndex + 2);
               break;
             case '*':
               if (bufferIndex + 2 >= bufferEndOffset
@@ -223,7 +228,7 @@ public class SpLexer extends LexerBase {
 
     int pos = offset;
     char ch = charAt(pos);
-    while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\f') {
+    while (ch == ' ' || ch == '\t' || ch == '\f') {
       pos++;
       if (pos == bufferEndOffset) {
         break;
@@ -236,6 +241,38 @@ public class SpLexer extends LexerBase {
   }
 
   private int getLineTerminator(int offset) {
+    if (offset >= bufferEndOffset) {
+      return bufferEndOffset;
+    }
+
+    int pos = offset;
+    char ch = charAt(pos);
+    switch (ch) {
+      case '\r':
+        pos++;
+        if (pos == bufferEndOffset) {
+          break;
+        }
+
+        ch = charAt(pos);
+        if (ch == '\n') {
+          pos++;
+        }
+
+        break;
+
+      case '\n':
+        pos++;
+        break;
+
+      default:
+        break;
+    }
+
+    return pos;
+  }
+
+  private int getUpToLineTerminator(int offset) {
     char ch;
     int pos = offset;
     while (pos < bufferEndOffset) {
