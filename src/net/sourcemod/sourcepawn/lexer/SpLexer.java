@@ -3,6 +3,7 @@ package net.sourcemod.sourcepawn.lexer;
 import com.google.common.base.Preconditions;
 
 import com.intellij.lexer.LexerBase;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharArrayUtil;
@@ -20,6 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SpLexer extends LexerBase {
+
+  private static final Logger LOG = Logger.getInstance(SpLexer.class);
 
   @NotNull
   private final _SpLexer spFlexLexer;
@@ -106,7 +109,7 @@ public class SpLexer extends LexerBase {
   }
 
   private char charAt(int pos) {
-    return bufferChars == null ? buffer.charAt(bufferIndex) : bufferChars[bufferIndex];
+    return bufferChars == null ? buffer.charAt(pos) : bufferChars[pos];
   }
 
   private void locateToken() {
@@ -144,6 +147,7 @@ public class SpLexer extends LexerBase {
               tokenType = SpTokenTypes.END_OF_LINE_COMMENT;
               tokenEndOffset = getUpToLineTerminator(bufferIndex + 2);
               break;
+
             case '*':
               if (bufferIndex + 2 >= bufferEndOffset
                   || charAt(bufferIndex + 2) != '*'
@@ -156,6 +160,7 @@ public class SpLexer extends LexerBase {
               }
 
               break;
+
             default:
               locateFlexToken();
           }
@@ -209,6 +214,8 @@ public class SpLexer extends LexerBase {
     if (tokenEndOffset > bufferEndOffset) {
       tokenEndOffset = bufferEndOffset;
     }
+
+    System.out.println("token: " + tokenType);
   }
 
   private void locateFlexToken() {
@@ -217,7 +224,7 @@ public class SpLexer extends LexerBase {
       tokenType = spFlexLexer.advance();
       tokenEndOffset = spFlexLexer.getTokenEnd();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error(e.getMessage(), e);
     }
   }
 

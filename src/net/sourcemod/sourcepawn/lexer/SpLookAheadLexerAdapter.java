@@ -2,21 +2,9 @@ package net.sourcemod.sourcepawn.lexer;
 
 import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.FlexLexer;
-import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LookAheadLexer;
-import com.intellij.psi.tree.IElementType;
 
-import java.math.BigInteger;
-
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.BLOCK_COMMENT;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.CHARACTER_LITERAL;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.DOC_COMMENT;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.LINE_COMMENT;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.NEW_LINE;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.NUMBER_LITERAL;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.PRAGMA_CTRLCHAR;
-import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.WHITE_SPACE;
-
+@Deprecated
 public class SpLookAheadLexerAdapter extends LookAheadLexer {
 
   private final _SpLexer spLexer;
@@ -33,15 +21,15 @@ public class SpLookAheadLexerAdapter extends LookAheadLexer {
     spLexer = (_SpLexer) flexAdapter.getFlex();
   }
 
-  @Override
+  /*@Override
   protected void lookAhead(Lexer baseLexer) {
     final IElementType type = baseLexer.getTokenType();
     if (type == PRAGMA_CTRLCHAR) {
       addToken(type);
       baseLexer.advance();
       while (baseLexer.getTokenType() == WHITE_SPACE
-          || baseLexer.getTokenType() == LINE_COMMENT
-          || baseLexer.getTokenType() == BLOCK_COMMENT
+          || baseLexer.getTokenType() == END_OF_LINE_COMMENT
+          || baseLexer.getTokenType() == C_STYLE_COMMENT
           || baseLexer.getTokenType() == DOC_COMMENT) {
         addToken(WHITE_SPACE);
         baseLexer.advance();
@@ -69,6 +57,6 @@ public class SpLookAheadLexerAdapter extends LookAheadLexer {
     } else {
       super.lookAhead(baseLexer);
     }
-  }
+  }*/
 
 }
