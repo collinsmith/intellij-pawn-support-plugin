@@ -45,6 +45,10 @@ public class SpLexer extends LexerBase {
 
   public SpLexer() {
     this.spFlexLexer = new _SpLexer();
+    define("__BINARY_PATH__", "");
+    define("__BINARY_NAME__", "");
+    define("__DATE__", "");
+    define("__TIME__", "");
   }
 
   public void define(@NotNull @NonNls String prefix, @NotNull @NonNls String postfix) {
@@ -175,7 +179,7 @@ public class SpLexer extends LexerBase {
         break;
 
       default:
-        if (SpUtils.isAlpha(bufferIndex) && !PATTERN_PREFIXES.isEmpty()) {
+        if (SpUtils.isAlpha(ch) && !PATTERN_PREFIXES.isEmpty()) {
           PATTERN_BUILDER.setLength(0);
           PATTERN_BUILDER.append(ch);
 
