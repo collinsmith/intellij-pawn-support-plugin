@@ -9,11 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.*;
 
 import java.util.function.IntConsumer;
-import java.util.NoSuchElementException;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.PrimitiveIterator;
 
 
 /**
@@ -21,14 +16,13 @@ import java.util.PrimitiveIterator;
  * <a href="http://www.jflex.de/">JFlex</a> 1.7.0-SNAPSHOT
  * from the specification file <tt>SpLexer.flex</tt>
  */
-class _SpLexer implements FlexLexer {
+public class _SpLexer implements FlexLexer {
 
   /** This character denotes the end of file */
   public static final int YYEOF = -1;
 
   /** initial size of the lookahead buffer */
   private static final int ZZ_BUFFERSIZE = 16384;
-  private static final String ZZ_NL = System.getProperty("line.separator");
 
   /** lexical states */
   public static final int YYINITIAL = 0;
@@ -790,7 +784,7 @@ class _SpLexer implements FlexLexer {
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  _SpLexer(java.io.Reader in) {
+  public _SpLexer(java.io.Reader in) {
     this.zzReader = in;
   }
 
@@ -815,23 +809,6 @@ class _SpLexer implements FlexLexer {
       do map[j++] = value; while (--count > 0);
     }
     return map;
-  }
-
-  private static String zzToPrintable(String str) {
-    StringBuilder builder = new StringBuilder();
-    for (int n = 0 ; n < str.length() ; ) {
-      int ch = str.codePointAt(n);
-      int charCount = Character.charCount(ch);
-      n += charCount;
-      if (ch > 31 && ch < 127) {
-        builder.append((char)ch);
-      } else if (charCount == 1) {
-        builder.append(String.format("\\u%04X", ch));
-      } else {
-        builder.append(String.format("\\U%06X", ch));
-      }
-    }
-    return builder.toString();
   }
 
   public final int getTokenStart() {
@@ -1047,200 +1024,134 @@ class _SpLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [274] { yybegin(YYINITIAL); return BAD_CHARACTER; }");
             { yybegin(YYINITIAL); return BAD_CHARACTER;
             }
           case 155: break;
           case 2: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [99] { yybegin(YYINITIAL); return WHITE_SPACE; }");
             { yybegin(YYINITIAL); return WHITE_SPACE;
             }
           case 156: break;
           case 3: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [100] { yybegin(YYINITIAL); return NEW_LINE; }");
             { yybegin(YYINITIAL); return NEW_LINE;
             }
           case 157: break;
           case 4: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [208] { yybegin(YYINITIAL); return IDENTIFIER; }");
             { yybegin(YYINITIAL); return IDENTIFIER;
             }
           case 158: break;
           case 5: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [108] { yybegin(YYINITIAL); return NUMBER_LITERAL; }");
             { yybegin(YYINITIAL); return NUMBER_LITERAL;
             }
           case 159: break;
           case 6: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [216] { yybegin(YYINITIAL); return AT_SIGN; }");
             { yybegin(YYINITIAL); return AT_SIGN;
             }
           case 160: break;
           case 7: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [260] { yybegin(YYINITIAL); return ASTERISK; }");
             { yybegin(YYINITIAL); return ASTERISK;
             }
           case 161: break;
           case 8: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [266] { yybegin(YYINITIAL); return SLASH; }");
             { yybegin(YYINITIAL); return SLASH;
             }
           case 162: break;
           case 9: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [212] { yybegin(YYINITIAL); return UNDERSCORE; }");
             { yybegin(YYINITIAL); return UNDERSCORE;
             }
           case 163: break;
           case 10: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [255] { yybegin(YYINITIAL); return PERIOD; }");
             { yybegin(YYINITIAL); return PERIOD;
             }
           case 164: break;
           case 11: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [263] { yybegin(YYINITIAL); return MINUS; }");
             { yybegin(YYINITIAL); return MINUS;
             }
           case 165: break;
           case 12: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [111] { yybegin(YYINITIAL); return CHARACTER_LITERAL; }");
             { yybegin(YYINITIAL); return CHARACTER_LITERAL;
             }
           case 166: break;
           case 13: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [112] { yybegin(YYINITIAL); return STRING_LITERAL; }");
             { yybegin(YYINITIAL); return STRING_LITERAL;
             }
           case 167: break;
           case 14: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [97] { yybegin(YYINITIAL); return PREPROCESSOR; }");
             { yybegin(YYINITIAL); return PREPROCESSOR;
             }
           case 168: break;
           case 15: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [253] { yybegin(YYINITIAL); return COLON; }");
             { yybegin(YYINITIAL); return COLON;
             }
           case 169: break;
           case 16: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [259] { yybegin(YYINITIAL); return ASSIGN; }");
             { yybegin(YYINITIAL); return ASSIGN;
             }
           case 170: break;
           case 17: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [262] { yybegin(YYINITIAL); return EXCLAMATION; }");
             { yybegin(YYINITIAL); return EXCLAMATION;
             }
           case 171: break;
           case 18: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [268] { yybegin(YYINITIAL); return VERTICAL_BAR; }");
             { yybegin(YYINITIAL); return VERTICAL_BAR;
             }
           case 172: break;
           case 19: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [258] { yybegin(YYINITIAL); return AMPERSAND; }");
             { yybegin(YYINITIAL); return AMPERSAND;
             }
           case 173: break;
           case 20: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [223] { yybegin(YYINITIAL); return LT; }");
             { yybegin(YYINITIAL); return LT;
             }
           case 174: break;
           case 21: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [228] { yybegin(YYINITIAL); return GT; }");
             { yybegin(YYINITIAL); return GT;
             }
           case 175: break;
           case 22: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [234] { yybegin(YYINITIAL); return LPAREN; }");
             { yybegin(YYINITIAL); return LPAREN;
             }
           case 176: break;
           case 23: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [235] { yybegin(YYINITIAL); return RPAREN; }");
             { yybegin(YYINITIAL); return RPAREN;
             }
           case 177: break;
           case 24: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [236] { yybegin(YYINITIAL); return LBRACE; }");
             { yybegin(YYINITIAL); return LBRACE;
             }
           case 178: break;
           case 25: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [237] { yybegin(YYINITIAL); return RBRACE; }");
             { yybegin(YYINITIAL); return RBRACE;
             }
           case 179: break;
           case 26: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [238] { yybegin(YYINITIAL); return LBRACKET; }");
             { yybegin(YYINITIAL); return LBRACKET;
             }
           case 180: break;
           case 27: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [239] { yybegin(YYINITIAL); return RBRACKET; }");
             { yybegin(YYINITIAL); return RBRACKET;
             }
           case 181: break;
           case 28: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [265] { yybegin(YYINITIAL); return PLUS; }");
             { yybegin(YYINITIAL); return PLUS;
             }
           case 182: break;
           case 29: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [264] { yybegin(YYINITIAL); return PERCENT; }");
             { yybegin(YYINITIAL); return PERCENT;
             }
           case 183: break;
           case 30: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [261] { yybegin(YYINITIAL); return CARET; }");
             { yybegin(YYINITIAL); return CARET;
             }
           case 184: break;
           case 31: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [254] { yybegin(YYINITIAL); return COMMA; }");
             { yybegin(YYINITIAL); return COMMA;
             }
           case 185: break;
           case 32: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [256] { yybegin(YYINITIAL); return SEMICOLON; }");
             { yybegin(YYINITIAL); return SEMICOLON;
             }
           case 186: break;
           case 33: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [267] { yybegin(YYINITIAL); return TILDE; }");
             { yybegin(YYINITIAL); return TILDE;
             }
           case 187: break;
@@ -1248,32 +1159,22 @@ class _SpLexer implements FlexLexer {
             // lookahead expression with fixed lookahead length
             zzMarkedPos = Character.offsetByCodePoints
                 (zzBufferL/*, zzStartRead, zzEndRead - zzStartRead*/, zzMarkedPos, -1);
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [209] { yybegin(YYINITIAL); return TAG; }");
             { yybegin(YYINITIAL); return TAG;
             }
           case 188: break;
           case 35: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [248] { yybegin(YYINITIAL); return MULEQ; }");
             { yybegin(YYINITIAL); return MULEQ;
             }
           case 189: break;
           case 36: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [102] { yybegin(YYINITIAL); return C_STYLE_COMMENT; }");
             { yybegin(YYINITIAL); return C_STYLE_COMMENT;
             }
           case 190: break;
           case 37: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [103] { yybegin(YYINITIAL); return END_OF_LINE_COMMENT; }");
             { yybegin(YYINITIAL); return END_OF_LINE_COMMENT;
             }
           case 191: break;
           case 38: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [244] { yybegin(YYINITIAL); return DIVEQ; }");
             { yybegin(YYINITIAL); return DIVEQ;
             }
           case 192: break;
@@ -1281,140 +1182,94 @@ class _SpLexer implements FlexLexer {
             // lookahead expression with fixed base length
             zzMarkedPos = Character.offsetByCodePoints
                 (zzBufferL/*, zzStartRead, zzEndRead - zzStartRead*/, zzStartRead, 1);
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [213] { yybegin(YYINITIAL); return TAG; }");
             { yybegin(YYINITIAL); return TAG;
             }
           case 193: break;
           case 40: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [269] { yybegin(YYINITIAL); return RANGE; }");
             { yybegin(YYINITIAL); return RANGE;
             }
           case 194: break;
           case 41: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [243] { yybegin(YYINITIAL); return DECREMENT; }");
             { yybegin(YYINITIAL); return DECREMENT;
             }
           case 195: break;
           case 42: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [250] { yybegin(YYINITIAL); return SUBEQ; }");
             { yybegin(YYINITIAL); return SUBEQ;
             }
           case 196: break;
           case 43: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [270] { yybegin(YYINITIAL); return SCOPE_RESOLUTION; }");
             { yybegin(YYINITIAL); return SCOPE_RESOLUTION;
             }
           case 197: break;
           case 44: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [120] { yybegin(YYINITIAL); return AS; }");
             { yybegin(YYINITIAL); return AS;
             }
           case 198: break;
           case 45: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [151] { yybegin(YYINITIAL); return IF; }");
             { yybegin(YYINITIAL); return IF;
             }
           case 199: break;
           case 46: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [154] { yybegin(YYINITIAL); return IN; }");
             { yybegin(YYINITIAL); return IN;
             }
           case 200: break;
           case 47: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [136] { yybegin(YYINITIAL); return DO; }");
             { yybegin(YYINITIAL); return DO;
             }
           case 201: break;
           case 48: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [218] { yybegin(YYINITIAL); return EQUALTO; }");
             { yybegin(YYINITIAL); return EQUALTO;
             }
           case 202: break;
           case 49: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [219] { yybegin(YYINITIAL); return NEQUALTO; }");
             { yybegin(YYINITIAL); return NEQUALTO;
             }
           case 203: break;
           case 50: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [249] { yybegin(YYINITIAL); return OREQ; }");
             { yybegin(YYINITIAL); return OREQ;
             }
           case 204: break;
           case 51: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [220] { yybegin(YYINITIAL); return OR; }");
             { yybegin(YYINITIAL); return OR;
             }
           case 205: break;
           case 52: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [242] { yybegin(YYINITIAL); return ANDEQ; }");
             { yybegin(YYINITIAL); return ANDEQ;
             }
           case 206: break;
           case 53: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [221] { yybegin(YYINITIAL); return AND; }");
             { yybegin(YYINITIAL); return AND;
             }
           case 207: break;
           case 54: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [224] { yybegin(YYINITIAL); return LTEQ; }");
             { yybegin(YYINITIAL); return LTEQ;
             }
           case 208: break;
           case 55: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [225] { yybegin(YYINITIAL); return SL; }");
             { yybegin(YYINITIAL); return SL;
             }
           case 209: break;
           case 56: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [245] { yybegin(YYINITIAL); return GTEQ; }");
             { yybegin(YYINITIAL); return GTEQ;
             }
           case 210: break;
           case 57: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [229] { yybegin(YYINITIAL); return SRA; }");
             { yybegin(YYINITIAL); return SRA;
             }
           case 211: break;
           case 58: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [241] { yybegin(YYINITIAL); return ADDEQ; }");
             { yybegin(YYINITIAL); return ADDEQ;
             }
           case 212: break;
           case 59: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [246] { yybegin(YYINITIAL); return INCREMENT; }");
             { yybegin(YYINITIAL); return INCREMENT;
             }
           case 213: break;
           case 60: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [247] { yybegin(YYINITIAL); return MODEQ; }");
             { yybegin(YYINITIAL); return MODEQ;
             }
           case 214: break;
           case 61: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [251] { yybegin(YYINITIAL); return XOREQ; }");
             { yybegin(YYINITIAL); return XOREQ;
             }
           case 215: break;
@@ -1444,8 +1299,6 @@ class _SpLexer implements FlexLexer {
               };
               zzMarkedPos = zzFPos;
             }
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [92] { yybegin(YYINITIAL); return LABEL; }");
             { yybegin(YYINITIAL); return LABEL;
             }
           case 216: break;
@@ -1453,20 +1306,14 @@ class _SpLexer implements FlexLexer {
             // lookahead expression with fixed lookahead length
             zzMarkedPos = Character.offsetByCodePoints
                 (zzBufferL/*, zzStartRead, zzEndRead - zzStartRead*/, zzMarkedPos, -2);
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [210] { yybegin(YYINITIAL); return IDENTIFIER; }");
             { yybegin(YYINITIAL); return IDENTIFIER;
             }
           case 217: break;
           case 64: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [110] { yybegin(YYINITIAL); return RATIONAL_LITERAL; }");
             { yybegin(YYINITIAL); return RATIONAL_LITERAL;
             }
           case 218: break;
           case 65: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [104] { yybegin(YYINITIAL); return DOC_COMMENT; }");
             { yybegin(YYINITIAL); return DOC_COMMENT;
             }
           case 219: break;
@@ -1474,595 +1321,364 @@ class _SpLexer implements FlexLexer {
             // lookahead expression with fixed base length
             zzMarkedPos = Character.offsetByCodePoints
                 (zzBufferL/*, zzStartRead, zzEndRead - zzStartRead*/, zzStartRead, 1);
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [214] { yybegin(YYINITIAL); return UNDERSCORE; }");
             { yybegin(YYINITIAL); return UNDERSCORE;
             }
           case 220: break;
           case 67: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [257] { yybegin(YYINITIAL); return ELLIPSIS; }");
             { yybegin(YYINITIAL); return ELLIPSIS;
             }
           case 221: break;
           case 68: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [187] { yybegin(YYINITIAL); return TRY; }");
             { yybegin(YYINITIAL); return TRY;
             }
           case 222: break;
           case 69: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [144] { yybegin(YYINITIAL); return FOR; }");
             { yybegin(YYINITIAL); return FOR;
             }
           case 223: break;
           case 70: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [162] { yybegin(YYINITIAL); return LET; }");
             { yybegin(YYINITIAL); return LET;
             }
           case 224: break;
           case 71: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [166] { yybegin(YYINITIAL); return NEW; }");
             { yybegin(YYINITIAL); return NEW;
             }
           case 225: break;
           case 72: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [155] { yybegin(YYINITIAL); return INT; }");
             { yybegin(YYINITIAL); return INT;
             }
           case 226: break;
           case 73: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [198] { yybegin(YYINITIAL); return VAR; }");
             { yybegin(YYINITIAL); return VAR;
             }
           case 227: break;
           case 74: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [226] { yybegin(YYINITIAL); return SLEQ; }");
             { yybegin(YYINITIAL); return SLEQ;
             }
           case 228: break;
           case 75: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [230] { yybegin(YYINITIAL); return SRAEQ; }");
             { yybegin(YYINITIAL); return SRAEQ;
             }
           case 229: break;
           case 76: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [231] { yybegin(YYINITIAL); return SRL; }");
             { yybegin(YYINITIAL); return SRL;
             }
           case 230: break;
           case 77: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [141] { yybegin(YYINITIAL); return EXIT; }");
             { yybegin(YYINITIAL); return EXIT;
             }
           case 231: break;
           case 78: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [138] { yybegin(YYINITIAL); return ELSE; }");
             { yybegin(YYINITIAL); return ELSE;
             }
           case 232: break;
           case 79: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [140] { yybegin(YYINITIAL); return ENUM; }");
             { yybegin(YYINITIAL); return ENUM;
             }
           case 233: break;
           case 80: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [114] { yybegin(YYINITIAL); return TRUE; }");
             { yybegin(YYINITIAL); return TRUE;
             }
           case 234: break;
           case 81: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [185] { yybegin(YYINITIAL); return THIS; }");
             { yybegin(YYINITIAL); return THIS;
             }
           case 235: break;
           case 82: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [116] { yybegin(YYINITIAL); return NULL; }");
             { yybegin(YYINITIAL); return NULL;
             }
           case 236: break;
           case 83: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [125] { yybegin(IN_CASE);   return CASE; }");
             { yybegin(IN_CASE);   return CASE;
             }
           case 237: break;
           case 84: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [129] { yybegin(YYINITIAL); return CHAR; }");
             { yybegin(YYINITIAL); return CHAR;
             }
           case 238: break;
           case 85: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [161] { yybegin(YYINITIAL); return INTN; }");
             { yybegin(YYINITIAL); return INTN;
             }
           case 239: break;
           case 86: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [156] { yybegin(YYINITIAL); return INT8; }");
             { yybegin(YYINITIAL); return INT8;
             }
           case 240: break;
           case 87: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [132] { yybegin(YYINITIAL); return DECL; }");
             { yybegin(YYINITIAL); return DECL;
             }
           case 241: break;
           case 88: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [205] { yybegin(YYINITIAL); return WITH; }");
             { yybegin(YYINITIAL); return WITH;
             }
           case 242: break;
           case 89: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [150] { yybegin(YYINITIAL); return GOTO; }");
             { yybegin(YYINITIAL); return GOTO;
             }
           case 243: break;
           case 90: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [202] { yybegin(YYINITIAL); return VOID; }");
             { yybegin(YYINITIAL); return VOID;
             }
           case 244: break;
           case 91: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [232] { yybegin(YYINITIAL); return SRLEQ; }");
             { yybegin(YYINITIAL); return SRLEQ;
             }
           case 245: break;
           case 92: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [123] { yybegin(YYINITIAL); return BREAK; }");
             { yybegin(YYINITIAL); return BREAK;
             }
           case 246: break;
           case 93: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [183] { yybegin(YYINITIAL); return TAGOF; }");
             { yybegin(YYINITIAL); return TAGOF;
             }
           case 247: break;
           case 94: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [186] { yybegin(YYINITIAL); return THROW; }");
             { yybegin(YYINITIAL); return THROW;
             }
           case 248: break;
           case 95: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [197] { yybegin(YYINITIAL); return USING; }");
             { yybegin(YYINITIAL); return USING;
             }
           case 249: break;
           case 96: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [196] { yybegin(YYINITIAL); return UNION; }");
             { yybegin(YYINITIAL); return UNION;
             }
           case 250: break;
           case 97: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [195] { yybegin(YYINITIAL); return UINTN; }");
             { yybegin(YYINITIAL); return UINTN;
             }
           case 251: break;
           case 98: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [191] { yybegin(YYINITIAL); return UINT8; }");
             { yybegin(YYINITIAL); return UINT8;
             }
           case 252: break;
           case 99: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [115] { yybegin(YYINITIAL); return FALSE; }");
             { yybegin(YYINITIAL); return FALSE;
             }
           case 253: break;
           case 100: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [180] { yybegin(YYINITIAL); return STOCK; }");
             { yybegin(YYINITIAL); return STOCK;
             }
           case 254: break;
           case 101: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [178] { yybegin(YYINITIAL); return SLEEP; }");
             { yybegin(YYINITIAL); return SLEEP;
             }
           case 255: break;
           case 102: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [130] { yybegin(YYINITIAL); return CONST; }");
             { yybegin(YYINITIAL); return CONST;
             }
           case 256: break;
           case 103: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [127] { yybegin(YYINITIAL); return CATCH; }");
             { yybegin(YYINITIAL); return CATCH;
             }
           case 257: break;
           case 104: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [157] { yybegin(YYINITIAL); return INT16; }");
             { yybegin(YYINITIAL); return INT16;
             }
           case 258: break;
           case 105: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [159] { yybegin(YYINITIAL); return INT64; }");
             { yybegin(YYINITIAL); return INT64;
             }
           case 259: break;
           case 106: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [158] { yybegin(YYINITIAL); return INT32; }");
             { yybegin(YYINITIAL); return INT32;
             }
           case 260: break;
           case 107: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [204] { yybegin(YYINITIAL); return WHILE; }");
             { yybegin(YYINITIAL); return WHILE;
             }
           case 261: break;
           case 108: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [168] { yybegin(YYINITIAL); return OBJECT; }");
             { yybegin(YYINITIAL); return OBJECT;
             }
           case 262: break;
           case 109: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [189] { yybegin(YYINITIAL); return TYPEOF; }");
             { yybegin(YYINITIAL); return TYPEOF;
             }
           case 263: break;
           case 110: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [175] { yybegin(YYINITIAL); return RETURN; }");
             { yybegin(YYINITIAL); return RETURN;
             }
           case 264: break;
           case 111: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [192] { yybegin(YYINITIAL); return UINT16; }");
             { yybegin(YYINITIAL); return UINT16;
             }
           case 265: break;
           case 112: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [194] { yybegin(YYINITIAL); return UINT64; }");
             { yybegin(YYINITIAL); return UINT64;
             }
           case 266: break;
           case 113: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [193] { yybegin(YYINITIAL); return UINT32; }");
             { yybegin(YYINITIAL); return UINT32;
             }
           case 267: break;
           case 114: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [121] { yybegin(YYINITIAL); return ASSERT; }");
             { yybegin(YYINITIAL); return ASSERT;
             }
           case 268: break;
           case 115: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [176] { yybegin(YYINITIAL); return SEALED; }");
             { yybegin(YYINITIAL); return SEALED;
             }
           case 269: break;
           case 116: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [181] { yybegin(YYINITIAL); return STRUCT; }");
             { yybegin(YYINITIAL); return STRUCT;
             }
           case 270: break;
           case 117: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [179] { yybegin(YYINITIAL); return STATIC; }");
             { yybegin(YYINITIAL); return STATIC;
             }
           case 271: break;
           case 118: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [177] { yybegin(YYINITIAL); return SIZEOF; }");
             { yybegin(YYINITIAL); return SIZEOF;
             }
           case 272: break;
           case 119: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [182] { yybegin(YYINITIAL); return SWITCH; }");
             { yybegin(YYINITIAL); return SWITCH;
             }
           case 273: break;
           case 120: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [165] { yybegin(YYINITIAL); return NATIVE; }");
             { yybegin(YYINITIAL); return NATIVE;
             }
           case 274: break;
           case 121: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [153] { yybegin(YYINITIAL); return IMPORT; }");
             { yybegin(YYINITIAL); return IMPORT;
             }
           case 275: break;
           case 122: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [137] { yybegin(YYINITIAL); return DOUBLE; }");
             { yybegin(YYINITIAL); return DOUBLE;
             }
           case 276: break;
           case 123: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [135] { yybegin(YYINITIAL); return DELETE; }");
             { yybegin(YYINITIAL); return DELETE;
             }
           case 277: break;
           case 124: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [173] { yybegin(YYINITIAL); return PUBLIC; }");
             { yybegin(YYINITIAL); return PUBLIC;
             }
           case 278: break;
           case 125: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [124] { yybegin(YYINITIAL); return BUILTIN; }");
             { yybegin(YYINITIAL); return BUILTIN;
             }
           case 279: break;
           case 126: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [190] { yybegin(YYINITIAL); return TYPESET; }");
             { yybegin(YYINITIAL); return TYPESET;
             }
           case 280: break;
           case 127: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [188] { yybegin(YYINITIAL); return TYPEDEF; }");
             { yybegin(YYINITIAL); return TYPEDEF;
             }
           case 281: break;
           case 128: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [145] { yybegin(YYINITIAL); return FOREACH; }");
             { yybegin(YYINITIAL); return FOREACH;
             }
           case 282: break;
           case 129: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [146] { yybegin(YYINITIAL); return FORWARD; }");
             { yybegin(YYINITIAL); return FORWARD;
             }
           case 283: break;
           case 130: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [148] { yybegin(YYINITIAL); return FUNCTAG; }");
             { yybegin(YYINITIAL); return FUNCTAG;
             }
           case 284: break;
           case 131: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [143] { yybegin(YYINITIAL); return FINALLY; }");
             { yybegin(YYINITIAL); return FINALLY;
             }
           case 285: break;
           case 132: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [119] { yybegin(YYINITIAL); return ACQUIRE; }");
             { yybegin(YYINITIAL); return ACQUIRE;
             }
           case 286: break;
           case 133: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [128] { yybegin(YYINITIAL); return CELLSOF; }");
             { yybegin(YYINITIAL); return CELLSOF;
             }
           case 287: break;
           case 134: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [126] { yybegin(YYINITIAL); return CAST_TO; }");
             { yybegin(YYINITIAL); return CAST_TO;
             }
           case 288: break;
           case 135: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [133] { yybegin(YYINITIAL); return DEFAULT; }");
             { yybegin(YYINITIAL); return DEFAULT;
             }
           case 289: break;
           case 136: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [134] { yybegin(YYINITIAL); return DEFINED; }");
             { yybegin(YYINITIAL); return DEFINED;
             }
           case 290: break;
           case 137: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [171] { yybegin(YYINITIAL); return PRIVATE; }");
             { yybegin(YYINITIAL); return PRIVATE;
             }
           case 291: break;
           case 138: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [170] { yybegin(YYINITIAL); return PACKAGE; }");
             { yybegin(YYINITIAL); return PACKAGE;
             }
           case 292: break;
           case 139: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [199] { yybegin(YYINITIAL); return VARIANT; }");
             { yybegin(YYINITIAL); return VARIANT;
             }
           case 293: break;
           case 140: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [200] { yybegin(YYINITIAL); return VIEW_AS; }");
             { yybegin(YYINITIAL); return VIEW_AS;
             }
           case 294: break;
           case 141: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [201] { yybegin(YYINITIAL); return VIRTUAL; }");
             { yybegin(YYINITIAL); return VIRTUAL;
             }
           case 295: break;
           case 142: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [169] { yybegin(YYINITIAL); return OPERATOR; }");
             { yybegin(YYINITIAL); return OPERATOR;
             }
           case 296: break;
           case 143: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [142] { yybegin(YYINITIAL); return EXPLICIT; }");
             { yybegin(YYINITIAL); return EXPLICIT;
             }
           case 297: break;
           case 144: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [174] { yybegin(YYINITIAL); return READONLY; }");
             { yybegin(YYINITIAL); return READONLY;
             }
           case 298: break;
           case 145: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [147] { yybegin(YYINITIAL); return FUNCENUM; }");
             { yybegin(YYINITIAL); return FUNCENUM;
             }
           case 299: break;
           case 146: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [149] { yybegin(YYINITIAL); return FUNCTION; }");
             { yybegin(YYINITIAL); return FUNCTION;
             }
           case 300: break;
           case 147: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [131] { yybegin(YYINITIAL); return CONTINUE; }");
             { yybegin(YYINITIAL); return CONTINUE;
             }
           case 301: break;
           case 148: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [152] { yybegin(YYINITIAL); return IMPLICIT; }");
             { yybegin(YYINITIAL); return IMPLICIT;
             }
           case 302: break;
           case 149: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [203] { yybegin(YYINITIAL); return VOLATILE; }");
             { yybegin(YYINITIAL); return VOLATILE;
             }
           case 303: break;
           case 150: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [164] { yybegin(YYINITIAL); return NAMESPACE; }");
             { yybegin(YYINITIAL); return NAMESPACE;
             }
           case 304: break;
           case 151: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [160] { yybegin(YYINITIAL); return INTERFACE; }");
             { yybegin(YYINITIAL); return INTERFACE;
             }
           case 305: break;
           case 152: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [163] { yybegin(YYINITIAL); return METHODMAP; }");
             { yybegin(YYINITIAL); return METHODMAP;
             }
           case 306: break;
           case 153: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [172] { yybegin(YYINITIAL); return PROTECTED; }");
             { yybegin(YYINITIAL); return PROTECTED;
             }
           case 307: break;
           case 154: 
-            System.out.println("match: --"+zzToPrintable(yytext())+"--");
-            System.out.println("action [167] { yybegin(YYINITIAL); return NULLABLE; }");
             { yybegin(YYINITIAL); return NULLABLE;
             }
           case 308: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
-      }
-    }
-  }
-
-  /**
-   * Runs the scanner on input files.
-   *
-   * This main method is the debugging routine for the scanner.
-   * It prints debugging information about each returned token to
-   * System.out until the end of file is reached, or an error occured.
-   *
-   * @param argv   the command line, contains the filenames to run
-   *               the scanner on.
-   */
-  public static void main(String argv[]) {
-    if (argv.length == 0) {
-      System.out.println("Usage : java _SpLexer [ --encoding <name> ] <inputfile(s)>");
-    }
-    else {
-      int firstFilePos = 0;
-      String encodingName = "UTF-8";
-      if (argv[0].equals("--encoding")) {
-        firstFilePos = 2;
-        encodingName = argv[1];
-        try {
-          java.nio.charset.Charset.forName(encodingName); // Side-effect: is encodingName valid? 
-        } catch (Exception e) {
-          System.out.println("Invalid encoding '" + encodingName + "'");
-          return;
-        }
-      }
-      for (int i = firstFilePos; i < argv.length; i++) {
-        _SpLexer scanner = null;
-        try {
-          java.io.FileInputStream stream = new java.io.FileInputStream(argv[i]);
-          java.io.Reader reader = new java.io.InputStreamReader(stream, encodingName);
-          scanner = new _SpLexer(reader);
-          do {
-            System.out.println(scanner.advance());
-          } while (!scanner.zzAtEOF);
-
-        }
-        catch (java.io.FileNotFoundException e) {
-          System.out.println("File not found : \""+argv[i]+"\"");
-        }
-        catch (java.io.IOException e) {
-          System.out.println("IO error scanning file \""+argv[i]+"\"");
-          System.out.println(e);
-        }
-        catch (Exception e) {
-          System.out.println("Unexpected exception:");
-          e.printStackTrace();
-        }
       }
     }
   }

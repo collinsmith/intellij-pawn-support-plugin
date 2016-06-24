@@ -20,22 +20,8 @@ public class SpTokenTypes {
   public static final IElementType WHITE_SPACE = TokenType.WHITE_SPACE;
 
   // PREPROCESSOR DIRECTIVES
-  public static final IElementType PREPROCESSOR = new SpTokenType("PREPROCESSOR");
-  public static final IElementType PREPROCESSOR_ASSERT = new SpTokenType("ASSERT");
-  public static final IElementType PREPROCESSOR_DEFINE = new SpTokenType("DEFINE");
-  public static final IElementType PREPROCESSOR_ELSE = new SpTokenType("ELSE");
-  public static final IElementType PREPROCESSOR_ELSEIF = new SpTokenType("ELSEIF");
-  public static final IElementType PREPROCESSOR_ENDIF = new SpTokenType("ENDIF");
-  public static final IElementType PREPROCESSOR_ENDINPUT = new SpTokenType("ENDINPUT");
-  public static final IElementType PREPROCESSOR_ENDSCRIPT = new SpTokenType("ENDSCRIPT");
-  public static final IElementType PREPROCESSOR_ERROR = new SpTokenType("ERROR");
-  public static final IElementType PREPROCESSOR_FILE = new SpTokenType("FILE");
-  public static final IElementType PREPROCESSOR_IF = new SpTokenType("IF");
-  public static final IElementType PREPROCESSOR_INCLUDE = new SpTokenType("INCLUDE");
-  public static final IElementType PREPROCESSOR_LINE = new SpTokenType("LINE");
-  public static final IElementType PREPROCESSOR_PRAGMA = new SpTokenType("PRAGMA");
-  public static final IElementType PREPROCESSOR_TRYINCLUDE = new SpTokenType("TRYINCLUDE");
-  public static final IElementType PREPROCESSOR_UNDEF = new SpTokenType("UNDEF");
+  public static final IElementType PREPROCESSOR = new SpPreprocessorTokenType("PREPROCESSOR");
+
 
   public static final IElementType INVALID_PREPROCESSOR_DIRECTIVE
       = new SpTokenType("INVALID_PREPROCESSOR_DIRECTIVE");
@@ -277,12 +263,6 @@ public class SpTokenTypes {
       MULEQ, NEQUALTO, OR, OREQ, RANGE, SCOPE_RESOLUTION, SL, SLEQ, SRA, SRAEQ, SRL, SRLEQ,
       SUBEQ, XOREQ, LT, GT);
 
-  private static final TokenSet PREPROCESSOR_DIRECTIVES = TokenSet.create(
-      PREPROCESSOR_ASSERT, PREPROCESSOR_DEFINE, PREPROCESSOR_ELSE, PREPROCESSOR_ELSEIF,
-      PREPROCESSOR_ENDIF, PREPROCESSOR_ENDINPUT, PREPROCESSOR_ENDSCRIPT, PREPROCESSOR_ERROR,
-      PREPROCESSOR_FILE, PREPROCESSOR_IF, PREPROCESSOR_INCLUDE, PREPROCESSOR_LINE,
-      PREPROCESSOR_PRAGMA, PREPROCESSOR_TRYINCLUDE, PREPROCESSOR_UNDEF);
-
   private static final TokenSet MATCHED_PAIRS = TokenSet.create(
       LBRACE, RBRACE, LBRACKET, RBRACKET, LPAREN, RPAREN);
 
@@ -306,11 +286,6 @@ public class SpTokenTypes {
   @NotNull
   public static TokenSet getOperatorTokens() {
     return OPERATORS;
-  }
-
-  @NotNull
-  public static TokenSet getPreprocessorTokens() {
-    return PREPROCESSOR_DIRECTIVES;
   }
 
   @NotNull

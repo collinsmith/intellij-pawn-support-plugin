@@ -7,26 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public class SpVisitor extends PsiElementVisitor {
 
-  public void visitDefineArgs(@NotNull SpDefineArgs o) {
-    visitPsiElement(o);
-  }
-
-  public void visitDefineSubstitution(@NotNull SpDefineSubstitution o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPragma(@NotNull SpPragma o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPreprocessor(@NotNull SpPreprocessor o) {
-    visitPsiElement(o);
-  }
-
-  public void visitPreprocessorExpression(@NotNull SpPreprocessorExpression o) {
-    visitPsiElement(o);
-  }
-
   public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }

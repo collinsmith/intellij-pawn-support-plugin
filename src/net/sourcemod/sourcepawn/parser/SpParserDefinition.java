@@ -69,7 +69,7 @@ public class SpParserDefinition implements ParserDefinition {
 
   @Override
   public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {
-    if (left.getElementType() == SpTokenTypes.HASH) {
+    /*if (left.getElementType() == SpTokenTypes.HASH) {
       return SpaceRequirements.MUST_NOT;
     } else if (left.getElementType() == SpTokenTypes.DEFINED_PATTERN
         && right.getElementType() == SpElementTypes.DEFINE_ARGS) {
@@ -77,7 +77,7 @@ public class SpParserDefinition implements ParserDefinition {
     } else if (left.getElementType() == SpElementTypes.DEFINE_ARGS
         && right.getElementType() == SpElementTypes.DEFINE_SUBSTITUTION) {
       return SpaceRequirements.MUST;
-    }
+    }*/
 
     return SpaceRequirements.MAY;
   }

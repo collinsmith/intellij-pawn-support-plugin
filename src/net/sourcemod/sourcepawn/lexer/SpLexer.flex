@@ -7,20 +7,16 @@ import org.jetbrains.annotations.NotNull;
 import static net.sourcemod.sourcepawn.lexer.SpTokenTypes.*;
 
 import java.util.function.IntConsumer;
-import java.util.NoSuchElementException;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.PrimitiveIterator;
 
 %%
 
+%public
 %unicode
 %class _SpLexer
 %implements FlexLexer
 %function advance
 %type IElementType
-%debug
+//%debug
 
 %{
   private static String zzToPrintable(CharSequence str) {

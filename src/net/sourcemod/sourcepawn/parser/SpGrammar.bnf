@@ -31,7 +31,7 @@ private compilation_unit ::=
     NEW_LINE+
   | HASH preprocessor (NEW_LINE | <<eof>>)
 
-preprocessor ::=
+/*preprocessor ::=
     PREPROCESSOR_ASSERT preprocessor_expression
   | PREPROCESSOR_DEFINE DEFINED_PATTERN ( (define_args define_substitution) | define_substitution )?
   | PREPROCESSOR_ENDINPUT
@@ -69,4 +69,4 @@ pragma ::=
 
 preprocessor_expression ::=
     NUMBER_LITERAL
-  | CHARACTER_LITERAL
+  | CHARACTER_LITERAL*/
