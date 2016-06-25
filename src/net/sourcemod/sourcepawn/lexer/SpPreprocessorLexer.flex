@@ -56,6 +56,8 @@ ALPHA               = [_@a-zA-Z]
 ALPHA_NUM           = [_@a-zA-Z0-9]
 IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
 
+%xstate IN_DEFINE
+
 %%
 
 <YYINITIAL> {
@@ -65,7 +67,7 @@ IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
   {LINE_CONTINUATION}+  { yybegin(YYINITIAL); return SpTokenTypes.WHITE_SPACE; }
 
   "#assert"             { yybegin(YYINITIAL); return ASSERT; }
-  "#define"             { yybegin(YYINITIAL); return DEFINE; }
+  "#define"             { yybegin(IN_DEFINE); return DEFINE; }
   "#else"               { yybegin(YYINITIAL); return ELSE; }
   "#elseif"             { yybegin(YYINITIAL); return ELSEIF; }
   "#endif"              { yybegin(YYINITIAL); return ENDIF; }
@@ -80,6 +82,11 @@ IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
   "#tryinclude"         { yybegin(YYINITIAL); return TRYINCLUDE; }
   "#undef"              { yybegin(YYINITIAL); return UNDEF; }
 
+}
+
+<IN_DEFINE> {
+  [^\ \t\f\r\n]+        { yybegin(YYINITIAL); return PATTERN_DEFINITION; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
 
 [^]                     { yybegin(YYINITIAL); return SpTokenTypes.BAD_CHARACTER; }

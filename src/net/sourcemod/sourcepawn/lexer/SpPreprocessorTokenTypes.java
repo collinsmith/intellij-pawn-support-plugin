@@ -22,6 +22,8 @@ public class SpPreprocessorTokenTypes {
   public static final IElementType TRYINCLUDE = new SpTokenType("TRYINCLUDE");
   public static final IElementType UNDEF = new SpTokenType("UNDEF");
 
+  public static final IElementType PATTERN_DEFINITION = new SpTokenType("UNDEF");
+
   private SpPreprocessorTokenTypes() {
   }
 

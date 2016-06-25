@@ -17,9 +17,14 @@ import org.jetbrains.annotations.Nullable;
 public class SpPreprocessorTokenType extends IReparseableElementType {
 
   private final SpParserUtils.ParserWrapper parserWrapper = SpPreprocessorParser::parse;
+  private SpLexer lexer;
 
   public SpPreprocessorTokenType(@NotNull @NonNls String debugName) {
     super(debugName, SpLanguage.INSTANCE);
+  }
+
+  public void setSpLexer(SpLexer lexer) {
+    this.lexer = lexer;
   }
 
   @Nullable
