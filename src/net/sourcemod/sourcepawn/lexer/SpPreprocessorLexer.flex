@@ -57,6 +57,7 @@ ALPHA_NUM           = [_@a-zA-Z0-9]
 IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
 
 %xstate IN_DEFINE
+%xstate IN_DEFINE_SUBST
 
 %%
 
@@ -85,6 +86,11 @@ IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
 }
 
 <IN_DEFINE> {
+  [^\ \t\f\r\n]+        { yybegin(IN_DEFINE_SUBST); return PATTERN_DEFINITION; }
+  [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
+}
+
+<IN_DEFINE_SUBST> {
   [^\ \t\f\r\n]+        { yybegin(YYINITIAL); return PATTERN_DEFINITION; }
   [^]                   { yypushback(yylength()); yybegin(YYINITIAL); }
 }
