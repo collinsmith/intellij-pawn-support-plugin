@@ -140,6 +140,11 @@ public class SpLexer extends LexerBase {
         tokenEndOffset = getLineTerminator(bufferIndex);
         break;
 
+      case '#':
+        tokenType = SpTokenTypes.PREPROCESSOR;
+        tokenEndOffset = getPreprocessorEnd(bufferIndex + 1);
+        break;
+
       case '/':
         if (bufferIndex + 1 >= bufferEndOffset) {
           tokenType = SpTokenTypes.SLASH;
@@ -284,11 +289,53 @@ public class SpLexer extends LexerBase {
   }
 
   private int getUpToLineTerminator(int offset) {
+    return getUpToLineTerminator(offset, false);
+  }
+
+  private int getUpToLineTerminator(int offset, boolean obeyLineContinuation) {
     char ch;
     int pos = offset;
     while (pos < bufferEndOffset) {
       ch = charAt(pos);
-      if (ch == '\r' || ch == '\n') {
+      if (ch == '\\' && obeyLineContinuation) {
+        pos++;
+        if (pos >= bufferEndOffset) {
+          return bufferEndOffset;
+        }
+
+        ch = charAt(pos);
+        if (ch == '\n' || ch == '\r') {
+          continue;
+        }
+      } else if (ch == '\r' || ch == '\n') {
+        break;
+      }
+
+      pos++;
+    }
+
+    return pos;
+  }
+
+  private int getPreprocessorEnd(int offset) {
+    char ch;
+    int pos = offset;
+    while (pos < bufferEndOffset) {
+      ch = charAt(pos);
+      // send input to preprocessor lexer
+      // SpUtils.parsePreprocessor(buffer, begin, end, PATTERN_PREFIXES, PATTERN_DEFINITIONS);
+
+      if (ch == '\\') {
+        pos++;
+        if (pos >= bufferEndOffset) {
+          return bufferEndOffset;
+        }
+
+        ch = charAt(pos);
+        if (ch == '\n' || ch == '\r') {
+          continue;
+        }
+      } else if (ch == '\r' || ch == '\n') {
         break;
       }
 
