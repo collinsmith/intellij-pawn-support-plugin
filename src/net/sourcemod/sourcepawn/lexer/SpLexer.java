@@ -1,6 +1,7 @@
 package net.sourcemod.sourcepawn.lexer;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import com.intellij.lexer.LexerBase;
 import com.intellij.openapi.diagnostic.Logger;
@@ -29,6 +30,7 @@ public class SpLexer extends LexerBase {
 
   private final StringBuilder PATTERN_BUILDER = new StringBuilder(32);
   private final Map<String, Pattern> PATTERN_PREFIXES = new HashMap<>();
+  private final Map<String, String> PATTERN_SUBSTITUTIONS = new HashMap<>();
 
   @Nullable
   private CharSequence buffer;
@@ -51,15 +53,42 @@ public class SpLexer extends LexerBase {
     define("__TIME__", "");
   }
 
+  public boolean defined(@NotNull @NonNls String prefix) {
+    return PATTERN_PREFIXES.containsKey(prefix);
+  }
+
   public void define(@NotNull @NonNls String prefix, @NotNull @NonNls String postfix) {
+    define(prefix, postfix, null);
+  }
+
+  public void define(@NotNull @NonNls String prefix,
+                     @NotNull @NonNls String postfix,
+                     @Nullable @NonNls String substitution) {
     Preconditions.checkArgument(prefix != null, "prefix cannot be null");
     Preconditions.checkArgument(postfix != null, "postfix cannot be null");
     postfix = postfix.replaceAll("%[0-9]", ".*?");
     PATTERN_PREFIXES.put(prefix, Pattern.compile(postfix));
+    PATTERN_SUBSTITUTIONS.put(prefix, substitution);
   }
 
   public void undef(@NotNull @NonNls String prefix) {
     PATTERN_PREFIXES.remove(prefix);
+  }
+
+  @NotNull
+  public String resolve(@NotNull @NonNls String prefix, @NotNull @NonNls String[] args) {
+    Preconditions.checkArgument(prefix != null, "prefix cannot be null");
+    Preconditions.checkArgument(args != null, "args cannot be null (use empty array instead)");
+    if (!PATTERN_SUBSTITUTIONS.containsKey(prefix)) {
+      return "";
+    }
+
+    String substitution = Strings.nullToEmpty(PATTERN_SUBSTITUTIONS.get(prefix));
+    for (int i = 0; i < args.length; i++) {
+      substitution = substitution.replaceAll("%" + i, args[i]);
+    }
+
+    return substitution;
   }
 
   @Override
