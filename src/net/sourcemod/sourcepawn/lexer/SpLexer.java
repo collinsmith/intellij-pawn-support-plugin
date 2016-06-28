@@ -75,6 +75,11 @@ public class SpLexer extends LexerBase {
     PATTERN_PREFIXES.remove(prefix);
   }
 
+  @Nullable
+  public Pattern getPostfixPattern(@NotNull @NonNls String prefix) {
+    return PATTERN_PREFIXES.get(prefix);
+  }
+
   @NotNull
   public String resolve(@NotNull @NonNls String prefix, @NotNull @NonNls String[] args) {
     Preconditions.checkArgument(prefix != null, "prefix cannot be null");
