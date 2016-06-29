@@ -67,6 +67,8 @@ public class SpLexer extends LexerBase {
     Preconditions.checkArgument(prefix != null, "prefix cannot be null");
     Preconditions.checkArgument(postfix != null, "postfix cannot be null");
     postfix = postfix.replaceAll("%[0-9]", ".*?");
+    // TODO: need to apply other pattern matching things, such
+    //       as optional spaces between specific char classes
     PATTERN_PREFIXES.put(prefix, Pattern.compile(postfix));
     PATTERN_SUBSTITUTIONS.put(prefix, substitution);
   }
