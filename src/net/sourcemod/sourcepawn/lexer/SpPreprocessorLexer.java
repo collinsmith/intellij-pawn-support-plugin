@@ -25,10 +25,12 @@ public class SpPreprocessorLexer extends LexerBase {
   private static final Logger LOG = Logger.getInstance(SpPreprocessorLexer.class);
 
   @NotNull
+  private final SpLexer spLexer;
+
+  @NotNull
   private final _SpPreprocessorLexer spPreprocessorLexer;
 
   private final StringBuilder PATTERN_BUILDER = new StringBuilder(32);
-  private final Map<String, Pattern> PATTERN_PREFIXES = new HashMap<>();
 
   @Nullable
   private CharSequence buffer;
@@ -43,23 +45,9 @@ public class SpPreprocessorLexer extends LexerBase {
   @Nullable
   private IElementType tokenType;
 
-  public SpPreprocessorLexer() {
+  public SpPreprocessorLexer(@NotNull SpLexer spLexer) {
+    this.spLexer = spLexer;
     this.spPreprocessorLexer = new _SpPreprocessorLexer();
-    define("__BINARY_PATH__", "");
-    define("__BINARY_NAME__", "");
-    define("__DATE__", "");
-    define("__TIME__", "");
-  }
-
-  public void define(@NotNull @NonNls String prefix, @NotNull @NonNls String postfix) {
-    Preconditions.checkArgument(prefix != null, "prefix cannot be null");
-    Preconditions.checkArgument(postfix != null, "postfix cannot be null");
-    postfix = postfix.replaceAll("%[0-9]", ".*?");
-    PATTERN_PREFIXES.put(prefix, Pattern.compile(postfix));
-  }
-
-  public void undef(@NotNull @NonNls String prefix) {
-    PATTERN_PREFIXES.remove(prefix);
   }
 
   @Override
@@ -140,11 +128,6 @@ public class SpPreprocessorLexer extends LexerBase {
         tokenEndOffset = getLineTerminator(bufferIndex);
         break;
 
-      case '#':
-        tokenType = SpTokenTypes.PREPROCESSOR;
-        tokenEndOffset = getPreprocessorEnd(bufferIndex + 1);
-        break;
-
       case '/':
         if (bufferIndex + 1 >= bufferEndOffset) {
           tokenType = SpTokenTypes.SLASH;
@@ -184,7 +167,7 @@ public class SpPreprocessorLexer extends LexerBase {
         break;
 
       default:
-        if (SpUtils.isAlpha(ch) && !PATTERN_PREFIXES.isEmpty()) {
+        if (SpUtils.isAlpha(ch)) {
           PATTERN_BUILDER.setLength(0);
           PATTERN_BUILDER.append(ch);
 
@@ -200,8 +183,8 @@ public class SpPreprocessorLexer extends LexerBase {
           }
 
           String prefix = PATTERN_BUILDER.toString();
-          if (PATTERN_PREFIXES.containsKey(prefix)) {
-            Pattern postfix = PATTERN_PREFIXES.get(prefix);
+          if (spLexer.defined(prefix)) {
+            Pattern postfix = spLexer.get(prefix);
             if (postfix != null) {
               CharSequence offsetCharSequence = new OffsetCharSequence(buffer, pos);
               Matcher matcher = postfix.matcher(offsetCharSequence);
