@@ -10,13 +10,10 @@ import com.intellij.util.text.CharArrayUtil;
 
 import net.sourcemod.sourcepawn.util.OffsetCharSequence;
 
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,7 +181,7 @@ public class SpPreprocessorLexer extends LexerBase {
 
           String prefix = PATTERN_BUILDER.toString();
           if (spLexer.defined(prefix)) {
-            Pattern postfix = spLexer.get(prefix);
+            Pattern postfix = spLexer.getPostfixPattern(prefix);
             if (postfix != null) {
               CharSequence offsetCharSequence = new OffsetCharSequence(buffer, pos);
               Matcher matcher = postfix.matcher(offsetCharSequence);
