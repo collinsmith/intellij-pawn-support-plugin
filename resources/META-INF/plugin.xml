@@ -1,0 +1,57 @@
+<idea-plugin>
+  <id>net.alliedmods.lang</id>
+  <name>AlliedModders Language Support</name>
+  <version>1.0</version>
+  <vendor email="collinsmith70@gmail.com"
+          url="https://alliedmods.net/">AlliedModders</vendor>
+
+  <description><![CDATA[
+      Adds support for the AMXModX Pawn and SourcePawn scripting languages.
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="145.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.lang</depends>
+  <depends optional="true" config-file="extended_platform.xml">com.intellij.modules.java</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <fileTypeFactory implementation="net.alliedmods.lang.amxxpawn.ApFileTypeFactory"/>
+    <configurationType implementation="net.alliedmods.lang.amxxpawn.run.ApRunConfigurationType"/>
+    <fileTemplateGroup implementation="net.alliedmods.lang.amxxpawn.module.ApTemplateGroup"/>
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <group id="AmxxPawn.Group">
+      <add-to-group group-id="NewGroup" anchor="first"/>
+      <action id="AmxxPawn.NewScript"
+              class="net.alliedmods.lang.amxxpawn.action.CreateApScriptAction"
+              text="AMXX Plugin" description="Creates a new AMXX script file">
+      </action>
+      <action id="AmxxPawn.NewInclude"
+              class="net.alliedmods.lang.amxxpawn.action.CreateApIncludeAction"
+              text="AMXX Include" description="Creates a new AMXX include file">
+      </action>
+      <separator/>
+    </group>
+    <action class="net.alliedmods.lang.amxxpawn.action.CompileAction"
+            text="Compile Script"
+            id="AmxxPawn.Compile"
+            icon="/actions/compile.png">
+      <keyboard-shortcut first-keystroke="shift c" keymap="$default"/>
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+      <add-to-group group-id="ScopeViewPopupMenu" anchor="first"/>
+      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+    </action>
+  </actions>
+
+</idea-plugin>
