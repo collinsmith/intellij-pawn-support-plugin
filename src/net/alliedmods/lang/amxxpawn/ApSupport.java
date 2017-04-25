@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import net.alliedmods.lang.amxxpawn.file.ApScript;
+import net.alliedmods.lang.amxxpawn.file.ApScriptFileType;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public class ApSupport {
   }
 
   public static boolean isApFile(@NotNull VirtualFile file) {
-    return !file.isDirectory() && file.getFileType() == ApScript.getInstance();
+    return !file.isDirectory() && file.getFileType() == ApScriptFileType.getInstance();
   }
 
   @NotNull

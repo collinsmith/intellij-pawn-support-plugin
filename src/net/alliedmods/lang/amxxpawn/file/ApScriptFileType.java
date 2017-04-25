@@ -12,42 +12,42 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class ApInclude extends LanguageFileType {
+public class ApScriptFileType extends LanguageFileType {
 
   @NotNull
-  public static final ApInclude INSTANCE = new ApInclude();
+  public static final ApScriptFileType INSTANCE = new ApScriptFileType();
 
   @NotNull
-  public static ApInclude getInstance() {
+  public static ApScriptFileType getInstance() {
     return INSTANCE;
   }
 
-  private ApInclude() {
+  ApScriptFileType() {
     super(ApLanguage.INSTANCE);
   }
 
   @NotNull
   @Override
   public String getName() {
-    return ApBundle.message("amxx.file.inc.name");
+    return ApBundle.message("amxx.file.script.name");
   }
 
   @NotNull
   @Override
   public String getDescription() {
-    return ApBundle.message("amxx.file.inc.desc");
+    return ApBundle.message("amxx.file.script.desc");
   }
 
   @NotNull
   @Override
   public String getDefaultExtension() {
-    return ApSupport.INC;
+    return ApSupport.SMA;
   }
 
   @Nullable
   @Override
   public Icon getIcon() {
-    return ApIcons.AmxxInclude16;
+    return ApIcons.AmxxScript16;
   }
 
 }

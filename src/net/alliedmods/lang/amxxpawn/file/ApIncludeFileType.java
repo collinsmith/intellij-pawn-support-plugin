@@ -1,10 +1,7 @@
 package net.alliedmods.lang.amxxpawn.file;
 
-import com.intellij.openapi.fileTypes.LanguageFileType;
-
 import net.alliedmods.lang.amxxpawn.ApBundle;
 import net.alliedmods.lang.amxxpawn.ApIcons;
-import net.alliedmods.lang.amxxpawn.ApLanguage;
 import net.alliedmods.lang.amxxpawn.ApSupport;
 
 import org.jetbrains.annotations.NotNull;
@@ -12,42 +9,42 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class ApScript extends LanguageFileType {
+public class ApIncludeFileType extends ApScriptFileType {
 
   @NotNull
-  public static final ApScript INSTANCE = new ApScript();
+  public static final ApIncludeFileType INSTANCE = new ApIncludeFileType();
 
   @NotNull
-  public static ApScript getInstance() {
+  public static ApIncludeFileType getInstance() {
     return INSTANCE;
   }
 
-  private ApScript() {
-    super(ApLanguage.INSTANCE);
+  ApIncludeFileType() {
+    super();
   }
 
   @NotNull
   @Override
   public String getName() {
-    return ApBundle.message("amxx.file.script.name");
+    return ApBundle.message("amxx.file.inc.desc");
   }
 
   @NotNull
   @Override
   public String getDescription() {
-    return ApBundle.message("amxx.file.script.desc");
+    return ApBundle.message("amxx.file.inc.desc");
   }
 
   @NotNull
   @Override
   public String getDefaultExtension() {
-    return ApSupport.SMA;
+    return ApSupport.INC;
   }
 
   @Nullable
   @Override
   public Icon getIcon() {
-    return ApIcons.AmxxScript16;
+    return ApIcons.AmxxInclude16;
   }
 
 }
