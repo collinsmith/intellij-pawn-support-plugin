@@ -66,7 +66,7 @@ public class ApModuleBuilder extends ModuleBuilder implements SourcePathsBuilder
             VirtualFile sourceDir = VfsUtil.findRelativeFile(p.first, null);
             if (sourceDir != null) {
               entry.addSourceFolder(sourceDir, false);
-              String name = rootModel.getModule().getName() + ApScript.getInstance().getDefaultExtension();
+              String name = rootModel.getModule().getName() + "." + ApScript.getInstance().getDefaultExtension();
               TemplateUtils.createOrResetFileContentFromTemplate(sourceDir, name, ApSupport.PLUGIN_TEMPLATE);
             }
           }
