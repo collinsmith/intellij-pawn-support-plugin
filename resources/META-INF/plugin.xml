@@ -26,7 +26,7 @@
     <!-- Add your extensions here -->
     <fileTypeFactory implementation="net.alliedmods.lang.amxxpawn.ApFileTypeFactory"/>
     <configurationType implementation="net.alliedmods.lang.amxxpawn.run.ApRunConfigurationType"/>
-    <fileTemplateGroup implementation="net.alliedmods.lang.amxxpawn.module.ApTemplateGroup"/>
+    <fileTemplateGroup implementation="net.alliedmods.lang.amxxpawn.template.ApTemplateGroup"/>
   </extensions>
 
   <actions>

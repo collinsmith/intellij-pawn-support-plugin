@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import net.alliedmods.lang.amxxpawn.ApSupport;
 import net.alliedmods.lang.amxxpawn.file.ApScript;
 import net.alliedmods.lang.amxxpawn.sdk.ApSdkUtils;
+import net.alliedmods.lang.amxxpawn.template.TemplateUtils;
 
 import org.jetbrains.annotations.NotNull;
 

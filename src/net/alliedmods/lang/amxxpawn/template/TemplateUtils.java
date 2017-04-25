@@ -1,9 +1,11 @@
-package net.alliedmods.lang.amxxpawn.module;
+package net.alliedmods.lang.amxxpawn.template;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+
+import net.alliedmods.lang.amxxpawn.module.ApModuleBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

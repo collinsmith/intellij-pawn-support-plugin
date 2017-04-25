@@ -1,4 +1,4 @@
-package net.alliedmods.lang.amxxpawn.module;
+package net.alliedmods.lang.amxxpawn.template;
 
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptorFactory;
