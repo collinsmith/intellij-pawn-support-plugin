@@ -30,8 +30,6 @@ public class ApSyntaxHighlighter extends SyntaxHighlighterBase {
       "AMXX.INVALID_STRING_ESCAPE", DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
   public static final TextAttributesKey KEYWORD = TextAttributesKey.createTextAttributesKey(
       "AMXX.KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
-  public static final TextAttributesKey PREPROC = TextAttributesKey.createTextAttributesKey(
-      "AMXX.PREPROC", DefaultLanguageHighlighterColors.KEYWORD);
   public static final TextAttributesKey OPERATORS = TextAttributesKey.createTextAttributesKey(
       "AMXX.PREPROC", DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static final TextAttributesKey PARENTHESES = TextAttributesKey.createTextAttributesKey(
