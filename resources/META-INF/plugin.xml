@@ -27,6 +27,8 @@
     <fileTypeFactory implementation="net.alliedmods.lang.amxxpawn.ApFileTypeFactory"/>
     <configurationType implementation="net.alliedmods.lang.amxxpawn.run.ApRunConfigurationType"/>
     <fileTemplateGroup implementation="net.alliedmods.lang.amxxpawn.template.ApTemplateGroup"/>
+    <!--<lang.parserDefinition language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.parser.ApParserDefinition"/>-->
+    <lang.syntaxHighlighterFactory language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.ApSyntaxHighlighterFactory"/>
   </extensions>
 
   <actions>
