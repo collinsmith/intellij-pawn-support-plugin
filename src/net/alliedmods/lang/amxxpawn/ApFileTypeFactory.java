@@ -18,9 +18,9 @@ public class ApFileTypeFactory extends FileTypeFactory {
 
   @Override
   public void createFileTypes(@NotNull FileTypeConsumer fileTypeConsumer) {
-    fileTypeConsumer.consume(ApScriptFileType.getInstance(),
+    fileTypeConsumer.consume(ApScriptFileType.INSTANCE,
         createFileNameMatchersForExtensions(ApSupport.getScriptExtensions()));
-    fileTypeConsumer.consume(ApIncludeFileType.getInstance(),
+    fileTypeConsumer.consume(ApIncludeFileType.INSTANCE,
         createFileNameMatchersForExtensions(ApSupport.getIncludeExtensions()));
   }
 

@@ -13,4 +13,15 @@ public class ApLanguage extends Language {
     super("AmxxPawn");
   }
 
+  @NotNull
+  @Override
+  public String getDisplayName() {
+    return ApBundle.message("amxx.name");
+  }
+
+  @Override
+  public boolean isCaseSensitive() {
+    return true;
+  }
+
 }

@@ -14,11 +14,6 @@ public class ApIncludeFileType extends ApScriptFileType {
   @NotNull
   public static final ApIncludeFileType INSTANCE = new ApIncludeFileType();
 
-  @NotNull
-  public static ApIncludeFileType getInstance() {
-    return INSTANCE;
-  }
-
   ApIncludeFileType() {
     super();
   }
@@ -26,13 +21,13 @@ public class ApIncludeFileType extends ApScriptFileType {
   @NotNull
   @Override
   public String getName() {
-    return ApBundle.message("amxx.file.inc.desc");
+    return "AmxxPawn.Include";
   }
 
   @NotNull
   @Override
   public String getDescription() {
-    return ApBundle.message("amxx.file.inc.desc");
+    return ApBundle.message("amxx.file.inc.name");
   }
 
   @NotNull

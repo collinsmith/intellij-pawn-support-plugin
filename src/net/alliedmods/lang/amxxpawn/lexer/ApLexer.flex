@@ -3,7 +3,21 @@ package net.alliedmods.lang.amxxpawn.lexer;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
+@SuppressWarnings({"ALL"})
 %%
+
+%{
+    public int ctrl = '^';
+
+    public _ApLexer() {
+      this((java.io.Reader) null);
+    }
+
+    public void goTo(int offset) {
+      zzCurrentPos = zzMarkedPos = zzStartRead = offset;
+      zzAtEOF = false;
+    }
+%}
 
 %unicode
 %class _ApLexer
@@ -12,29 +26,20 @@ import com.intellij.psi.tree.IElementType;
 %type IElementType
 //%debug
 
-%eof{  return;
-%eof}
-
-%{
-    public _ApLexer() {
-      this((java.io.Reader) null);
-    }
-%}
-
 WHITE_SPACE         = [\ \t\f]
 NEW_LINE            = \r|\n|\r\n
 
-ALPHA               = [_@a-zA-Z]
+//ALPHA             = [_@a-zA-Z] // Embedded into {IDENTIFIER} declaration
 ALPHA_NUM           = [_@a-zA-Z0-9]
 IDENTIFIER          = ([_@]{ALPHA_NUM}+) | ([a-zA-Z]{ALPHA_NUM}*)
 
-COMMENT_TAIL        = ([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
 C_STYLE_COMMENT     = ("/*"[^"*"]{COMMENT_TAIL})|"/*"
 DOC_COMMENT         = "/*""*"+("/"|([^"/""*"]{COMMENT_TAIL}))?
+COMMENT_TAIL        = ([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
 END_OF_LINE_COMMENT = "/""/"[^\r\n]*
 
 BINARY_DIGIT        = [01]
-//OCTAL_DIGIT       = [0-7]
+//OCTAL_DIGIT       = [0-7] // Not Supported by AMXX Pawn
 DECIMAL_DIGIT       = [0-9]
 HEXADECIMAL_DIGIT   = [0-9a-fA-F]
 
@@ -46,9 +51,9 @@ HEXADECIMAL_LITERAL = 0x ( _ | {HEXADECIMAL_DIGIT} )*
 RATIONAL_LITERAL    = {DECIMAL_DIGIT} "." {DECIMAL_DIGIT} {RATIONAL_EXPONENT}?
 RATIONAL_EXPONENT   = e -? {DECIMAL_DIGIT}+
 
-CHARACTER_LITERAL   ="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE})*("'"|\\)?
-STRING_LITERAL      =\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)?
-ESCAPE_SEQUENCE     =\\[^\r\n]
+ESCAPE_SEQUENCE     = \\[^\r\n]
+CHARACTER_LITERAL   = "'" ([^\\\'\r\n] | {ESCAPE_SEQUENCE})* ("'"|\\)?
+STRING_LITERAL      = \" ([^\\\"\r\n] | {ESCAPE_SEQUENCE})* (\"|\\)?
 
 SIMPLE_PRE_KEYWORD=(else|emit|endif|endinput|endscript|error|file|include|line|tryinclude|undef|defined)
 

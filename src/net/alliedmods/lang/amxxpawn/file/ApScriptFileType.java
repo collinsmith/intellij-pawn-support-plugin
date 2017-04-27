@@ -17,11 +17,6 @@ public class ApScriptFileType extends LanguageFileType {
   @NotNull
   public static final ApScriptFileType INSTANCE = new ApScriptFileType();
 
-  @NotNull
-  public static ApScriptFileType getInstance() {
-    return INSTANCE;
-  }
-
   ApScriptFileType() {
     super(ApLanguage.INSTANCE);
   }
@@ -29,13 +24,13 @@ public class ApScriptFileType extends LanguageFileType {
   @NotNull
   @Override
   public String getName() {
-    return ApBundle.message("amxx.file.script.name");
+    return "AmxxPawn.Script";
   }
 
   @NotNull
   @Override
   public String getDescription() {
-    return ApBundle.message("amxx.file.script.desc");
+    return ApBundle.message("amxx.file.script.name");
   }
 
   @NotNull

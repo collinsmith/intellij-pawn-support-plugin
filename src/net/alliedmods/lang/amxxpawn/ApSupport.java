@@ -60,7 +60,7 @@ public class ApSupport {
   }
 
   public static boolean isApFile(@NotNull VirtualFile file) {
-    return !file.isDirectory() && file.getFileType() == ApScriptFileType.getInstance();
+    return file.getFileType() instanceof ApScriptFileType;
   }
 
   @NotNull

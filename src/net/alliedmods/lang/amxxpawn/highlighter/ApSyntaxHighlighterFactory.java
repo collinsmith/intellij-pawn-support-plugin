@@ -1,4 +1,4 @@
-package net.alliedmods.lang.amxxpawn;
+package net.alliedmods.lang.amxxpawn.highlighter;
 
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;

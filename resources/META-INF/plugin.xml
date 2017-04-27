@@ -27,9 +27,13 @@
     <fileTypeFactory implementation="net.alliedmods.lang.amxxpawn.ApFileTypeFactory"/>
     <configurationType implementation="net.alliedmods.lang.amxxpawn.run.ApRunConfigurationType"/>
     <fileTemplateGroup implementation="net.alliedmods.lang.amxxpawn.template.ApTemplateGroup"/>
-    <!--<lang.parserDefinition language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.parser.ApParserDefinition"/>-->
-    <lang.syntaxHighlighterFactory language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.ApSyntaxHighlighterFactory"/>
+    <lang.parserDefinition language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.parser.ApParserDefinition"/>
+    <lang.syntaxHighlighterFactory language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.highlighter.ApSyntaxHighlighterFactory"/>
     <colorSettingsPage implementation="net.alliedmods.lang.amxxpawn.page.ApColorSettingsPage"/>
+    <lang.commenter language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApCommenter"/>
+    <lang.braceMatcher language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApBraceMatcher"/>
+    <quoteHandler fileType="AmxxPawn.Include" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>
+    <quoteHandler fileType="AmxxPawn.Script" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>
   </extensions>
 
   <actions>

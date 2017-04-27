@@ -8,13 +8,15 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 
 import net.alliedmods.lang.amxxpawn.ApBundle;
-import net.alliedmods.lang.amxxpawn.ApSupport;
 import net.alliedmods.lang.amxxpawn.build.BuildConfiguration;
 import net.alliedmods.lang.amxxpawn.build.BuildUtils;
 import net.alliedmods.lang.amxxpawn.build.ConsoleBuilder;
 import net.alliedmods.lang.amxxpawn.build.ImmutableBuildConfiguration;
+import net.alliedmods.lang.amxxpawn.file.ApScriptFileType;
+import net.alliedmods.lang.amxxpawn.psi.ApScriptFile;
 import net.alliedmods.lang.amxxpawn.sdk.ApSdkType;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +29,19 @@ import javax.annotation.Nullable;
 public class CompileAction extends AnAction {
 
   @Override
+  public void update(AnActionEvent e) {
+    PsiFile file = LangDataKeys.PSI_FILE.getData(e.getDataContext());
+    e.getPresentation().setEnabledAndVisible(file instanceof ApScriptFile
+        && file.getFileType() == ApScriptFileType.INSTANCE);
+  }
+
+  @Override
   public void actionPerformed(AnActionEvent e) {
+    PsiFile psiFile = LangDataKeys.PSI_FILE.getData(e.getDataContext());
+    if (!(psiFile instanceof ApScriptFile) || psiFile.getFileType() != ApScriptFileType.INSTANCE) {
+      return;
+    }
+
     Project project = e.getProject();
     VirtualFile file = e.getData(LangDataKeys.VIRTUAL_FILE);
     compile(project, file);
@@ -38,11 +52,11 @@ public class CompileAction extends AnAction {
   }
 
   private void compile(@NotNull Project project, @Nonnull VirtualFile file, @Nullable BuildConfiguration config) {
-    if (!ApSupport.isApFile(file)) {
+    /*if (!ApSupport.isApFile(file)) {
       Messages.showErrorDialog(project, ApBundle.message("amxx.error.compiler.filetype.msg", file),
           ApBundle.message("amxx.error.compiler.filetype.title"));
       return;
-    }
+    }*/
 
     if (config == null) {
       Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
