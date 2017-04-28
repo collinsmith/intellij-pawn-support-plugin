@@ -23,7 +23,7 @@ public class ApQuoteHandler extends SimpleTokenSetQuoteHandler implements JavaLi
     concatenatableStrings = TokenSet.create(ApTokenType.STRING_LITERAL);
   }
 
-  //@Override
+  @Override
   public boolean isOpeningQuote(HighlighterIterator iterator, int offset) {
     boolean openingQuote = super.isOpeningQuote(iterator, offset);
     if (openingQuote) {
@@ -41,7 +41,7 @@ public class ApQuoteHandler extends SimpleTokenSetQuoteHandler implements JavaLi
     return openingQuote;
   }
 
-  //@Override
+  @Override
   public boolean isClosingQuote(HighlighterIterator iterator, int offset) {
     boolean closingQuote = super.isClosingQuote(iterator, offset);
     if (closingQuote) {
@@ -59,27 +59,27 @@ public class ApQuoteHandler extends SimpleTokenSetQuoteHandler implements JavaLi
     return closingQuote;
   }
 
-  //@Override
+  @Override
   public TokenSet getConcatenatableStringTokenTypes() {
     return concatenatableStrings;
   }
 
-  //@Override
+  @Override
   public String getStringConcatenationOperatorRepresentation() {
     return "+";
   }
 
-  //@Override
+  @Override
   public TokenSet getStringTokenTypes() {
     return myLiteralTokenSet;
   }
 
-  //@Override
+  @Override
   public boolean isAppropriateElementTypeForLiteral(@NotNull IElementType tokenType) {
     return isAppropriateElementTypeForLiteralStatic(tokenType);
   }
 
-  //@Override
+  @Override
   public boolean needParenthesesAroundConcatenation(PsiElement element) {
     // TODO: This is probably not needed, but I want to determine if there are cases where applicable
     // example code: "some string".length() must become ("some" + " string").length()
