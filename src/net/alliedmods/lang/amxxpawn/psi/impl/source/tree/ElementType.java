@@ -7,7 +7,7 @@ import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
 
 public interface ElementType extends ApTokenType, JavaDocTokenType {
 
-  TokenSet AMXX_WHITESPACE_BIT_SET = TokenSet.create(WHITE_SPACE, NEW_LINE);
+  TokenSet AMXX_WHITESPACE_BIT_SET = TokenSet.create(WHITE_SPACE);
 
   TokenSet AMXX_PLAIN_COMMENT_BIT_SET = TokenSet.create(END_OF_LINE_COMMENT, C_STYLE_COMMENT);
   TokenSet AMXX_COMMENT_BIT_SET = TokenSet.orSet(AMXX_PLAIN_COMMENT_BIT_SET, TokenSet.create(DOC_COMMENT));
