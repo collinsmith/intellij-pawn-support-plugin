@@ -15,6 +15,8 @@ import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
     public int sc_ctrlchar = '^';
     public boolean sc_needsemicolon = false;
 
+    private boolean packed = false;
+
     public _ApLexer() {
       this((java.io.Reader) null);
     }
@@ -241,10 +243,11 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 "_"  { return ApTokenType.UNDER; }
 "::" { return ApTokenType.DOUBLE_COLON; }
 
-"\""       { yybegin(STRING); }
-"!\""      { yybegin(STRING); }
+"\""       { yybegin(STRING); packed = false; }
+"!\""      { yybegin(STRING); packed = true; }
 "!" . "\"" { if (yycharat(1) == sc_ctrlchar) {
                yybegin(RAW_STRING);
+               packed = true;
              } else {
                yypushback(2);
                return ApTokenType.EXCL;
@@ -260,28 +263,29 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
     }
 
 <STRING> {
-  "\""             { yybegin(MAYBE_SEMICOLON); return ApTokenType.STRING_LITERAL; }
+  "\""             { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
   {CONT}           {}
   [^\"\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
                        yypushback(1);
                      }
                    }
   [^\r\n]          {}
-  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return ApTokenType.STRING_LITERAL; }
-  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return ApTokenType.STRING_LITERAL; }
+  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
+  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
 }
 
 <RAW_STRING> {
-  "\""      { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
+  "\""      { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
   {CONT}    |
   [^\r\n]   {}
-  [^]       { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
-  <<EOF>>   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
+  [^]       { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
+  <<EOF>>   { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
 }
 
 <HARD_STRING> {
-  "!"? "\"" { yybegin(RAW_STRING); }
-  [^]       { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenType.BAD_CHARACTER; }
+  "!" "\"" { yybegin(RAW_STRING); packed = true; }
+  "\""     { yybegin(RAW_STRING); packed = false; }
+  [^]      { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenType.BAD_CHARACTER; }
 }
 
 <CHARACTER> {

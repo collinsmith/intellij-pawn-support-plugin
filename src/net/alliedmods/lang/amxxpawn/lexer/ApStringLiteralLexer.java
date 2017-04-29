@@ -17,6 +17,7 @@ public class ApStringLiteralLexer extends LexerBase {
   protected final CtrlProvider ctrlProvider;
   protected final char quoteChar;
   protected final IElementType originalToken;
+  protected final int additionalOffset;
 
   protected CharSequence buffer;
   protected int start;
@@ -26,15 +27,20 @@ public class ApStringLiteralLexer extends LexerBase {
   protected int bufferEnd;
 
   public ApStringLiteralLexer(@NotNull CtrlProvider ctrlProvider, char quoteChar, @NotNull IElementType originalToken) {
+    this(ctrlProvider, quoteChar, originalToken, 0);
+  }
+
+  public ApStringLiteralLexer(@NotNull CtrlProvider ctrlProvider, char quoteChar, @NotNull IElementType originalToken, int startOffset) {
     this.ctrlProvider = ctrlProvider;
     this.quoteChar = quoteChar;
     this.originalToken = originalToken;
+    this.additionalOffset = startOffset;
   }
 
   @Override
   public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
     this.buffer = buffer;
-    start = startOffset;
+    start = startOffset + additionalOffset;
     state = lastState = initialState;
     bufferEnd = endOffset;
     end = locateToken(start);

@@ -44,6 +44,8 @@ public class ApSyntaxHighlighter extends SyntaxHighlighterBase {
     ourMap1.put(ApTokenType.RATIONAL_LITERAL, ApHighlightingColors.NUMBER);
     ourMap1.put(ApTokenType.STRING_LITERAL, ApHighlightingColors.STRING);
     ourMap1.put(ApTokenType.RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for raw strings?
+    ourMap1.put(ApTokenType.PACKED_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed strings?
+    ourMap1.put(ApTokenType.PACKED_RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed+raw strings?
     ourMap1.put(ApTokenType.CHARACTER_LITERAL, ApHighlightingColors.STRING);
     ourMap1.put(StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN, ApHighlightingColors.VALID_STRING_ESCAPE);
     ourMap1.put(StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN, ApHighlightingColors.INVALID_STRING_ESCAPE);

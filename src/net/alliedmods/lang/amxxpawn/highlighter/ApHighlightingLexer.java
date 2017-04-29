@@ -25,6 +25,10 @@ public class ApHighlightingLexer extends LayeredLexer {
         new IElementType[] { ApTokenType.STRING_LITERAL }, IElementType.EMPTY_ARRAY);
 
     registerSelfStoppingLayer(
+        new ApStringLiteralLexer(ctrlProvider, '\"', ApTokenType.PACKED_STRING_LITERAL, 2),
+        new IElementType[]{ApTokenType.PACKED_STRING_LITERAL}, IElementType.EMPTY_ARRAY);
+
+    registerSelfStoppingLayer(
         new ApStringLiteralLexer(ctrlProvider, '\'', ApTokenType.CHARACTER_LITERAL),
         new IElementType[] { ApTokenType.CHARACTER_LITERAL }, IElementType.EMPTY_ARRAY);
 

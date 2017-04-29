@@ -9,6 +9,8 @@ import com.intellij.psi.tree.IElementType;
 public interface ApTokenType extends TokenType {
 
   IElementType NEW_LINE = new IApElementType("NEW_LINE");
+  IElementType SEMICOLON = new IApElementType("SEMICOLON");
+  IElementType SEMICOLON_SYNTHETIC = new IApElementType("SEMICOLON_SYNTHETIC");
 
   IElementType IDENTIFIER = new IApElementType("IDENTIFIER");
   IElementType C_STYLE_COMMENT = JavaTokenType.C_STYLE_COMMENT;
@@ -19,6 +21,9 @@ public interface ApTokenType extends TokenType {
   IElementType RATIONAL_LITERAL = new IApElementType("RATIONAL_LITERAL");
   IElementType CHARACTER_LITERAL = new IApElementType("CHARACTER_LITERAL");
   IElementType STRING_LITERAL = new IApElementType("STRING_LITERAL");
+  IElementType RAW_STRING_LITERAL = new IApElementType("RAW_STRING_LITERAL");
+  IElementType PACKED_STRING_LITERAL = new IApElementType("PACKED_STRING_LITERAL");
+  IElementType PACKED_RAW_STRING_LITERAL = new IApElementType("PACKED_RAW_STRING_LITERAL");
 
   IElementType TRUE_KEYWORD = new IApElementType("TRUE_KEYWORD");
   IElementType FALSE_KEYWORD = new IApElementType("FALSE_KEYWORD");
@@ -59,7 +64,6 @@ public interface ApTokenType extends TokenType {
   IElementType RBRACE = new IApElementType("RBRACE");
   IElementType LBRACKET = new IApElementType("LBRACKET");
   IElementType RBRACKET = new IApElementType("RBRACKET");
-  IElementType SEMICOLON = new IApElementType("SEMICOLON");
   IElementType COMMA = new IApElementType("COMMA");
   IElementType DOT = new IApElementType("DOT");
   IElementType ELLIPSIS = new IApElementType("ELLIPSIS");
