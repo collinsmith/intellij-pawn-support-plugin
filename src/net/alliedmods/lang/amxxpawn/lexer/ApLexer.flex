@@ -25,7 +25,7 @@ import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
 %implements FlexLexer
 %function advance
 %type IElementType
-%debug
+//%debug
 
 WS = [\ \t\f]
 NL = \r|\n|\r\n
@@ -63,38 +63,13 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 %state PRAGMA_CTRLCHAR
 %state PRAGMA_SEMICOLON
 
-//%state IN_STRING_LITERAL
-//%state IN_CHARACTER_LITERAL
-//%state IN_ESCAPE_SEQUENCE
-
 %xstate STRING
 %xstate RAW_STRING
 %xstate HARD_STRING
 
+%xstate CHARACTER
+
 %%
-
-//ESCAPE_SEQUENCE = \^[^\r\n]
-//([^\^\"\r\n] | {ESCAPE_SEQUENCE} | "\\" {WHITE_SPACE}* {NEW_LINE} {WHITE_SPACE}*)* ("\""|"\^")?
-<STRING> {
-  "\""       { yybegin(YYINITIAL); return ApTokenType.STRING_LITERAL; }
-  {CONT}     {}
-  [^\"\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
-                 yypushback(1);
-               }
-             }
-  [^\r\n]    {}
-  [^]        { yybegin(YYINITIAL); yypushback(1); return ApTokenType.STRING_LITERAL; }
-  <<EOF>>    { yybegin(YYINITIAL); return ApTokenType.STRING_LITERAL; }
-}
-
-// Accepts all input until EOL or quote, no support for escaping (hence RAW)
-<RAW_STRING> {
-  "\""      { yybegin(YYINITIAL); return ApTokenType.RAW_STRING_LITERAL; }
-  {CONT}    |
-  [^\r\n]   {}
-  [^]       { yybegin(YYINITIAL); return ApTokenType.RAW_STRING_LITERAL; }
-  <<EOF>>   { yybegin(YYINITIAL); return ApTokenType.RAW_STRING_LITERAL; }
-}
 
 {WS}+                 { return ApTokenType.WHITE_SPACE; }
 {CONT}                { return ApTokenType.ESCAPING_SLASH; }
@@ -167,6 +142,7 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 {DECIMAL_LITERAL}     |
 {HEXADECIMAL_LITERAL} { yybegin(MAYBE_SEMICOLON); return ApTokenType.CELL_LITERAL; }
 {RATIONAL_LITERAL}    { yybegin(MAYBE_SEMICOLON); return ApTokenType.RATIONAL_LITERAL; }
+"'"                   { yybegin(CHARACTER); }
 
 "true"  { return ApTokenType.TRUE_KEYWORD; }
 "false" { return ApTokenType.FALSE_KEYWORD; }
@@ -271,27 +247,6 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
              }
            }
 "!"        { return ApTokenType.EXCL; } // Handled below in string lexing
-/*
-. "\""     { if (yycharat(0) == sc_ctrlchar) {
-               yybegin(RAW_STRING);
-             } else {
-               yypushback(1);
-               return ApTokenType.BAD_CHARACTER;
-             }
-           }
-. "!\""    { if (yycharat(0) == sc_ctrlchar) {
-               yybegin(RAW_STRING);
-             } else {
-               yypushback(2);
-               return ApTokenType.BAD_CHARACTER;
-             }
-           }
-*/
-
-<HARD_STRING> {
-  "!"? "\"" { yybegin(RAW_STRING); }
-  [^]       { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenType.BAD_CHARACTER; }
-}
 
 [^] { if (yycharat(0) == sc_ctrlchar) {
         yybegin(HARD_STRING);
@@ -299,3 +254,40 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
         return ApTokenType.BAD_CHARACTER;
       }
     }
+
+<STRING> {
+  "\""             { yybegin(MAYBE_SEMICOLON); return ApTokenType.STRING_LITERAL; }
+  {CONT}           {}
+  [^\"\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
+                       yypushback(1);
+                     }
+                   }
+  [^\r\n]          {}
+  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return ApTokenType.STRING_LITERAL; }
+  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return ApTokenType.STRING_LITERAL; }
+}
+
+<RAW_STRING> {
+  "\""      { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
+  {CONT}    |
+  [^\r\n]   {}
+  [^]       { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
+  <<EOF>>   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RAW_STRING_LITERAL; }
+}
+
+<HARD_STRING> {
+  "!"? "\"" { yybegin(RAW_STRING); }
+  [^]       { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenType.BAD_CHARACTER; }
+}
+
+<CHARACTER> {
+  "'"              { yybegin(MAYBE_SEMICOLON); return ApTokenType.CHARACTER_LITERAL; }
+  {CONT}           {}
+  [^\'\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
+                       yypushback(1);
+                     }
+                   }
+  [^\r\n]          {}
+  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return ApTokenType.CHARACTER_LITERAL; }
+  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return ApTokenType.CHARACTER_LITERAL; }
+}
