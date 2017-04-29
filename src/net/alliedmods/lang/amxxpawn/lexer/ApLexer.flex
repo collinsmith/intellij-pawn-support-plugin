@@ -18,11 +18,15 @@ import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
     public _ApLexer() {
       this((java.io.Reader) null);
     }
+
+    public int getCtrlChar() {
+      return sc_ctrlchar;
+    }
 %}
 
 %unicode
 %class _ApLexer
-%implements FlexLexer
+%implements FlexLexer, CtrlProvider
 %function advance
 %type IElementType
 //%debug
