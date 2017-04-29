@@ -34,6 +34,7 @@
     <lang.braceMatcher language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApBraceMatcher"/>
     <quoteHandler fileType="AmxxPawn.Include" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>
     <quoteHandler fileType="AmxxPawn.Script" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>
+    <lang.formatter language="AmxxPawn" implementationClass="com.intellij.lang.java.JavaFormattingModelBuilder"/>
   </extensions>
 
   <actions>
