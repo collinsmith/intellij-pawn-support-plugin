@@ -32,16 +32,14 @@ public class ApQuoteHandler implements JavaLikeQuoteHandler {
     }
 
     final int start = iterator.getStart();
-    if (tokenType == ApTokenType.STRING_LITERAL || tokenType == ApTokenType.CHARACTER_LITERAL) {
-      return offset == start;
-    } else if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
+    if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
       return offset == start + 1;
     } else if (tokenType == ApTokenType.PACKED_RAW_STRING_LITERAL) {
       return offset == start + 2;
     }
 
-    throw new AssertionError("Unsupported token type: " + tokenType);
-  }
+    return offset == start;
+    }
 
   @Override
   public boolean isClosingQuote(HighlighterIterator iterator, int offset) {
@@ -52,13 +50,10 @@ public class ApQuoteHandler implements JavaLikeQuoteHandler {
 
     int start = iterator.getStart();
     final int end = iterator.getEnd();
-    if (tokenType == ApTokenType.STRING_LITERAL || tokenType == ApTokenType.CHARACTER_LITERAL) {
-    } else if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
+    if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
       start += 1;
     } else if (tokenType == ApTokenType.PACKED_RAW_STRING_LITERAL) {
       start += 2;
-    } else {
-      throw new AssertionError("Unsupported token type: " + tokenType);
     }
 
     return end - start >= 1 && offset == end - 1;
