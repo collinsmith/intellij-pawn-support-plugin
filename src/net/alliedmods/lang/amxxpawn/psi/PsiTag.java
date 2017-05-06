@@ -24,7 +24,7 @@ public interface PsiTag extends Cloneable {
   /**
    * Returns the text of a tag that can be presented to a user.
    */
-  @NotNull abstract String getPresentableText();
+  @NotNull String getPresentableText();
 
   /**
    * Indicates whether or not the tag is currently valid.
@@ -42,8 +42,7 @@ public interface PsiTag extends Cloneable {
    * Returns a list of super tags for a tag, or an empty array if the tag has none. This is intended
    * to provide some inheritance for the {@code any} tag.
    */
-  @NotNull
-  PsiTag[] getSuperTags();
+  @NotNull PsiTag[] getSuperTags();
 
   /**
    * Passes the tag to the specified visitor.
