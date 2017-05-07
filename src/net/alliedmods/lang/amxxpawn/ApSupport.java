@@ -25,7 +25,11 @@ public class ApSupport {
   public static final String P = "p";
 
   @NotNull
-  private static final Set<String> AmxxScriptExtensions = ImmutableSet.of(SMA, P);
+  @NonNls
+  public static final String PAWN = "pawn";
+
+  @NotNull
+  private static final Set<String> AmxxScriptExtensions = ImmutableSet.of(SMA, P, PAWN);
 
   @NotNull
   @NonNls
