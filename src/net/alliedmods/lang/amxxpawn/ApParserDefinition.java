@@ -18,11 +18,10 @@ import com.intellij.psi.tree.TokenSet;
 
 import net.alliedmods.lang.amxxpawn.lexer.ApLexer;
 import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
-import net.alliedmods.lang.amxxpawn.parser.ApParser;
+import net.alliedmods.lang.amxxpawn.psi.ApStubElementType;
+import net.alliedmods.lang.amxxpawn.psi.ApStubElementTypes;
 import net.alliedmods.lang.amxxpawn.psi.ElementTypes;
 import net.alliedmods.lang.amxxpawn.psi.impl.PsiApFileImpl;
-import net.alliedmods.lang.amxxpawn.psi.stubs.ApStubElementType;
-import net.alliedmods.lang.amxxpawn.psi.stubs.ApStubElementTypes;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,8 +44,7 @@ public class ApParserDefinition implements ParserDefinition {
 
   @Override
   public PsiParser createParser(Project project) {
-    //return new ApBracesParser();
-    return ApParser.createParser();
+    throw new AssertionError("This should not be called directly");
   }
 
   @Override
