@@ -12,12 +12,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class ApScriptFileType extends LanguageFileType {
+public class ApFileType extends LanguageFileType {
 
   @NotNull
-  public static final ApScriptFileType INSTANCE = new ApScriptFileType();
+  public static final ApFileType INSTANCE = new ApFileType();
 
-  ApScriptFileType() {
+  ApFileType() {
     super(ApLanguage.INSTANCE);
   }
 

@@ -5,8 +5,7 @@ import com.intellij.openapi.fileTypes.FileNameMatcher;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 
-import net.alliedmods.lang.amxxpawn.file.ApIncludeFileType;
-import net.alliedmods.lang.amxxpawn.file.ApScriptFileType;
+import net.alliedmods.lang.amxxpawn.file.ApFileType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,13 +14,10 @@ import java.util.Collection;
 import java.util.Set;
 
 public class ApFileTypeFactory extends FileTypeFactory {
-
   @Override
   public void createFileTypes(@NotNull FileTypeConsumer fileTypeConsumer) {
-    fileTypeConsumer.consume(ApScriptFileType.INSTANCE,
-        createFileNameMatchersForExtensions(ApSupport.getScriptExtensions()));
-    fileTypeConsumer.consume(ApIncludeFileType.INSTANCE,
-        createFileNameMatchersForExtensions(ApSupport.getIncludeExtensions()));
+    fileTypeConsumer.consume(ApFileType.INSTANCE,
+        createFileNameMatchersForExtensions(ApSupport.getExtensions()));
   }
 
   private FileNameMatcher[] createFileNameMatchersForExtensions(Set<String> extensions) {
