@@ -33,7 +33,7 @@
     <lang.commenter language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApCommenter"/>
     <lang.braceMatcher language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApBraceMatcher"/>
     <lang.formatter language="AmxxPawn" implementationClass="com.intellij.lang.java.JavaFormattingModelBuilder"/>
-    <!--<lang.foldingBuilder language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.disabled.ApFoldingBuilder"/>-->
+    <lang.foldingBuilder language="AmxxPawn" implementationClass="net.alliedmods.lang.amxxpawn.editor.ApFoldingBuilder"/>
 
     <quoteHandler fileType="AmxxPawn.Script" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>-->
     <quoteHandler fileType="AmxxPawn.Include" className="net.alliedmods.lang.amxxpawn.editor.ApQuoteHandler"/>-->
