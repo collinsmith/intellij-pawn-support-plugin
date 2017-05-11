@@ -22,6 +22,7 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.ProjectScope;
 import com.intellij.psi.util.PsiUtilCore;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
 
 import net.alliedmods.lang.amxxpawn.ApFileType;
@@ -30,7 +31,6 @@ import net.alliedmods.lang.amxxpawn.psi.PsiApFile;
 import net.alliedmods.lang.amxxpawn.psi.preprocessor.ApPreprocessorElementTypes;
 import net.alliedmods.lang.amxxpawn.psi.preprocessor.PsiApFileReference;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -167,7 +167,7 @@ public class PsiApFileReferenceImpl extends CompositePsiElement implements PsiAp
   @NotNull
   @Override
   public Object[] getVariants() {
-    return ArrayUtils.EMPTY_OBJECT_ARRAY;
+    return ArrayUtil.EMPTY_OBJECT_ARRAY;
   }
 
   @Override

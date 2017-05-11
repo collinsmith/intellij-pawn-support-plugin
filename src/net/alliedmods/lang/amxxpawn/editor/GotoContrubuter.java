@@ -3,8 +3,8 @@ package net.alliedmods.lang.amxxpawn.editor;
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ArrayUtil;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class GotoContrubuter implements ChooseByNameContributor {
@@ -12,7 +12,7 @@ public class GotoContrubuter implements ChooseByNameContributor {
   @NotNull
   @Override
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-    return ArrayUtils.EMPTY_STRING_ARRAY;
+    return ArrayUtil.EMPTY_STRING_ARRAY;
   }
 
   @NotNull
