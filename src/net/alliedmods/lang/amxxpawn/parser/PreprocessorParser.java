@@ -72,7 +72,6 @@ public class PreprocessorParser {
       String tokenText = builder.getTokenText();
       error(builder, "amxx.err.001.include", "<include>", "\"path/to/include.inc\"", tokenText == null ? "-eof-" : tokenText);
       PsiBuilderUtil.drop(directive, reference);
-      //directive.drop();
       return null;
     }
 
