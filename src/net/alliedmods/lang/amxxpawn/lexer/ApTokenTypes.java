@@ -8,7 +8,6 @@ import com.intellij.psi.tree.IElementType;
 @SuppressWarnings("SpellCheckingInspection")
 public interface ApTokenTypes extends TokenType {
 
-  IElementType NEW_LINE = new ApTokenType("NEW_LINE");
   IElementType SEMICOLON = new ApTokenType("SEMICOLON");
   IElementType SEMICOLON_SYNTHETIC = new ApTokenType("SEMICOLON_SYNTHETIC");
 

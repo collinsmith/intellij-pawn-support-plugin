@@ -164,7 +164,7 @@ RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
   {NL} { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenTypes.SEMICOLON_SYNTHETIC; }
 }
 
-{NL} { return ApTokenTypes.NEW_LINE; }
+{NL} { return ApTokenTypes.WHITE_SPACE; }
 
 <PREPROCESSOR,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON> {
   [^] { yybegin(YYINITIAL); yypushback(yylength()); }

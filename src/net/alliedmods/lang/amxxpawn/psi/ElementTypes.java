@@ -20,7 +20,7 @@ public interface ElementTypes {
 
   TokenSet AMXX_TERM = TokenSet.create(SEMICOLON, SEMICOLON_SYNTHETIC);
 
-  TokenSet AMXX_WHITESPACE_BIT_SET = TokenSet.create(WHITE_SPACE, NEW_LINE);
+  TokenSet AMXX_WHITESPACE_BIT_SET = TokenSet.create(WHITE_SPACE);
 
   TokenSet AMXX_PLAIN_COMMENT_BIT_SET = TokenSet.create(END_OF_LINE_COMMENT, C_STYLE_COMMENT);
 
