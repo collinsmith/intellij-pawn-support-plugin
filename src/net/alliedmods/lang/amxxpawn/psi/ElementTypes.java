@@ -24,8 +24,8 @@ public interface ElementTypes {
 
   TokenSet AMXX_PLAIN_COMMENT_BIT_SET = TokenSet.create(END_OF_LINE_COMMENT, C_STYLE_COMMENT);
 
-  TokenSet AMXX_COMMENT_BIT_SET = TokenSet.orSet(AMXX_PLAIN_COMMENT_BIT_SET, TokenSet.create
-      (DOC_COMMENT));
+  TokenSet AMXX_COMMENT_BIT_SET = TokenSet.orSet(
+      AMXX_PLAIN_COMMENT_BIT_SET, TokenSet.create(DOC_COMMENT));
 
   TokenSet AMXX_COMMENT_OR_WHITESPACE_BIT_SET = TokenSet.orSet(
       AMXX_WHITESPACE_BIT_SET, AMXX_COMMENT_BIT_SET);
