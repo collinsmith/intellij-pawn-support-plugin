@@ -1,6 +1,7 @@
 package net.alliedmods.lang.amxxpawn.psi.preprocessor;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.PsiFileReference;
 import com.intellij.util.ArrayFactory;
 
@@ -13,4 +14,7 @@ public interface PsiApFileReference extends PsiElement, PsiFileReference {
 
   @Nullable
   PsiElement getReferenceNameElement();
+
+  @Nullable
+  ResolveResult advancedResolve(boolean incompleteCode);
 }

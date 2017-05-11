@@ -30,6 +30,7 @@ import net.alliedmods.lang.amxxpawn.psi.PsiApFile;
 import net.alliedmods.lang.amxxpawn.psi.preprocessor.ApPreprocessorElementTypes;
 import net.alliedmods.lang.amxxpawn.psi.preprocessor.PsiApFileReference;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,9 +91,16 @@ public class PsiApFileReferenceImpl extends CompositePsiElement implements PsiAp
 
   @Nullable
   @Override
-  public PsiElement resolve() {
+  public ResolveResult advancedResolve(boolean incompleteCode) {
     ResolveResult[] results = multiResolve(false);
-    return results.length == 1 ? results[0].getElement() : null;
+    return results.length == 1 ? results[0] : null;
+  }
+
+  @Nullable
+  @Override
+  public PsiElement resolve() {
+    ResolveResult result = advancedResolve(false);
+    return result != null ? result.getElement() : null;
   }
 
   @NotNull
@@ -135,6 +143,10 @@ public class PsiApFileReferenceImpl extends CompositePsiElement implements PsiAp
       }
 
       PsiFile psiFile = fileManager.findFile(file);
+      if (psiFile == null) {
+        return ResolveResult.EMPTY_ARRAY;
+      }
+
       return PsiElementResolveResult.createResults(psiFile);
     } else {
       // TODO: This could be narrowed down to the AMXX includes PATH
@@ -155,7 +167,7 @@ public class PsiApFileReferenceImpl extends CompositePsiElement implements PsiAp
   @NotNull
   @Override
   public Object[] getVariants() {
-    return new Object[0];
+    return ArrayUtils.EMPTY_OBJECT_ARRAY;
   }
 
   @Override
