@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import net.alliedmods.lang.amxxpawn.ApSupport;
-import net.alliedmods.lang.amxxpawn.file.ApScriptFileType;
+import net.alliedmods.lang.amxxpawn.ApFileType;
 import net.alliedmods.lang.amxxpawn.sdk.ApSdkUtils;
 import net.alliedmods.lang.amxxpawn.template.TemplateUtils;
 
@@ -66,7 +66,7 @@ public class ApModuleBuilder extends ModuleBuilder implements SourcePathsBuilder
             VirtualFile sourceDir = VfsUtil.findRelativeFile(p.first, null);
             if (sourceDir != null) {
               entry.addSourceFolder(sourceDir, false);
-              String name = rootModel.getModule().getName() + "." + ApScriptFileType.INSTANCE.getDefaultExtension();
+              String name = rootModel.getModule().getName() + "." + ApFileType.INSTANCE.getDefaultExtension();
               TemplateUtils.createOrResetFileContentFromTemplate(sourceDir, name, ApSupport.PLUGIN_TEMPLATE);
             }
           }

@@ -3,12 +3,12 @@ package net.alliedmods.lang.amxxpawn.editor;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.CodeDocumentationAwareCommenterEx;
 import com.intellij.psi.JavaDocTokenType;
-import com.intellij.psi.JavaTokenType;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.impl.source.tree.JavaDocElementType;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.tree.IElementType;
+
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -40,19 +40,19 @@ public class ApCommenter implements CodeDocumentationAwareCommenterEx {
   @Override
   @Nullable
   public IElementType getLineCommentTokenType() {
-    return JavaTokenType.END_OF_LINE_COMMENT;
+    return ApTokenTypes.END_OF_LINE_COMMENT;
   }
 
   @Override
   @Nullable
   public IElementType getBlockCommentTokenType() {
-    return JavaTokenType.C_STYLE_COMMENT;
+    return ApTokenTypes.C_STYLE_COMMENT;
   }
 
   @Override
   @Nullable
   public IElementType getDocumentationCommentTokenType() {
-    return JavaDocElementType.DOC_COMMENT;
+    return ApTokenTypes.DOC_COMMENT;
   }
 
   @Override

@@ -15,30 +15,29 @@ import net.alliedmods.lang.amxxpawn.build.BuildConfiguration;
 import net.alliedmods.lang.amxxpawn.build.BuildUtils;
 import net.alliedmods.lang.amxxpawn.build.ConsoleBuilder;
 import net.alliedmods.lang.amxxpawn.build.ImmutableBuildConfiguration;
-import net.alliedmods.lang.amxxpawn.file.ApScriptFileType;
-import net.alliedmods.lang.amxxpawn.psi.ApScriptFile;
+import net.alliedmods.lang.amxxpawn.ApFileType;
+import net.alliedmods.lang.amxxpawn.psi.PsiApFile;
 import net.alliedmods.lang.amxxpawn.sdk.ApSdkType;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Paths;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CompileAction extends AnAction {
 
   @Override
   public void update(AnActionEvent e) {
     PsiFile file = LangDataKeys.PSI_FILE.getData(e.getDataContext());
-    e.getPresentation().setEnabledAndVisible(file instanceof ApScriptFile
-        && file.getFileType() == ApScriptFileType.INSTANCE);
+    e.getPresentation().setEnabledAndVisible(file instanceof PsiApFile
+        && file.getFileType() == ApFileType.INSTANCE);
   }
 
   @Override
   public void actionPerformed(AnActionEvent e) {
     PsiFile psiFile = LangDataKeys.PSI_FILE.getData(e.getDataContext());
-    if (!(psiFile instanceof ApScriptFile) || psiFile.getFileType() != ApScriptFileType.INSTANCE) {
+    // FIXME: This will not work with include files.
+    if (!(psiFile instanceof PsiApFile) || psiFile.getFileType() != ApFileType.INSTANCE) {
       return;
     }
 
@@ -51,7 +50,7 @@ public class CompileAction extends AnAction {
     compile(project, file, null);
   }
 
-  private void compile(@NotNull Project project, @Nonnull VirtualFile file, @Nullable BuildConfiguration config) {
+  private void compile(@NotNull Project project, @NotNull VirtualFile file, @Nullable BuildConfiguration config) {
     /*if (!ApSupport.isApFile(file)) {
       Messages.showErrorDialog(project, ApBundle.message("amxx.error.compiler.filetype.msg", file),
           ApBundle.message("amxx.error.compiler.filetype.title"));

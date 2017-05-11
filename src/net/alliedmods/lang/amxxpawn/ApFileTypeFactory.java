@@ -5,8 +5,6 @@ import com.intellij.openapi.fileTypes.FileNameMatcher;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 
-import net.alliedmods.lang.amxxpawn.file.ApFileType;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

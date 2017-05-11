@@ -1,15 +1,26 @@
 package net.alliedmods.lang.amxxpawn.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.Language;
+import com.intellij.lang.LighterLazyParseableNode;
 import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.PsiBuilderFactory;
 import com.intellij.lang.PsiBuilderUtil;
 import com.intellij.lang.WhitespacesAndCommentsBinder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
+import com.intellij.lexer.Lexer;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.TreeUtil;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import com.intellij.util.indexing.IndexingDataKeys;
 
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
-import net.alliedmods.lang.amxxpawn.psi.impl.source.tree.ElementType;
+import net.alliedmods.lang.amxxpawn.ApLanguage;
+import net.alliedmods.lang.amxxpawn.ApParserDefinition;
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
+import net.alliedmods.lang.amxxpawn.psi.ElementTypes;
 import net.alliedmods.lang.amxxpawn.util.OfIntPeekingIterator;
 
 import org.jetbrains.annotations.NonNls;
@@ -27,12 +38,52 @@ public class ApParserUtils extends GeneratedParserUtilBase {
   private static final TokenSet PRECEDING_COMMENT_SET = TokenSet.EMPTY;
   private static final TokenSet TRAILING_COMMENT_SET = TokenSet.EMPTY;
 
-
   public static final WhitespacesAndCommentsBinder PRECEDING_COMMENT_BINDER = new PrecedingWhitespacesAndCommentsBinder(false);
   public static final WhitespacesAndCommentsBinder SPECIAL_PRECEDING_COMMENT_BINDER = new PrecedingWhitespacesAndCommentsBinder(true);
   public static final WhitespacesAndCommentsBinder TRAILING_COMMENT_BINDER = new TrailingWhitespacesAndCommentsBinder();
 
   private ApParserUtils() {}
+
+  @NotNull
+  public static PsiBuilder createBuilder(ASTNode chameleon) {
+    PsiElement psi = chameleon.getPsi();
+    assert psi != null : chameleon;
+    Project project = psi.getProject();
+
+    CharSequence text;
+    if (TreeUtil.isCollapsedChameleon(chameleon)) {
+      text = chameleon.getChars();
+    } else {
+      text = psi.getUserData(IndexingDataKeys.FILE_TEXT_CONTENT_KEY);
+      if (text == null) {
+        text = chameleon.getChars();
+      }
+    }
+
+    Language language = psi.getLanguage();
+    if (!language.isKindOf(ApLanguage.INSTANCE)) {
+      language = ApLanguage.INSTANCE;
+    }
+
+    Lexer lexer = ApParserDefinition.createLexer();
+    PsiBuilderFactory factory = PsiBuilderFactory.getInstance();
+    PsiBuilder builder = factory.createBuilder(project, chameleon, lexer, language, text);
+    return builder;
+  }
+
+  @NotNull
+  public static PsiBuilder createBuilder(LighterLazyParseableNode chameleon) {
+    PsiElement psi = chameleon.getContainingFile();
+    assert psi != null : chameleon;
+    Project project = psi.getProject();
+    CharSequence text = chameleon.getText();
+    Language language = chameleon.getTokenType().getLanguage();
+
+    Lexer lexer = ApParserDefinition.createLexer();
+    PsiBuilderFactory factory = PsiBuilderFactory.getInstance();
+    PsiBuilder builder = factory.createBuilder(project, chameleon, lexer, language, text);
+    return builder;
+  }
 
   public static boolean isAlpha(int codePoint) {
     return ('A' <= codePoint && codePoint <= 'Z')
@@ -493,6 +544,15 @@ public class ApParserUtils extends GeneratedParserUtilBase {
     }
   }
 
+  public static boolean expectOrError(PsiBuilder builder, TokenSet expected, String expectedStr) {
+    if (!PsiBuilderUtil.expect(builder, expected)) {
+      error(builder, "amxx.err.001", expectedStr, builder.getTokenText());
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   public static boolean expectOrError(PsiBuilder builder, IElementType expected, String expectedStr) {
     if (!PsiBuilderUtil.expect(builder, expected)) {
       error(builder, "amxx.err.001", expectedStr, builder.getTokenText());
@@ -511,7 +571,13 @@ public class ApParserUtils extends GeneratedParserUtilBase {
   }
 
   public static void semicolon(PsiBuilder builder) {
-    expectOrError(builder, ElementType.AMXX_TERM, "amxx.err.001", ";", builder.getTokenText());
+    expectOrError(builder, ElementTypes.AMXX_TERM, "amxx.err.001", ";", builder.getTokenText());
+  }
+
+  public static void recoverAt(PsiBuilder builder, TokenSet recover) {
+    while (!recover.contains(builder.getTokenType())) {
+      builder.advanceLexer();
+    }
   }
 
   private static class PrecedingWhitespacesAndCommentsBinder implements WhitespacesAndCommentsBinder {
@@ -528,19 +594,19 @@ public class ApParserUtils extends GeneratedParserUtilBase {
 
       // 1. bind doc comment
       for (int idx = tokens.size() - 1; idx >= 0; idx--) {
-        if (tokens.get(idx) == ApTokenType.DOC_COMMENT) return idx;
+        if (tokens.get(idx) == ApTokenTypes.DOC_COMMENT) return idx;
       }
 
       // 2. bind plain comments
       int result = tokens.size();
       for (int idx = tokens.size() - 1; idx >= 0; idx--) {
         final IElementType tokenType = tokens.get(idx);
-        if (ElementType.AMXX_WHITESPACE_BIT_SET.contains(tokenType)) {
+        if (ElementTypes.AMXX_WHITESPACE_BIT_SET.contains(tokenType)) {
           if (StringUtil.getLineBreakCount(getter.get(idx)) > 1) break;
-        } else if (ElementType.AMXX_PLAIN_COMMENT_BIT_SET.contains(tokenType)) {
+        } else if (ElementTypes.AMXX_PLAIN_COMMENT_BIT_SET.contains(tokenType)) {
           if (atStreamEdge
               || (idx == 0 && myAfterEmptyImport)
-              || (idx > 0 && ElementType.AMXX_WHITESPACE_BIT_SET.contains(tokens.get(idx - 1))
+              || (idx > 0 && ElementTypes.AMXX_WHITESPACE_BIT_SET.contains(tokens.get(idx - 1))
                   && StringUtil.containsLineBreak(getter.get(idx - 1)))) {
             result = idx;
           }
@@ -559,9 +625,9 @@ public class ApParserUtils extends GeneratedParserUtilBase {
       int result = 0;
       for (int idx = 0; idx < tokens.size(); idx++) {
         final IElementType tokenType = tokens.get(idx);
-        if (ElementType.AMXX_WHITESPACE_BIT_SET.contains(tokenType)) {
+        if (ElementTypes.AMXX_WHITESPACE_BIT_SET.contains(tokenType)) {
           if (StringUtil.containsLineBreak(getter.get(idx))) break;
-        } else if (ElementType.AMXX_PLAIN_COMMENT_BIT_SET.contains(tokenType)) {
+        } else if (ElementTypes.AMXX_PLAIN_COMMENT_BIT_SET.contains(tokenType)) {
           result = idx + 1;
         } else break;
       }

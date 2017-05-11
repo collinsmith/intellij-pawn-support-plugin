@@ -1,23 +1,7 @@
 package net.alliedmods.lang.amxxpawn.parser;
 
-import com.intellij.lang.PsiBuilder;
-import com.intellij.openapi.util.Pair;
-import com.intellij.psi.tree.IElementType;
-
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
-import net.alliedmods.lang.amxxpawn.psi.impl.source.tree.ApElementType;
-import net.alliedmods.lang.amxxpawn.psi.impl.source.tree.ElementType;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import static com.intellij.lang.PsiBuilderUtil.expect;
-import static net.alliedmods.lang.amxxpawn.parser.ApParserUtils.done;
-import static net.alliedmods.lang.amxxpawn.parser.ApParserUtils.error;
-import static net.alliedmods.lang.amxxpawn.parser.ApParserUtils.expectOrError;
-import static net.alliedmods.lang.amxxpawn.parser.ApParserUtils.semicolon;
-
 public class DeclarationParser {
+  /*
   public enum Context {
     FILE, CODE_BLOCK
   }
@@ -30,6 +14,22 @@ public class DeclarationParser {
   private static final int PUBLIC_STATIC = SPECIFIER_PUBLIC | SPECIFIER_STATIC;
   private static final int PUBLIC_STOCK = SPECIFIER_PUBLIC | SPECIFIER_STOCK;
 
+  private static final TokenSet GLBDECL_RECOVER = TokenSet.create(
+      ApTokenTypes.COMMA, ApTokenTypes.SEMICOLON, ApTokenTypes.SEMICOLON_SYNTHETIC);
+
+  private static final TokenSet CLASSSPEC_RECOVER = TokenSet.create(
+      ApTokenTypes.SEMICOLON, ApTokenTypes.SEMICOLON_SYNTHETIC);
+
+  private static final TokenSet FUNCVAR_RECOVER = CLASSSPEC_RECOVER;
+
+  private static final TokenSet FUNCVAR_EXPECTED = TokenSet.create(
+      ApTokenTypes.IDENTIFIER, ApTokenTypes.OPERATOR_KEYWORD);
+
+  private static final TokenSet NEWFUNC_RECOVER = TokenSet.create(
+      ApTokenTypes.SEMICOLON, ApTokenTypes.SEMICOLON_SYNTHETIC, ApTokenTypes.LPARENTH);
+
+  private static final TokenSet OPNAME_RECOVER = NEWFUNC_RECOVER;
+
   @NotNull
   private final ApParser apParser;
 
@@ -40,182 +40,228 @@ public class DeclarationParser {
   @Nullable
   public PsiBuilder.Marker parse(@NotNull PsiBuilder builder, final Context context) {
     builder.setDebugMode(true);
+
     IElementType tokenType = builder.getTokenType();
     if (tokenType == null) {
       return null;
     }
 
-    if (!ElementType.DECL_BIT_SET.contains(tokenType)) {
+    //PsiBuilder.Marker decl = builder.mark();
+    if (!ElementTypes.DECL_BIT_SET.contains(tokenType)) {
+      //decl.drop();
       return null;
     }
 
-    PsiBuilder.Marker declaration = builder.mark();
-    Pair<PsiBuilder.Marker, Integer> classSpecifiers = getClassSpec(builder);
-    if (classSpecifiers == null) {
-      declaration.drop();
-      return null;
-    }
+    Pair<PsiBuilder.Marker, Integer> modifiers = parseModifierList(builder);
+    //if (tokenType == ApTokenTypes.NEW_KEYWORD) {
+    //  declglb(builder, modifiers.second);
+    //} else {
+    //  declfuncvar(builder, modifiers.second);
+    //}
 
-    if (tokenType == ApTokenType.NEW_KEYWORD) {
-      if (declGlobal(builder) == null) {
-        declaration.drop();
-        return null;
-      }
-    } else {
-      if (declFuncOrVar(builder, classSpecifiers.second) == null) {
-        declaration.drop();
-        return null;
-      }
-    }
-
-    return done(declaration, ApElementType.DECLARATION);
+    //return done(decl, ApElementType.DECLARATION);
+    return null;
   }
 
   @Nullable
-  public Pair<PsiBuilder.Marker, Integer> getClassSpec(final PsiBuilder builder) {
+  public Pair<PsiBuilder.Marker, Integer> parseModifierList(@NotNull PsiBuilder builder) {
+    PsiBuilder.Marker classspec = builder.mark();
+
+    int specifiers = 0;
     IElementType tokenType = builder.getTokenType();
-    if (!ElementType.DECL_BIT_SET.contains(tokenType)) {
-      return null;
+    if (tokenType == ApTokenTypes.NEW_KEYWORD) {
+      // do nothing
+    } else if (tokenType == ApTokenTypes.CONST_KEYWORD) {
+      specifiers = SPECIFIER_CONST;
+    } else if (tokenType == ApTokenTypes.STOCK_KEYWORD) {
+      specifiers = SPECIFIER_STOCK;
+    } else if (tokenType == ApTokenTypes.STATIC_KEYWORD) {
+      specifiers = SPECIFIER_STATIC;
+    } else if (tokenType == ApTokenTypes.PUBLIC_KEYWORD) {
+      specifiers = SPECIFIER_PUBLIC;
     }
 
-    final PsiBuilder.Marker specifiers = builder.mark();
-    int classSpecifiers = 0;
-    if (tokenType == ApTokenType.CONST_KEYWORD) {
-      classSpecifiers |= SPECIFIER_CONST;
-    } else if (tokenType == ApTokenType.STOCK_KEYWORD) {
-      classSpecifiers |= SPECIFIER_STOCK;
-    } else if (tokenType == ApTokenType.STATIC_KEYWORD) {
-      classSpecifiers |= SPECIFIER_STATIC;
-    } else if (tokenType == ApTokenType.PUBLIC_KEYWORD) {
-      classSpecifiers |= SPECIFIER_PUBLIC;
-    }
-
-    builder.advanceLexer();
-    do {
+    while (expect(builder, ElementTypes.DECL_BIT_SET)) {
       tokenType = builder.getTokenType();
-      if (tokenType == ApTokenType.CONST_KEYWORD) {
-        if ((classSpecifiers & SPECIFIER_CONST) == SPECIFIER_CONST) {
-          error(specifiers, "amxx.err.042");
+      if (tokenType == ApTokenTypes.CONST_KEYWORD) {
+        if ((specifiers & SPECIFIER_CONST) == SPECIFIER_CONST) {
+          error(classspec, "amxx.err.042.duplicate", "const");
+          recoverAt(builder, CLASSSPEC_RECOVER);
           return null;
         }
 
-        classSpecifiers |= SPECIFIER_CONST;
-      } else if (tokenType == ApTokenType.STOCK_KEYWORD) {
-        if ((classSpecifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK) {
-          error(specifiers, "amxx.err.042");
+        specifiers |= SPECIFIER_CONST;
+      } else if (tokenType == ApTokenTypes.STOCK_KEYWORD) {
+        if ((specifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK) {
+          error(classspec, "amxx.err.042.duplicate", "stock");
+          recoverAt(builder, CLASSSPEC_RECOVER);
           return null;
         }
 
-        classSpecifiers |= SPECIFIER_STOCK;
-      } else if (tokenType == ApTokenType.STATIC_KEYWORD) {
-        if ((classSpecifiers & SPECIFIER_STATIC) == SPECIFIER_STATIC) {
-          error(specifiers, "amxx.err.042");
+        specifiers |= SPECIFIER_STOCK;
+      } else if (tokenType == ApTokenTypes.STATIC_KEYWORD) {
+        if ((specifiers & SPECIFIER_STATIC) == SPECIFIER_STATIC) {
+          error(classspec, "amxx.err.042.duplicate", "static");
+          recoverAt(builder, CLASSSPEC_RECOVER);
           return null;
         }
 
-        classSpecifiers |= SPECIFIER_STATIC;
-      } else if (tokenType == ApTokenType.PUBLIC_KEYWORD) {
-        if ((classSpecifiers & SPECIFIER_PUBLIC) == SPECIFIER_PUBLIC) {
-          error(specifiers, "amxx.err.042");
+        specifiers |= SPECIFIER_STATIC;
+      } else if (tokenType == ApTokenTypes.PUBLIC_KEYWORD) {
+        if ((specifiers & SPECIFIER_PUBLIC) == SPECIFIER_PUBLIC) {
+          error(classspec, "amxx.err.042.duplicate", "public");
+          recoverAt(builder, CLASSSPEC_RECOVER);
           return null;
         }
 
-        classSpecifiers |= SPECIFIER_PUBLIC;
+        specifiers |= SPECIFIER_PUBLIC;
       }
-    } while (expect(builder, ElementType.MODIFIER_BIT_SET));
-    if ((classSpecifiers & PUBLIC_STATIC) == PUBLIC_STATIC) {
-      error(specifiers, "amxx.err.042");
+    }
+
+    if ((specifiers & PUBLIC_STATIC) == PUBLIC_STATIC) {
+      error(classspec, "amxx.err.042.conflict", "public", "static");
+      recoverAt(builder, CLASSSPEC_RECOVER);
       return null;
     }
 
-    done(specifiers, ApElementType.CLASS_SPECIFIERS);
-    return Pair.create(specifiers, classSpecifiers);
+    done(classspec, ApElementType.MODIFIER_LIST);
+    return Pair.create(classspec, specifiers);
   }
 
   @Nullable
-  public PsiBuilder.Marker declGlobal(final PsiBuilder builder) {
-    PsiBuilder.Marker globals = builder.mark();
+  public Pair<PsiBuilder.Marker, Integer> declglb(@NotNull PsiBuilder builder, int specifiers) {
     do {
-      PsiBuilder.Marker global = builder.mark();
+      PsiBuilder.Marker glb = builder.mark();
 
-      pc_addtag(builder);
-      if (expectOrError(builder, ApTokenType.IDENTIFIER, "-identifier-")) {
-        // Compiler will throw error 20 (invalid symbol name), but that doesn't really make a lot of
-        // sense, so I'm throwing expected "-identifier-", but found "<text>" instead
-        // TODO: code inspection should catch "expected -identifier-" errors and show identifer format in tooltip
-        global.drop();
-        globals.drop();
-        return null;
+      parseTag(builder);
+      if (expectOrError(builder, ApTokenTypes.IDENTIFIER, "amxx.err.020.expected", builder.getTokenText())) {
+        glb.drop();
+        recoverAt(builder, GLBDECL_RECOVER);
+        continue;
       }
 
-      int numDims = 0;
-      while (expect(builder, ApTokenType.LBRACE)) {
-        if (++numDims == ApParser.DIMEN_MAX) {
-          error(global, "amxx.err.053");
-          globals.drop();
-          return null;
-        }
-
-        // TODO: sizing...
-
-        if (!expectOrError(builder, ApTokenType.RBRACE, "]")) {
-          global.drop();
-          globals.drop();
-          return null;
+      assert builder.getTokenText() != null;
+      if (builder.getTokenText().charAt(0) == ApParser.PUBLIC_CHAR) {
+        specifiers |= SPECIFIER_PUBLIC;
+        if ((specifiers & SPECIFIER_STATIC) == SPECIFIER_STATIC) {
+          specifiers &= ~SPECIFIER_STATIC;
+          // TODO: throw warning that this glb is implicitly public but declared static
         }
       }
 
-      done(global, ApElementType.GLOBAL);
-    } while (expect(builder, ApTokenType.COMMA));
+      parseArray(builder);
+      done(glb, ApElementType.FIELD);
+    } while (expect(builder, ApTokenTypes.COMMA));
     semicolon(builder);
-
-    return done(globals, ApElementType.GLOBALS);
+    return Pair.create(null, specifiers);
   }
 
   @Nullable
-  public PsiBuilder.Marker declFuncOrVar(final PsiBuilder builder, int classSpecifiers) {
-    PsiBuilder.Marker funcOrVar = builder.mark();
+  public Pair<PsiBuilder.Marker, Integer> declfuncvar(@NotNull PsiBuilder builder, int specifiers) {
+    PsiBuilder.Marker declfuncvar = builder.mark();
 
-    pc_addtag(builder);
+    parseTag(builder);
 
     IElementType tokenType = builder.getTokenType();
-    if (tokenType == ApTokenType.NATIVE_KEYWORD) {
-      error(funcOrVar, "amxx.err.042");
+    if (tokenType == ApTokenTypes.NATIVE_KEYWORD) {
+      error(builder, declfuncvar, "amxx.err.042.cannotbe", "native");
+      builder.advanceLexer();
+    }
+
+    tokenType = builder.getTokenType();
+    if (!FUNCVAR_EXPECTED.contains(tokenType)) {
+      error(declfuncvar, "amxx.err.001", "-identifier-", builder.getTokenText());
+      recoverAt(builder, FUNCVAR_RECOVER);
       return null;
     }
 
-    if (tokenType != ApTokenType.IDENTIFIER && tokenType != ApTokenType.OPERATOR_KEYWORD) {
-      expectOrError(builder, ApTokenType.IDENTIFIER, "-identifier-");
-      return null;
-    }
-
-    if (tokenType == ApTokenType.OPERATOR_KEYWORD) {
-      if (newFunc(builder, classSpecifiers) == null) {
-        error(funcOrVar, "amxx.err.010");
+    if (tokenType == ApTokenTypes.OPERATOR_KEYWORD) {
+      if (newfunc(builder, specifiers) == null) {
+        error(declfuncvar, "amxx.err.010");
+        recoverAt(builder, FUNCVAR_RECOVER);
         return null;
       }
     } else {
-      assert tokenType == ApTokenType.IDENTIFIER;
-      if ((classSpecifiers & SPECIFIER_CONST) == SPECIFIER_CONST
-       || (classSpecifiers & PUBLIC_STOCK) == PUBLIC_STOCK
-       || newFunc(builder, classSpecifiers) == null) {
-        funcOrVar.drop();
-        return declGlobal(builder);
+      if ((specifiers & SPECIFIER_CONST) == SPECIFIER_CONST
+          || (specifiers & PUBLIC_STOCK) == PUBLIC_STOCK
+          || newfunc(builder, specifiers) == null) {
+        return declglb(builder, specifiers);
       }
     }
 
-    return done(funcOrVar, ApElementType.FUNC_OR_VAR);
+    declfuncvar.drop();
+    return Pair.create(declfuncvar, specifiers);
+  }
+
+  public Pair<PsiBuilder.Marker, Integer> newfunc(@NotNull PsiBuilder builder, int specifiers) {
+    parseTag(builder);
+
+    PsiBuilder.Marker newfunc = builder.mark();
+    IElementType tokenType = builder.getTokenType();
+    if (tokenType == ApTokenTypes.NATIVE_KEYWORD) {
+      error(newfunc, "amxx.err.042.cannotbe", "native");
+      recoverAt(builder, NEWFUNC_RECOVER);
+    } else if (tokenType == ApTokenTypes.PUBLIC_KEYWORD
+        && (specifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK) {
+      error(newfunc, "amxx.err.042.conflict", "public", "stock");
+      recoverAt(builder, NEWFUNC_RECOVER);
+    }
+
+    if (tokenType == ApTokenTypes.OPERATOR_KEYWORD) {
+      operatorname(builder);
+    } else if (tokenType != ApTokenTypes.IDENTIFIER) {
+      error(newfunc, "amxx.err.020.expected", builder.getTokenText());
+      recoverAt(builder, NEWFUNC_RECOVER);
+    } else if (tokenType == ApTokenTypes.IDENTIFIER) {
+      assert builder.getTokenText() != null;
+      if (builder.getTokenText().charAt(0) == ApParser.PUBLIC_CHAR) {
+        specifiers |= SPECIFIER_PUBLIC;
+        if ((specifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK) {
+          specifiers &= ~SPECIFIER_STOCK;
+          error(newfunc, "amxx.err.042.conflict", "public", "stock");
+        }
+      }
+    }
+
+    declargs(builder);
+    // TODO: finish...
+
+    done(newfunc, ApElementType.METHOD);
+    return Pair.create(newfunc, specifiers);
   }
 
   @Nullable
-  public PsiBuilder.Marker pc_addtag(final PsiBuilder builder) {
+  public PsiBuilder.Marker operatorname(@NotNull PsiBuilder builder) {
+    if (expectOrError(builder, ElementTypes.OVERLOADABLE_OPERATIONS, "amxx.err.007")) {
+      recoverAt(builder, OPNAME_RECOVER);
+      return null;
+    }
+
+    return null;
+  }
+
+  @Nullable
+  public PsiBuilder.Marker declargs(@NotNull PsiBuilder builder) {
+    if (!expect(builder, ApTokenTypes.LPARENTH)) {
+      return null;
+    }
+
+    if (!expect(builder, ApTokenTypes.RPARENTH)) {
+      return null;
+    }
+
+    return null;
+  }
+
+  @Nullable
+  public PsiBuilder.Marker parseTag(@NotNull PsiBuilder builder) {
     PsiBuilder.Marker tag = builder.mark();
-    if (!expect(builder, ApTokenType.IDENTIFIER)) {
+    if (!expect(builder, ApTokenTypes.IDENTIFIER)) {
       tag.drop();
       return null;
     }
 
-    if (!expect(builder, ApTokenType.COLON)) {
+    if (!expect(builder, ApTokenTypes.COLON)) {
       tag.rollbackTo();
       return null;
     }
@@ -223,43 +269,28 @@ public class DeclarationParser {
     return done(tag, ApElementType.TAG);
   }
 
-  public PsiBuilder.Marker newFunc(final PsiBuilder builder, int classSpecifiers) {
-    PsiBuilder.Marker newFunc = builder.mark();
+  @Nullable
+  public PsiBuilder.Marker parseArray(@NotNull PsiBuilder builder) {
+    PsiBuilder.Marker array = builder.mark();
 
-    pc_addtag(builder);
+    int numDims = 0;
+    while (expect(builder, ApTokenTypes.LBRACE)) {
+      numDims++;
+      if (expect(builder, ApTokenTypes.RBRACE)) {
+        continue;
+      }
 
-    IElementType tokenType = builder.getTokenType();
-    if (tokenType == ApTokenType.NATIVE_KEYWORD
-     || (tokenType == ApTokenType.PUBLIC_KEYWORD && (classSpecifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK)) {
-      error(newFunc, "amxx.err.042");
+      // TODO: support const expressions
+      builder.mark().error("const expressions are unsupported");
+      recoverAt(builder, CLASSSPEC_RECOVER);
+    }
+
+    if (numDims == 0) {
+      array.drop();
       return null;
     }
 
-    if (tokenType == ApTokenType.OPERATOR_KEYWORD) {
-      // TODO: Support operator<sym>()
-    } else {
-      if (tokenType != ApTokenType.IDENTIFIER) {
-        error(newFunc, "amxx.err.020", builder.getTokenText());
-        return null;
-      }
-    }
-
-    if (!expect(builder, ApTokenType.LPARENTH)) {
-      newFunc.drop();
-      return null;
-    }
-
-    if (builder.getTokenText().charAt(0) == ApParser.PUBLIC_CHAR) {
-      classSpecifiers |= SPECIFIER_PUBLIC;
-      if ((classSpecifiers & SPECIFIER_STOCK) == SPECIFIER_STOCK) {
-        error(newFunc, "amxx.err.042");
-        return null;
-      }
-    }
-
-    // TODO: support prototyping, etc...
-
-    return done(newFunc, ApElementType.FUNCTION);
-  }
+    return array;
+  }*/
 
 }

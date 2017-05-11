@@ -11,8 +11,9 @@ import com.intellij.psi.impl.source.tree.JavaDocElementType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.xml.XmlTokenType;
 
-import net.alliedmods.lang.amxxpawn.parser.ApParserDefinition;
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
+import net.alliedmods.lang.amxxpawn.ApParserDefinition;
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
+import net.alliedmods.lang.amxxpawn.psi.ElementTypes;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,10 +28,12 @@ public class ApSyntaxHighlighter extends SyntaxHighlighterBase {
     ourMap1 = new HashMap<>();
     ourMap2 = new HashMap<>();
 
-    fillMap(ourMap1, ApParserDefinition.KEYWORD_BIT_SET, ApHighlightingColors.KEYWORD);
-    fillMap(ourMap1, ApParserDefinition.LITERAL_BIT_SET, ApHighlightingColors.KEYWORD);
-    fillMap(ourMap1, ApParserDefinition.OPERATION_BIT_SET, ApHighlightingColors.OPERATION_SIGN);
-    fillMap(ourMap1, ApParserDefinition.AMXX_PREPROCESSOR_BIT_SET, ApHighlightingColors.PREPROCESSOR);
+    fillMap(ourMap1, ElementTypes.KEYWORD_BIT_SET, ApHighlightingColors.KEYWORD);
+    fillMap(ourMap1, ElementTypes.LITERAL_BIT_SET, ApHighlightingColors.KEYWORD);
+    fillMap(ourMap1, ElementTypes.OPERATION_BIT_SET, ApHighlightingColors.OPERATION_SIGN);
+    fillMap(ourMap1, ElementTypes.AMXX_PREPROCESSOR_BIT_SET, ApHighlightingColors.PREPROCESSOR);
+
+    ourMap1.put(ApTokenTypes.INCLUDE_REFERENCE, ApHighlightingColors.STRING);
 
     for (IElementType type : JavaDocTokenType.ALL_JAVADOC_TOKENS.getTypes()) {
       ourMap1.put(type, ApHighlightingColors.DOC_COMMENT);
@@ -40,33 +43,33 @@ public class ApSyntaxHighlighter extends SyntaxHighlighterBase {
     ourMap1.put(XmlTokenType.XML_REAL_WHITE_SPACE, ApHighlightingColors.DOC_COMMENT);
     ourMap1.put(XmlTokenType.TAG_WHITE_SPACE, ApHighlightingColors.DOC_COMMENT);
 
-    ourMap1.put(ApTokenType.CELL_LITERAL, ApHighlightingColors.NUMBER);
-    ourMap1.put(ApTokenType.RATIONAL_LITERAL, ApHighlightingColors.NUMBER);
-    ourMap1.put(ApTokenType.STRING_LITERAL, ApHighlightingColors.STRING);
-    ourMap1.put(ApTokenType.RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for raw strings?
-    ourMap1.put(ApTokenType.PACKED_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed strings?
-    ourMap1.put(ApTokenType.PACKED_RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed+raw strings?
-    ourMap1.put(ApTokenType.CHARACTER_LITERAL, ApHighlightingColors.STRING);
+    ourMap1.put(ApTokenTypes.CELL_LITERAL, ApHighlightingColors.NUMBER);
+    ourMap1.put(ApTokenTypes.RATIONAL_LITERAL, ApHighlightingColors.NUMBER);
+    ourMap1.put(ApTokenTypes.STRING_LITERAL, ApHighlightingColors.STRING);
+    ourMap1.put(ApTokenTypes.RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for raw strings?
+    ourMap1.put(ApTokenTypes.PACKED_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed strings?
+    ourMap1.put(ApTokenTypes.PACKED_RAW_STRING_LITERAL, ApHighlightingColors.STRING); // TODO: Special coloring for packed+raw strings?
+    ourMap1.put(ApTokenTypes.CHARACTER_LITERAL, ApHighlightingColors.STRING);
     ourMap1.put(StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN, ApHighlightingColors.VALID_STRING_ESCAPE);
     ourMap1.put(StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN, ApHighlightingColors.INVALID_STRING_ESCAPE);
     ourMap1.put(StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN, ApHighlightingColors.INVALID_STRING_ESCAPE);
 
-    ourMap1.put(ApTokenType.LPARENTH, ApHighlightingColors.PARENTHESES);
-    ourMap1.put(ApTokenType.RPARENTH, ApHighlightingColors.PARENTHESES);
+    ourMap1.put(ApTokenTypes.LPARENTH, ApHighlightingColors.PARENTHESES);
+    ourMap1.put(ApTokenTypes.RPARENTH, ApHighlightingColors.PARENTHESES);
 
-    ourMap1.put(ApTokenType.LBRACE, ApHighlightingColors.BRACES);
-    ourMap1.put(ApTokenType.RBRACE, ApHighlightingColors.BRACES);
+    ourMap1.put(ApTokenTypes.LBRACE, ApHighlightingColors.BRACES);
+    ourMap1.put(ApTokenTypes.RBRACE, ApHighlightingColors.BRACES);
 
-    ourMap1.put(ApTokenType.LBRACKET, ApHighlightingColors.BRACKETS);
-    ourMap1.put(ApTokenType.RBRACKET, ApHighlightingColors.BRACKETS);
+    ourMap1.put(ApTokenTypes.LBRACKET, ApHighlightingColors.BRACKETS);
+    ourMap1.put(ApTokenTypes.RBRACKET, ApHighlightingColors.BRACKETS);
 
-    ourMap1.put(ApTokenType.COMMA, ApHighlightingColors.COMMA);
-    ourMap1.put(ApTokenType.DOT, ApHighlightingColors.DOT);
-    ourMap1.put(ApTokenType.SEMICOLON, ApHighlightingColors.SEMICOLON);
+    ourMap1.put(ApTokenTypes.COMMA, ApHighlightingColors.COMMA);
+    ourMap1.put(ApTokenTypes.DOT, ApHighlightingColors.DOT);
+    ourMap1.put(ApTokenTypes.SEMICOLON, ApHighlightingColors.SEMICOLON);
     
-    ourMap1.put(ApTokenType.C_STYLE_COMMENT, ApHighlightingColors.BLOCK_COMMENT);
+    ourMap1.put(ApTokenTypes.C_STYLE_COMMENT, ApHighlightingColors.BLOCK_COMMENT);
     ourMap1.put(JavaDocElementType.DOC_COMMENT, ApHighlightingColors.DOC_COMMENT);
-    ourMap1.put(ApTokenType.END_OF_LINE_COMMENT, ApHighlightingColors.LINE_COMMENT);
+    ourMap1.put(ApTokenTypes.END_OF_LINE_COMMENT, ApHighlightingColors.LINE_COMMENT);
     ourMap1.put(TokenType.BAD_CHARACTER, HighlighterColors.BAD_CHARACTER);
 
     ourMap1.put(JavaDocTokenType.DOC_TAG_NAME, ApHighlightingColors.DOC_COMMENT);

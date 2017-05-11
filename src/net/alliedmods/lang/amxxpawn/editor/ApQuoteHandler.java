@@ -7,21 +7,21 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
 
 import org.jetbrains.annotations.NotNull;
 
 public class ApQuoteHandler implements JavaLikeQuoteHandler {
 
   private static final TokenSet SINGLE_LINE_LITERALS = TokenSet.create(
-      ApTokenType.STRING_LITERAL, ApTokenType.RAW_STRING_LITERAL);
+      ApTokenTypes.STRING_LITERAL, ApTokenTypes.RAW_STRING_LITERAL);
 
   private final TokenSet literalTokens;
 
   public ApQuoteHandler() {
     literalTokens = TokenSet.create(
-        ApTokenType.STRING_LITERAL, ApTokenType.CHARACTER_LITERAL, ApTokenType.RAW_STRING_LITERAL,
-        ApTokenType.PACKED_STRING_LITERAL, ApTokenType.PACKED_RAW_STRING_LITERAL);
+        ApTokenTypes.STRING_LITERAL, ApTokenTypes.CHARACTER_LITERAL, ApTokenTypes.RAW_STRING_LITERAL,
+        ApTokenTypes.PACKED_STRING_LITERAL, ApTokenTypes.PACKED_RAW_STRING_LITERAL);
   }
 
   @Override
@@ -32,14 +32,14 @@ public class ApQuoteHandler implements JavaLikeQuoteHandler {
     }
 
     final int start = iterator.getStart();
-    if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
+    if (tokenType == ApTokenTypes.RAW_STRING_LITERAL || tokenType == ApTokenTypes.PACKED_STRING_LITERAL) {
       return offset == start + 1;
-    } else if (tokenType == ApTokenType.PACKED_RAW_STRING_LITERAL) {
+    } else if (tokenType == ApTokenTypes.PACKED_RAW_STRING_LITERAL) {
       return offset == start + 2;
     }
 
     return offset == start;
-    }
+  }
 
   @Override
   public boolean isClosingQuote(HighlighterIterator iterator, int offset) {
@@ -50,9 +50,9 @@ public class ApQuoteHandler implements JavaLikeQuoteHandler {
 
     int start = iterator.getStart();
     final int end = iterator.getEnd();
-    if (tokenType == ApTokenType.RAW_STRING_LITERAL || tokenType == ApTokenType.PACKED_STRING_LITERAL) {
+    if (tokenType == ApTokenTypes.RAW_STRING_LITERAL || tokenType == ApTokenTypes.PACKED_STRING_LITERAL) {
       start += 1;
-    } else if (tokenType == ApTokenType.PACKED_RAW_STRING_LITERAL) {
+    } else if (tokenType == ApTokenTypes.PACKED_RAW_STRING_LITERAL) {
       start += 2;
     }
 

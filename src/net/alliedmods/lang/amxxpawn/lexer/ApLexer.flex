@@ -4,13 +4,13 @@ import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 import net.alliedmods.lang.amxxpawn.parser.ApParserUtils;
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
 
 @SuppressWarnings({"ALL"})
 %%
 
 %{
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public int sc_ctrlchar = '^';
     public boolean sc_needsemicolon = false;
@@ -59,7 +59,10 @@ HEXADECIMAL_LITERAL = 0x ( _ | {HEXADECIMAL_DIGIT} )*
 RATIONAL_LITERAL = {DECIMAL_DIGIT} "." {DECIMAL_DIGIT} {RATIONAL_EXPONENT}?
 RATIONAL_EXPONENT = e -? {DECIMAL_DIGIT}+
 
-SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|line|tryinclude|undef|defined)
+SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|line|undef|defined)
+
+PATH_REFERENCE = "<" [^\r\n]* ">"?
+RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
 
 %state MAYBE_SEMICOLON
 
@@ -68,6 +71,7 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 %state PRAGMA
 %state PRAGMA_CTRLCHAR
 %state PRAGMA_SEMICOLON
+%state INCLUDE
 
 %xstate STRING
 %xstate RAW_STRING
@@ -77,26 +81,42 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 
 %%
 
-{WS}+                 { return ApTokenType.WHITE_SPACE; }
-{CONT}                { return ApTokenType.ESCAPING_SLASH; }
-{DOC_COMMENT}         { return ApTokenType.DOC_COMMENT; }
-{C_STYLE_COMMENT}     { return ApTokenType.C_STYLE_COMMENT; }
-{END_OF_LINE_COMMENT} { return ApTokenType.END_OF_LINE_COMMENT; }
+{WS}+                 { return ApTokenTypes.WHITE_SPACE; }
+{CONT}                { return ApTokenTypes.ESCAPING_SLASH; }
+{DOC_COMMENT}         { return ApTokenTypes.DOC_COMMENT; }
+{C_STYLE_COMMENT}     { return ApTokenTypes.C_STYLE_COMMENT; }
+{END_OF_LINE_COMMENT} { return ApTokenTypes.END_OF_LINE_COMMENT; }
 
 <PREPROCESSOR> {
-  "if" | "elseif" |
-  "define"        { yybegin(DEFINE); return ApTokenType.PREPROCESSOR; }
-  "pragma"        { yybegin(PRAGMA); return ApTokenType.PREPROCESSOR; }
+  "define"        { yybegin(DEFINE); return ApTokenTypes.DEFINE_DIRECTIVE; }
+  "elseif"        { yybegin(DEFINE); return ApTokenTypes.ELSEIF_DIRECTIVE; }
+  "if"            { yybegin(DEFINE); return ApTokenTypes.IF_DIRECTIVE; }
+
+  "pragma"        { yybegin(PRAGMA); return ApTokenTypes.PRAGMA_DIRECTIVE; }
+  "include"       { yybegin(INCLUDE); return ApTokenTypes.INCLUDE_DIRECTIVE; }
+  "tryinclude"    { yybegin(INCLUDE); return ApTokenTypes.TRYINCLUDE_DIRECTIVE; }
+
+  "assert"        { return ApTokenTypes.ASSERT_DIRECTIVE; }
+  "defined"       { return ApTokenTypes.DEFINED_KEYWORD; }
+  "else"          { return ApTokenTypes.ELSE_DIRECTIVE; }
+  "emit"          { return ApTokenTypes.EMIT_DIRECTIVE; }
+  "endif"         { return ApTokenTypes.ENDIF_DIRECTIVE; }
+  "endinput"      { return ApTokenTypes.ENDINPUT_DIRECTIVE; }
+  "endscript"     { return ApTokenTypes.ENDSCRIPT_DIRECTIVE; }
+  "error"         { return ApTokenTypes.ERROR_DIRECTIVE; }
+  "file"          { return ApTokenTypes.FILE_DIRECTIVE; }
+  "line"          { return ApTokenTypes.LINE_DIRECTIVE; }
+  "undef"         { return ApTokenTypes.UNDEF_DIRECTIVE; }
 }
 
-<PREPROCESSOR,DEFINE> {
-  {SIMPLE_PREPROCESSOR} { return ApTokenType.PREPROCESSOR; }
+<DEFINE> {
+  "defined"    { return ApTokenTypes.DEFINED_KEYWORD; }
 }
 
 <PRAGMA> {
-  "ctrlchar"   { yybegin(PRAGMA_CTRLCHAR); return ApTokenType.PREPROCESSOR; }
-  "semicolon"  { yybegin(PRAGMA_SEMICOLON); return ApTokenType.PREPROCESSOR; }
-  {IDENTIFIER} { return ApTokenType.PREPROCESSOR; }
+  "ctrlchar"   { yybegin(PRAGMA_CTRLCHAR); return ApTokenTypes.PRAGMA_IDENTIFIER; }
+  "semicolon"  { yybegin(PRAGMA_SEMICOLON); return ApTokenTypes.PRAGMA_IDENTIFIER; }
+  {IDENTIFIER} { return ApTokenTypes.PRAGMA_IDENTIFIER; }
 }
 
 <PRAGMA_CTRLCHAR> {
@@ -125,20 +145,26 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
   [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
+<INCLUDE> {
+  {PATH_REFERENCE}     |
+  {RELATIVE_REFERENCE} { yybegin(PREPROCESSOR); return ApTokenTypes.INCLUDE_REFERENCE; }
+  [^]                  { yybegin(PREPROCESSOR); yypushback(yylength()); }
+}
+
 <MAYBE_SEMICOLON> {
   {NL}  { yybegin(YYINITIAL); yypushback(yylength());
           if (!sc_needsemicolon) {
-            return ApTokenType.SEMICOLON_SYNTHETIC;
+            return ApTokenTypes.SEMICOLON_SYNTHETIC;
           }
         }
   [^]   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
 <PREPROCESSOR,DEFINE,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON> {
-  {NL} { yybegin(YYINITIAL); yypushback(yylength()); }
+  {NL} { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenTypes.SEMICOLON_SYNTHETIC; }
 }
 
-{NL} { return ApTokenType.NEW_LINE; }
+{NL} { return ApTokenTypes.NEW_LINE; }
 
 <PREPROCESSOR,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON> {
   [^] { yybegin(YYINITIAL); yypushback(yylength()); }
@@ -146,102 +172,102 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
 
 {BINARY_LITERAL}      |
 {DECIMAL_LITERAL}     |
-{HEXADECIMAL_LITERAL} { yybegin(MAYBE_SEMICOLON); return ApTokenType.CELL_LITERAL; }
-{RATIONAL_LITERAL}    { yybegin(MAYBE_SEMICOLON); return ApTokenType.RATIONAL_LITERAL; }
+{HEXADECIMAL_LITERAL} { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.CELL_LITERAL; }
+{RATIONAL_LITERAL}    { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.RATIONAL_LITERAL; }
 "'"                   { yybegin(CHARACTER); }
 
-"true"  { return ApTokenType.TRUE_KEYWORD; }
-"false" { return ApTokenType.FALSE_KEYWORD; }
+"true"  { return ApTokenTypes.TRUE_KEYWORD; }
+"false" { return ApTokenTypes.FALSE_KEYWORD; }
 
-"assert"   { return ApTokenType.ASSERT_KEYWORD; }
-"break"    { yybegin(MAYBE_SEMICOLON); return ApTokenType.BREAK_KEYWORD; }
-"case"     { return ApTokenType.CASE_KEYWORD; }
-"char"     { return ApTokenType.CHAR_KEYWORD; }
-"const"    { return ApTokenType.CONST_KEYWORD; }
-"continue" { yybegin(MAYBE_SEMICOLON); return ApTokenType.CONTINUE_KEYWORD; }
-"default"  { return ApTokenType.DEFAULT_KEYWORD; }
-"defined"  { return ApTokenType.DEFINED_KEYWORD; }
-"do"       { return ApTokenType.DO_KEYWORD; }
-"else"     { return ApTokenType.ELSE_KEYWORD; }
-"enum"     { return ApTokenType.ENUM_KEYWORD; }
-"exit"     { return ApTokenType.EXIT_KEYWORD; }
-"for"      { return ApTokenType.FOR_KEYWORD; }
-"forward"  { return ApTokenType.FORWARD_KEYWORD; }
-"goto"     { return ApTokenType.GOTO_KEYWORD; }
-"if"       { return ApTokenType.IF_KEYWORD; }
-"native"   { return ApTokenType.NATIVE_KEYWORD; }
-"new"      { return ApTokenType.NEW_KEYWORD; }
-"operator" { return ApTokenType.OPERATOR_KEYWORD; }
-"public"   { return ApTokenType.PUBLIC_KEYWORD; }
-"return"   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RETURN_KEYWORD; }
-"sizeof"   { return ApTokenType.SIZEOF_KEYWORD; }
-"sleep"    { return ApTokenType.SLEEP_KEYWORD; }
-"state"    { return ApTokenType.STATE_KEYWORD; }
-"static"   { return ApTokenType.STATIC_KEYWORD; }
-"stock"    { return ApTokenType.STOCK_KEYWORD; }
-"switch"   { return ApTokenType.SWITCH_KEYWORD; }
-"tagof"    { return ApTokenType.TAGOF_KEYWORD; }
-"while"    { return ApTokenType.WHILE_KEYWORD; }
+"assert"   { return ApTokenTypes.ASSERT_KEYWORD; }
+"break"    { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.BREAK_KEYWORD; }
+"case"     { return ApTokenTypes.CASE_KEYWORD; }
+"char"     { return ApTokenTypes.CHAR_KEYWORD; }
+"const"    { return ApTokenTypes.CONST_KEYWORD; }
+"continue" { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.CONTINUE_KEYWORD; }
+"default"  { return ApTokenTypes.DEFAULT_KEYWORD; }
+"defined"  { return ApTokenTypes.DEFINED_KEYWORD; }
+"do"       { return ApTokenTypes.DO_KEYWORD; }
+"else"     { return ApTokenTypes.ELSE_KEYWORD; }
+"enum"     { return ApTokenTypes.ENUM_KEYWORD; }
+"exit"     { return ApTokenTypes.EXIT_KEYWORD; }
+"for"      { return ApTokenTypes.FOR_KEYWORD; }
+"forward"  { return ApTokenTypes.FORWARD_KEYWORD; }
+"goto"     { return ApTokenTypes.GOTO_KEYWORD; }
+"if"       { return ApTokenTypes.IF_KEYWORD; }
+"native"   { return ApTokenTypes.NATIVE_KEYWORD; }
+"new"      { return ApTokenTypes.NEW_KEYWORD; }
+"operator" { return ApTokenTypes.OPERATOR_KEYWORD; }
+"public"   { return ApTokenTypes.PUBLIC_KEYWORD; }
+"return"   { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.RETURN_KEYWORD; }
+"sizeof"   { return ApTokenTypes.SIZEOF_KEYWORD; }
+"sleep"    { return ApTokenTypes.SLEEP_KEYWORD; }
+"state"    { return ApTokenTypes.STATE_KEYWORD; }
+"static"   { return ApTokenTypes.STATIC_KEYWORD; }
+"stock"    { return ApTokenTypes.STOCK_KEYWORD; }
+"switch"   { return ApTokenTypes.SWITCH_KEYWORD; }
+"tagof"    { return ApTokenTypes.TAGOF_KEYWORD; }
+"while"    { return ApTokenTypes.WHILE_KEYWORD; }
 
-{IDENTIFIER} { yybegin(MAYBE_SEMICOLON); return ApTokenType.IDENTIFIER; }
+{IDENTIFIER} { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.IDENTIFIER; }
 
-"==" { return ApTokenType.EQEQ; }
-"!=" { return ApTokenType.NE; }
-"||" { return ApTokenType.OROR; }
-"++" { yybegin(MAYBE_SEMICOLON); return ApTokenType.PLUSPLUS; }
-"--" { yybegin(MAYBE_SEMICOLON); return ApTokenType.MINUSMINUS; }
+"==" { return ApTokenTypes.EQEQ; }
+"!=" { return ApTokenTypes.NE; }
+"||" { return ApTokenTypes.OROR; }
+"++" { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.PLUSPLUS; }
+"--" { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.MINUSMINUS; }
 
-"<"    { return ApTokenType.LT; }
-"<="   { return ApTokenType.LE; }
-"<<="  { return ApTokenType.LTLTEQ; }
-"<<"   { return ApTokenType.LTLT; }
-">"    { return ApTokenType.GT; }
-">="   { return ApTokenType.GE; } // Not defined in _JavaLexer.flex
-">>="  { return ApTokenType.GTGTEQ; } // Not defined in _JavaLexer.flex
-">>"   { return ApTokenType.GTGT; } // Not defined in _JavaLexer.flex
-">>>=" { return ApTokenType.GTGTGTEQ; } // Not defined in _JavaLexer.flex
-">>>"  { return ApTokenType.GTGTGT; } // Not defined in _JavaLexer.flex
-"&"    { return ApTokenType.AND; }
-"&&"   { return ApTokenType.ANDAND; }
+"<"    { return ApTokenTypes.LT; }
+"<="   { return ApTokenTypes.LE; }
+"<<="  { return ApTokenTypes.LTLTEQ; }
+"<<"   { return ApTokenTypes.LTLT; }
+">"    { return ApTokenTypes.GT; }
+">="   { return ApTokenTypes.GE; } // Not defined in _JavaLexer.flex
+">>="  { return ApTokenTypes.GTGTEQ; } // Not defined in _JavaLexer.flex
+">>"   { return ApTokenTypes.GTGT; } // Not defined in _JavaLexer.flex
+">>>=" { return ApTokenTypes.GTGTGTEQ; } // Not defined in _JavaLexer.flex
+">>>"  { return ApTokenTypes.GTGTGT; } // Not defined in _JavaLexer.flex
+"&"    { return ApTokenTypes.AND; }
+"&&"   { return ApTokenTypes.ANDAND; }
 
-"+=" { return ApTokenType.PLUSEQ; }
-"-=" { return ApTokenType.MINUSEQ; }
-"*=" { return ApTokenType.ASTERISKEQ; }
-"/=" { return ApTokenType.DIVEQ; }
-"&=" { return ApTokenType.ANDEQ; }
-"|=" { return ApTokenType.OREQ; }
-"^=" { return ApTokenType.XOREQ; }
-"%=" { return ApTokenType.PERCEQ; }
+"+=" { return ApTokenTypes.PLUSEQ; }
+"-=" { return ApTokenTypes.MINUSEQ; }
+"*=" { return ApTokenTypes.ASTERISKEQ; }
+"/=" { return ApTokenTypes.DIVEQ; }
+"&=" { return ApTokenTypes.ANDEQ; }
+"|=" { return ApTokenTypes.OREQ; }
+"^=" { return ApTokenTypes.XOREQ; }
+"%=" { return ApTokenTypes.PERCEQ; }
 
-"("   { return ApTokenType.LPARENTH; }
-")"   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RPARENTH; }
-"{"   { return ApTokenType.LBRACE; }
-"}"   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RBRACE; }
-"["   { return ApTokenType.LBRACKET; }
-"]"   { yybegin(MAYBE_SEMICOLON); return ApTokenType.RBRACKET; }
-","   { return ApTokenType.COMMA; }
-"..." { return ApTokenType.ELLIPSIS; }
-".."  { return ApTokenType.RANGE; }
-"."   { return ApTokenType.DOT; }
+"("   { return ApTokenTypes.LPARENTH; }
+")"   { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.RPARENTH; }
+"{"   { return ApTokenTypes.LBRACE; }
+"}"   { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.RBRACE; }
+"["   { return ApTokenTypes.LBRACKET; }
+"]"   { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.RBRACKET; }
+","   { return ApTokenTypes.COMMA; }
+"..." { return ApTokenTypes.ELLIPSIS; }
+".."  { return ApTokenTypes.RANGE; }
+"."   { return ApTokenTypes.DOT; }
 
-"=" { return ApTokenType.EQ; }
-//"!" { return ApTokenType.EXCL; } // Handled below in string lexing
-"~" { return ApTokenType.TILDE; }
-"?" { return ApTokenType.QUEST; }
-":" { return ApTokenType.COLON; }
-"+" { return ApTokenType.PLUS; }
-"-" { return ApTokenType.MINUS; }
-"*" { return ApTokenType.ASTERISK; }
-"/" { return ApTokenType.DIV; }
-"|" { return ApTokenType.OR; }
-"^" { return ApTokenType.XOR; }
-"%" { return ApTokenType.PERC; }
-"@" { return ApTokenType.AT; }
-";" { return ApTokenType.SEMICOLON; }
-"#" { yybegin(PREPROCESSOR); }
+"=" { return ApTokenTypes.EQ; }
+//"!" { return ApTokenTypes.EXCL; } // Handled below in string lexing
+"~" { return ApTokenTypes.TILDE; }
+"?" { return ApTokenTypes.QUEST; }
+":" { return ApTokenTypes.COLON; }
+"+" { return ApTokenTypes.PLUS; }
+"-" { return ApTokenTypes.MINUS; }
+"*" { return ApTokenTypes.ASTERISK; }
+"/" { return ApTokenTypes.DIV; }
+"|" { return ApTokenTypes.OR; }
+"^" { return ApTokenTypes.XOR; }
+"%" { return ApTokenTypes.PERC; }
+"@" { return ApTokenTypes.AT; }
+";" { return ApTokenTypes.SEMICOLON; }
+"#" { yybegin(PREPROCESSOR); return ApTokenTypes.HASH; }
 
-"_"  { return ApTokenType.UNDER; }
-"::" { return ApTokenType.DOUBLE_COLON; }
+"_"  { return ApTokenTypes.UNDER; }
+"::" { return ApTokenTypes.DOUBLE_COLON; }
 
 "\""       { yybegin(STRING); packed = false; }
 "!\""      { yybegin(STRING); packed = true; }
@@ -250,52 +276,52 @@ SIMPLE_PREPROCESSOR = (else|emit|endif|endinput|endscript|error|file|include|lin
                packed = true;
              } else {
                yypushback(2);
-               return ApTokenType.EXCL;
+               return ApTokenTypes.EXCL;
              }
            }
-"!"        { return ApTokenType.EXCL; } // Handled below in string lexing
+"!"        { return ApTokenTypes.EXCL; } // Handled below in string lexing
 
 [^] { if (yycharat(0) == sc_ctrlchar) {
         yybegin(HARD_STRING);
       } else {
-        return ApTokenType.BAD_CHARACTER;
+        return ApTokenTypes.BAD_CHARACTER;
       }
     }
 
 <STRING> {
-  "\""             { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
+  "\""             { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenTypes.PACKED_STRING_LITERAL : ApTokenTypes.STRING_LITERAL; }
   {CONT}           {}
   [^\"\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
                        yypushback(1);
                      }
                    }
   [^\r\n]          {}
-  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
-  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_STRING_LITERAL : ApTokenType.STRING_LITERAL; }
+  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return packed ? ApTokenTypes.PACKED_STRING_LITERAL : ApTokenTypes.STRING_LITERAL; }
+  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenTypes.PACKED_STRING_LITERAL : ApTokenTypes.STRING_LITERAL; }
 }
 
 <RAW_STRING> {
-  "\""      { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
+  "\""      { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenTypes.PACKED_RAW_STRING_LITERAL : ApTokenTypes.RAW_STRING_LITERAL; }
   {CONT}    |
   [^\r\n]   {}
-  [^]       { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
-  <<EOF>>   { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenType.PACKED_RAW_STRING_LITERAL : ApTokenType.RAW_STRING_LITERAL; }
+  [^]       { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenTypes.PACKED_RAW_STRING_LITERAL : ApTokenTypes.RAW_STRING_LITERAL; }
+  <<EOF>>   { yybegin(MAYBE_SEMICOLON); return packed ? ApTokenTypes.PACKED_RAW_STRING_LITERAL : ApTokenTypes.RAW_STRING_LITERAL; }
 }
 
 <HARD_STRING> {
   "!" "\"" { yybegin(RAW_STRING); packed = true; }
   "\""     { yybegin(RAW_STRING); packed = false; }
-  [^]      { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenType.BAD_CHARACTER; }
+  [^]      { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenTypes.BAD_CHARACTER; }
 }
 
 <CHARACTER> {
-  "'"              { yybegin(MAYBE_SEMICOLON); return ApTokenType.CHARACTER_LITERAL; }
+  "'"              { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.CHARACTER_LITERAL; }
   {CONT}           {}
   [^\'\r\n][^\r\n] { if (yycharat(0) != sc_ctrlchar) {
                        yypushback(1);
                      }
                    }
   [^\r\n]          {}
-  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return ApTokenType.CHARACTER_LITERAL; }
-  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return ApTokenType.CHARACTER_LITERAL; }
+  [^]              { yybegin(MAYBE_SEMICOLON); yypushback(1); return ApTokenTypes.CHARACTER_LITERAL; }
+  <<EOF>>          { yybegin(MAYBE_SEMICOLON); return ApTokenTypes.CHARACTER_LITERAL; }
 }

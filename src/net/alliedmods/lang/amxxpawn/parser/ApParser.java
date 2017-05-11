@@ -1,11 +1,5 @@
 package net.alliedmods.lang.amxxpawn.parser;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LightPsiParser;
-import com.intellij.lang.PsiBuilder;
-import com.intellij.lang.PsiParser;
-import com.intellij.psi.tree.IElementType;
-
 import org.jetbrains.annotations.NotNull;
 
 public class ApParser {
@@ -15,18 +9,15 @@ public class ApParser {
   public static final int DIMEN_MAX = 3;
 
   @NotNull private final FileParser fileParser;
+  @NotNull private final PreprocessorParser preprocessorParser;
   @NotNull private final DeclarationParser declarationParser;
   @NotNull private final StatementParser statementParser;
   @NotNull private final ExpressionParser expressionParser;
 
-  @NotNull
-  public static PsiParser createParser() {
-    return new _ApParser();
-  }
-
   public ApParser() {
     this.fileParser = new FileParser(this);
-    this.declarationParser = new DeclarationParser(this);
+    this.preprocessorParser = new PreprocessorParser(this);
+    this.declarationParser = null;//new DeclarationParser(this);
     this.statementParser = new StatementParser(this);
     this.expressionParser = new ExpressionParser(this);
   }
@@ -34,6 +25,11 @@ public class ApParser {
   @NotNull
   public FileParser getFileParser() {
     return fileParser;
+  }
+
+  @NotNull
+  public PreprocessorParser getPreprocessorParser() {
+    return preprocessorParser;
   }
 
   @NotNull
@@ -50,24 +46,4 @@ public class ApParser {
   public ExpressionParser getExpressionParser() {
     return expressionParser;
   }
-
-  private static class _ApParser implements PsiParser, LightPsiParser {
-
-    @NotNull
-    @Override
-    public ASTNode parse(@NotNull IElementType elementType, @NotNull PsiBuilder builder) {
-      final PsiBuilder.Marker rootMarker = builder.mark();
-      parseLight(elementType, builder);
-      rootMarker.done(elementType);
-      return builder.getTreeBuilt();
-    }
-
-    @Override
-    public void parseLight(IElementType elementType, PsiBuilder builder) {
-      ApParser.INSTANCE.fileParser.parse(builder);
-    }
-
-
-  }
-
 }

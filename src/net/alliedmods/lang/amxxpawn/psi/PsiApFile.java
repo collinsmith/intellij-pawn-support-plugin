@@ -1,15 +1,5 @@
 package net.alliedmods.lang.amxxpawn.psi;
 
-import com.intellij.psi.PsiImportHolder;
+import com.intellij.psi.PsiFile;
 
-import org.jetbrains.annotations.Nullable;
-
-/**
- * Represents an AMXX Pawn file.
- */
-public interface PsiApFile extends PsiImportHolder {
-  /**
-   * Returns a list of the files included within this
-   */
-  @Nullable PsiIncludeList getIncludeList();
-}
+public interface PsiApFile extends PsiFile {}

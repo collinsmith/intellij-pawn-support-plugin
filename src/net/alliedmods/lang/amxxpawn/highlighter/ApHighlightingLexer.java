@@ -6,11 +6,11 @@ import com.intellij.lexer.LayeredLexer;
 import com.intellij.psi.JavaDocTokenType;
 import com.intellij.psi.tree.IElementType;
 
+import net.alliedmods.lang.amxxpawn.ApParserDefinition;
 import net.alliedmods.lang.amxxpawn.lexer.ApLexer;
 import net.alliedmods.lang.amxxpawn.lexer.ApStringLiteralLexer;
+import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
 import net.alliedmods.lang.amxxpawn.lexer.CtrlProvider;
-import net.alliedmods.lang.amxxpawn.parser.ApParserDefinition;
-import net.alliedmods.lang.amxxpawn.psi.ApTokenType;
 
 public class ApHighlightingLexer extends LayeredLexer {
 
@@ -21,22 +21,22 @@ public class ApHighlightingLexer extends LayeredLexer {
     CtrlProvider ctrlProvider = (CtrlProvider) flexed.getFlex();
 
     registerSelfStoppingLayer(
-        new ApStringLiteralLexer(ctrlProvider, '\"', ApTokenType.STRING_LITERAL),
-        new IElementType[] { ApTokenType.STRING_LITERAL }, IElementType.EMPTY_ARRAY);
+        new ApStringLiteralLexer(ctrlProvider, '\"', ApTokenTypes.STRING_LITERAL),
+        new IElementType[] { ApTokenTypes.STRING_LITERAL }, IElementType.EMPTY_ARRAY);
 
     registerSelfStoppingLayer(
-        new ApStringLiteralLexer(ctrlProvider, '\"', ApTokenType.PACKED_STRING_LITERAL, 2),
-        new IElementType[]{ApTokenType.PACKED_STRING_LITERAL}, IElementType.EMPTY_ARRAY);
+        new ApStringLiteralLexer(ctrlProvider, '\"', ApTokenTypes.PACKED_STRING_LITERAL, 2),
+        new IElementType[]{ApTokenTypes.PACKED_STRING_LITERAL}, IElementType.EMPTY_ARRAY);
 
     registerSelfStoppingLayer(
-        new ApStringLiteralLexer(ctrlProvider, '\'', ApTokenType.CHARACTER_LITERAL),
-        new IElementType[] { ApTokenType.CHARACTER_LITERAL }, IElementType.EMPTY_ARRAY);
+        new ApStringLiteralLexer(ctrlProvider, '\'', ApTokenTypes.CHARACTER_LITERAL),
+        new IElementType[] { ApTokenTypes.CHARACTER_LITERAL }, IElementType.EMPTY_ARRAY);
 
     LayeredLexer docLexer = new LayeredLexer(ApParserDefinition.createDocLexer());
     HtmlHighlightingLexer htmlLexer = new HtmlHighlightingLexer(null);
     htmlLexer.setHasNoEmbeddments(true);
     docLexer.registerLayer(htmlLexer, JavaDocTokenType.DOC_COMMENT_DATA);
-    registerSelfStoppingLayer(docLexer, new IElementType[]{ ApTokenType.DOC_COMMENT }, IElementType.EMPTY_ARRAY);
+    registerSelfStoppingLayer(docLexer, new IElementType[]{ ApTokenTypes.DOC_COMMENT }, IElementType.EMPTY_ARRAY);
   }
 
 }

@@ -6,3 +6,6 @@ local.properties
 gen/
 out/
 Thumbs.db
+/src/net/alliedmods/lang/amxxpawn/oldpsi/
+/src/net/alliedmods/lang/amxxpawn/oldpsi2/
+/src/net/alliedmods/lang/amxxpawn/editor/disabled/

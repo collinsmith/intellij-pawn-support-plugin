@@ -1,0 +1,23 @@
+{
+  parserClass="net.alliedmods.lang.amxxpawn.gen.ApParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Ap"
+  psiImplClassSuffix="Impl"
+  psiPackage="net.alliedmods.lang.amxxpawn.gen.psi"
+  psiImplPackage="net.alliedmods.lang.amxxpawn.gen.psi.impl"
+
+  elementTypeHolderClass="net.alliedmods.lang.amxxpawn.gen.psi.ApElementTypes"
+  elementTypeClass="net.alliedmods.lang.amxxpawn.oldpsi2.IApElementType"
+  tokenTypeClass="net.alliedmods.lang.amxxpawn.lexer.ApTokenType"
+  psiImplUtilClass="net.alliedmods.lang.amxxpawn.parser.ApParserUtils"
+}
+
+root ::= (Preprocessor | Code)*
+
+Preprocessor ::= PREPROCESSOR PreprocessorDirective
+PreprocessorDirective ::= IncludeStatement
+IncludeStatement ::= (INCLUDE | TRYINCLUDE) (INCLUDE_PATH | INCLUDE_RELATIVE)
+
+Code ::=

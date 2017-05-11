@@ -51,7 +51,7 @@ public class ApHighlightingColors {
     = TextAttributesKey.createTextAttributesKey("DOC_COMMENT_TAG_VALUE", DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
 
   public static final TextAttributesKey PREPROCESSOR = createPreprocessorAttrs();
-  //public static final TextAttributesKey PREPROCESSOR
+  //public static final TextAttributesKey HASH
   //  = TextAttributesKey.createTextAttributesKey("AMXX_PREPROCESSOR", DefaultLanguageHighlighterColors.BLOCK_COMMENT);
 
   private static TextAttributesKey createPreprocessorAttrs() {
