@@ -5,6 +5,7 @@ import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -14,7 +15,6 @@ import com.intellij.psi.tree.IElementType;
 
 import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
 import net.alliedmods.lang.amxxpawn.psi.ApElementTypes;
-import net.alliedmods.lang.amxxpawn.psi.ElementTypes;
 import net.alliedmods.lang.amxxpawn.psi.PsiApFile;
 import net.alliedmods.lang.amxxpawn.psi.preprocessor.PsiIncludeStatement;
 
@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ApFoldingBuilder extends FoldingBuilderEx {
+public class ApFoldingBuilder extends FoldingBuilderEx implements DumbAware {
   @NotNull
   @Override
   public FoldingDescriptor[] buildFoldRegions(@NotNull PsiElement element,
@@ -77,9 +77,7 @@ public class ApFoldingBuilder extends FoldingBuilderEx {
         end = current;
         processedComments.add(current);
         continue;
-      }
-
-      if (ElementTypes.AMXX_WHITESPACE_BIT_SET.contains(elementType)) {
+      } else if (elementType == ApTokenTypes.WHITE_SPACE) {
         continue;
       }
 
@@ -87,8 +85,9 @@ public class ApFoldingBuilder extends FoldingBuilderEx {
     }
 
     if (end != null) {
-      foldElements.add(new FoldingDescriptor(comment,
-          new TextRange(comment.getTextRange().getStartOffset(), end.getTextRange().getEndOffset())));
+      int startOffset = comment.getTextRange().getStartOffset();
+      int endOffset = end.getTextRange().getEndOffset();
+      foldElements.add(new FoldingDescriptor(comment, new TextRange(startOffset, endOffset)));
     }
   }
 
@@ -113,9 +112,7 @@ public class ApFoldingBuilder extends FoldingBuilderEx {
         end = current;
         processedIncludes.add(current);
         continue;
-      }
-
-      if (ElementTypes.AMXX_WHITESPACE_BIT_SET.contains(elementType)) {
+      } else if (elementType == ApTokenTypes.WHITE_SPACE) {
         continue;
       }
 
@@ -135,7 +132,6 @@ public class ApFoldingBuilder extends FoldingBuilderEx {
     if (element instanceof PsiComment) {
       int startOffset = element.getTextRange().getStartOffset();
       PsiElement last = element;
-      while (element instanceof P)
     }
   }*/
 
@@ -149,6 +145,7 @@ public class ApFoldingBuilder extends FoldingBuilderEx {
   private static String getPlaceholderText(@Nullable PsiElement element) {
     System.out.println("element=" + element);
     if (element instanceof PsiComment) {
+      // FIXME: This is not ever called for PsiComment :(
       return "//...";
     } else if (element instanceof PsiImportStatement) {
       return "...";
