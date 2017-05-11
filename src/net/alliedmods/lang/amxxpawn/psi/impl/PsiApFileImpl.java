@@ -6,12 +6,17 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.impl.source.PsiFileImpl;
 
+import net.alliedmods.lang.amxxpawn.ApIcons;
 import net.alliedmods.lang.amxxpawn.ApLanguage;
 import net.alliedmods.lang.amxxpawn.ApFileType;
+import net.alliedmods.lang.amxxpawn.ApSupport;
 import net.alliedmods.lang.amxxpawn.psi.ApElementVisitor;
 import net.alliedmods.lang.amxxpawn.psi.PsiApFile;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 public class PsiApFileImpl extends PsiFileBase implements PsiApFile {
 
@@ -39,6 +44,16 @@ public class PsiApFileImpl extends PsiFileBase implements PsiApFile {
     } else {
       super.accept(visitor);
     }
+  }
+
+  @Nullable
+  @Override
+  public Icon getIcon(int flags) {
+    if (ApSupport.getIncludeExtensions().contains(getVirtualFile().getExtension())) {
+      return ApIcons.AmxxInclude16;
+    }
+
+    return super.getIcon(flags);
   }
 
   @Override
