@@ -34,6 +34,7 @@ public class ApSyntaxHighlighter extends SyntaxHighlighterBase {
     fillMap(ourMap1, ElementTypes.AMXX_PREPROCESSOR_BIT_SET, ApHighlightingColors.PREPROCESSOR);
 
     ourMap1.put(ApTokenTypes.INCLUDE_REFERENCE, ApHighlightingColors.STRING);
+    ourMap1.put(ApTokenTypes.DEPRECATION_REASON, ApHighlightingColors.STRING);
 
     for (IElementType type : JavaDocTokenType.ALL_JAVADOC_TOKENS.getTypes()) {
       ourMap1.put(type, ApHighlightingColors.DOC_COMMENT);

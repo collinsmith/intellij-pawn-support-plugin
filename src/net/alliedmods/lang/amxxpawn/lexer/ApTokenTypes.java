@@ -136,4 +136,5 @@ public interface ApTokenTypes extends TokenType {
 
   IElementType INCLUDE_REFERENCE = new PreprocessorTokenType("INCLUDE_REFERENCE");
   IElementType PRAGMA_IDENTIFIER = new PreprocessorTokenType("PRAGMA_IDENTIFIER");
+  IElementType DEPRECATION_REASON = new PreprocessorTokenType("DEPRECATION_REASON");
 }

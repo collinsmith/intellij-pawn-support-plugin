@@ -71,6 +71,8 @@ RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
 %state PRAGMA
 %state PRAGMA_CTRLCHAR
 %state PRAGMA_SEMICOLON
+%xstate PRAGMA_DEPRECATED_PRE
+%xstate PRAGMA_DEPRECATED
 %state INCLUDE
 
 %xstate STRING
@@ -116,7 +118,8 @@ RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
 <PRAGMA> {
   "ctrlchar"   { yybegin(PRAGMA_CTRLCHAR); return ApTokenTypes.PRAGMA_IDENTIFIER; }
   "semicolon"  { yybegin(PRAGMA_SEMICOLON); return ApTokenTypes.PRAGMA_IDENTIFIER; }
-  {IDENTIFIER} { return ApTokenTypes.PRAGMA_IDENTIFIER; }
+  "deprecated" { yybegin(PRAGMA_DEPRECATED_PRE); return ApTokenTypes.PRAGMA_IDENTIFIER; }
+  {IDENTIFIER} { yybegin(YYINITIAL); return ApTokenTypes.PRAGMA_IDENTIFIER; }
 }
 
 <PRAGMA_CTRLCHAR> {
@@ -145,6 +148,16 @@ RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
   [^]                   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
+<PRAGMA_DEPRECATED_PRE> {
+  {WS}+ { yybegin(PRAGMA_DEPRECATED); return ApTokenTypes.WHITE_SPACE; }
+}
+
+<PRAGMA_DEPRECATED> {
+  {CONT} {}
+  {NL}   { yybegin(PREPROCESSOR); yypushback(1); return ApTokenTypes.DEPRECATION_REASON; }
+  [^]    {}
+}
+
 <INCLUDE> {
   {PATH_REFERENCE}     |
   {RELATIVE_REFERENCE} { yybegin(PREPROCESSOR); return ApTokenTypes.INCLUDE_REFERENCE; }
@@ -160,13 +173,13 @@ RELATIVE_REFERENCE = "\"" [^\r\n]* "\""?
   [^]   { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
-<PREPROCESSOR,DEFINE,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON> {
+<PREPROCESSOR,DEFINE,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON,PRAGMA_DEPRECATED> {
   {NL} { yybegin(YYINITIAL); yypushback(yylength()); return ApTokenTypes.SEMICOLON_SYNTHETIC; }
 }
 
 {NL} { return ApTokenTypes.WHITE_SPACE; }
 
-<PREPROCESSOR,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON> {
+<PREPROCESSOR,PRAGMA,PRAGMA_CTRLCHAR,PRAGMA_SEMICOLON,PRAGMA_DEPRECATED_PRE,PRAGMA_DEPRECATED> {
   [^] { yybegin(YYINITIAL); yypushback(yylength()); }
 }
 
