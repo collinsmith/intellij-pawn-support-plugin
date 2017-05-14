@@ -21,6 +21,11 @@ import net.alliedmods.lang.amxxpawn.lexer.ApTokenTypes;
       this((java.io.Reader) null);
     }
 
+    public void goTo(int offset) {
+      zzCurrentPos = zzMarkedPos = zzStartRead = offset;
+      zzAtEOF = false;
+    }
+
     public int getCtrlChar() {
       return sc_ctrlchar;
     }
