@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public class ApLexer extends LexerBase {
+public class ApLexer extends LexerBase implements CtrlProvider {
   private static final int INITIAL_STATE = 0;
 
   @NotNull private final _ApLexer flexLexer;
@@ -24,6 +24,11 @@ public class ApLexer extends LexerBase {
 
   public ApLexer() {
     this.flexLexer = new _ApLexer();
+  }
+
+  @Override
+  public int getCtrlChar() {
+    return flexLexer.sc_ctrlchar;
   }
 
   @Override
@@ -42,6 +47,17 @@ public class ApLexer extends LexerBase {
   @Override
   public int getState() {
     return INITIAL_STATE;
+  }
+
+  @NotNull
+  @Override
+  public CharSequence getBufferSequence() {
+    return buffer;
+  }
+
+  @Override
+  public final int getBufferEnd() {
+    return bufferEndOffset;
   }
 
   @Override
@@ -78,7 +94,7 @@ public class ApLexer extends LexerBase {
   }
 
   private char charAt(int offset) {
-    return bufferChars != null ? bufferChars[offset] : buffer.charAt(bufferIndex);
+    return bufferChars != null ? bufferChars[offset] : buffer.charAt(offset);
   }
 
   private void _locateToken() {
@@ -111,12 +127,12 @@ public class ApLexer extends LexerBase {
         switch (ch) {
           case '/':
             tokenType = ApTokenTypes.END_OF_LINE_COMMENT;
-            tokenEndOffset = getLineTerminator(bufferIndex + 2, false);
+            tokenEndOffset = getLineTerminator(bufferIndex + 2);
             break;
 
           case '*':
             if (bufferEndOffset <= bufferIndex + 2 || charAt(bufferIndex + 2) != '*'
-             || bufferEndOffset >  bufferIndex + 3 || charAt(bufferIndex + 3) == '/') {
+            || (bufferEndOffset >  bufferIndex + 3 && charAt(bufferIndex + 3) == '/')) {
               tokenType = ApTokenTypes.C_STYLE_COMMENT;
               tokenEndOffset = getClosingComment(bufferIndex + 2);
             } else {
@@ -146,7 +162,7 @@ public class ApLexer extends LexerBase {
           }
 
           tokenEndOffset = getClosingQuote(
-              tokenType == ApTokenTypes.PACKED_RAW_STRING_LITERAL ? bufferIndex + 2 : bufferIndex + 1,
+              tokenType == ApTokenTypes.PACKED_RAW_STRING_LITERAL ? bufferIndex + 3 : bufferIndex + 2,
               '"');
           break;
         }
@@ -171,8 +187,7 @@ public class ApLexer extends LexerBase {
   }
 
   private boolean isWhitespace(char ch) {
-    //return ch == ' ' || ch == '\t' || ch == '\f' || ch == '\r' || ch == '\n';
-    return ch <= ' ';
+    return ch == ' ' || ch == '\t' || ch == '\f' || ch == '\r' || ch == '\n';
   }
 
   private int getWhitespaces(int offset) {
@@ -190,7 +205,7 @@ public class ApLexer extends LexerBase {
   }
 
   private int getClosingComment(int offset) {
-    while (offset < bufferEndOffset - 1 && charAt(offset) != '*' && charAt(offset + 1) != '/') offset++;
+    while (offset < bufferEndOffset - 1 && !(charAt(offset) == '*' && charAt(offset + 1) == '/')) offset++;
     return offset + 2;
   }
 
@@ -223,6 +238,10 @@ public class ApLexer extends LexerBase {
     return null;
   }
 
+  private boolean isHorizontalWhitespace(char ch) {
+    return ch == ' ' || ch == '\t';
+  }
+
   private int getClosingQuote(int offset, char quote) {
     if (offset >= bufferEndOffset) {
       return bufferEndOffset;
@@ -231,9 +250,9 @@ public class ApLexer extends LexerBase {
     char ch = charAt(offset);
     final int sc_ctrlchar = flexLexer.sc_ctrlchar;
     for (;;) {
-      while (ch != quote && ch != '\r' && ch != '\n' && ch != '\\' && ch != sc_ctrlchar) {
+      while (ch != quote && ch != sc_ctrlchar && ch != '\r' && ch != '\n' && ch != '\\') {
         offset++;
-        if (offset >= bufferEndOffset) {
+        if (offset > bufferEndOffset) {
           return bufferEndOffset;
         }
 
@@ -247,18 +266,23 @@ public class ApLexer extends LexerBase {
           return bufferEndOffset;
         }
 
-        ch = charAt(pos);
-        if (isWhitespace(ch)) {
-          pos = getWhitespaces(pos);
-          ch = charAt(pos);
-        }
+        while (pos < bufferEndOffset && isHorizontalWhitespace(charAt(pos))) pos++;
 
-        if (ch == '\r' || ch == '\n') {
-          offset = getWhitespaces(pos);
+        char next = charAt(pos);
+        if (next == '\r' || next == '\n') {
+          pos++;
+          if (pos >= bufferEndOffset) {
+            return bufferEndOffset;
+          }
+
+          while (pos < bufferEndOffset && isHorizontalWhitespace(charAt(pos))) pos++;
+          offset = pos;
+          ch = charAt(offset);
           continue;
         }
       }
 
+      // ctrl char might also be '\'
       if (ch == sc_ctrlchar) {
         offset++;
         if (offset >= bufferEndOffset) {
@@ -266,10 +290,21 @@ public class ApLexer extends LexerBase {
         }
 
         ch = charAt(offset);
+        if (ch == '\r' || ch == '\n') {
+          return offset + 1;
+        }
 
+        offset++;
+        if (offset >= bufferEndOffset) {
+          return bufferEndOffset;
+        }
+
+        ch = charAt(offset);
+      } else if (ch == quote) {
+        return offset + 1;
+      } else {
+        return offset;
       }
     }
-
-    return offset;
   }
 }
